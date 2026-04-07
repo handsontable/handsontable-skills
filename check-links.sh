@@ -35,9 +35,10 @@ URLS_FILE=$(mktemp)
 RESULTS_FILE=$(mktemp)
 trap 'rm -f "$URLS_FILE" "$RESULTS_FILE"' EXIT
 
-grep -rhoP 'https://[^\s)>\]"]+' \
+# Extract URLs — use grep -oE for macOS/BSD compatibility (no -P flag)
+grep -rhoE 'https://[^[:space:])"<>]+' \
     handsontable-skill/ hyperformula-skill/ \
-    | sed 's/[.,;:]*$//' \
+    | sed 's/[.,;:)]*$//' \
     | sort -u > "$URLS_FILE"
 
 TOTAL=$(wc -l < "$URLS_FILE" | tr -d ' ')
@@ -123,8 +124,14 @@ if [[ ${#REDIRECTED[@]} -gt 0 ]]; then
         for r in "${REDIRECTED[@]}"; do
             OLD_URL="${r%% →*}"
             NEW_URL="${r##*→ }"
-            find handsontable-skill/ hyperformula-skill/ -name '*.md' \
-                -exec sed -i "s|${OLD_URL}|${NEW_URL}|g" {} +
+            # sed -i differs between GNU and BSD — detect and handle both
+            if sed --version 2>/dev/null | grep -q GNU; then
+                find handsontable-skill/ hyperformula-skill/ -name '*.md' \
+                    -exec sed -i "s|${OLD_URL}|${NEW_URL}|g" {} +
+            else
+                find handsontable-skill/ hyperformula-skill/ -name '*.md' \
+                    -exec sed -i '' "s|${OLD_URL}|${NEW_URL}|g" {} +
+            fi
             echo "  Fixed: $OLD_URL"
         done
     fi
