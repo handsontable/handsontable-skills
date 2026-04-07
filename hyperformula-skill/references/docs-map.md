@@ -82,7 +82,6 @@ the right page. All links go to hyperformula.handsontable.com unless noted.
 
 ## CDN Links (jsDelivr) — latest
 - Full bundle: https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js
-- ES module: https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.min.mjs
 
 Pin versions by adding `@3.2.0` after the package name.
 

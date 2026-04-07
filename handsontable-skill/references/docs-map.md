@@ -204,8 +204,6 @@ to point users to the right page. Links default to the React docs; replace `reac
 - JS (full bundle): https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js
 - Base CSS: https://cdn.jsdelivr.net/npm/handsontable/styles/handsontable.min.css
 - Theme Main: https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main.min.css
-- Theme Main Dark: https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main-dark.min.css
-- Theme Main Dark Auto: https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main-dark-auto.min.css
 - Theme Horizon: https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-horizon.min.css
 - Theme Classic: https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-classic.min.css
 - React wrapper: https://cdn.jsdelivr.net/npm/@handsontable/react-wrapper/dist/react-handsontable.min.js

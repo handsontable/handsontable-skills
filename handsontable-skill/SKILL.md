@@ -204,13 +204,12 @@ Then pass it as a prop:
 ### CDN theme files
 
 ```html
-<!-- Light -->
+<!-- Theme CSS (includes light and dark mode support) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main.min.css" />
-<!-- Forced dark -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main-dark.min.css" />
-<!-- Auto (system preference) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main-dark-auto.min.css" />
 ```
+
+In v17, dark mode is controlled via `themeName` or the Theme API — there are no separate `-dark` or
+`-dark-auto` CSS files. Load the base theme CSS above and set the mode at runtime.
 
 For CSS variable customization, the Theme Builder, Figma design system, and 200+ design tokens, see:
 - [Themes guide](https://handsontable.com/docs/react-data-grid/themes/)
