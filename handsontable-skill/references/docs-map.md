@@ -219,7 +219,6 @@ Pin versions by adding `@17.0` after the package name (e.g., `handsontable@17.0`
 
 ## Community & Support
 - Developer Forum: https://forum.handsontable.com/
-- GitHub Discussions: https://github.com/handsontable/handsontable/discussions
 - GitHub Issues: https://github.com/handsontable/handsontable/issues
 - Stack Overflow: https://stackoverflow.com/tags/handsontable
 - Commercial support: support@handsontable.com

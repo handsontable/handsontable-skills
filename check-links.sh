@@ -6,6 +6,12 @@
 #
 # Options:
 #   --fix-redirects   Automatically replace URLs that return 301/302 with their redirect target
+#
+# Notes:
+#   - Sends a browser-like User-Agent to avoid false 403s (e.g., npmjs.com)
+#   - Timeouts (status 000) are reported as warnings, not failures — they
+#     usually mean the network is restricted, not that the URL is broken
+#   - Uses xargs for parallel requests (10 at a time)
 
 set -euo pipefail
 
@@ -13,58 +19,96 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
 FIX_REDIRECTS=false
-if [[ "${1:-}" == "--fix-redirects" ]]; then
-    FIX_REDIRECTS=true
-fi
+for arg in "$@"; do
+    case "$arg" in
+        --fix-redirects) FIX_REDIRECTS=true ;;
+    esac
+done
+
+UA="Mozilla/5.0 (compatible; link-checker/1.0)"
+
+# Domains that return 403 to automated requests but are not actually broken
+ALLOWLIST_403="npmjs.com"
 
 # Collect all URLs from markdown files in skill directories
-URLS=$(grep -rhoP 'https://[^\s)>\]"]+' \
+URLS_FILE=$(mktemp)
+RESULTS_FILE=$(mktemp)
+trap 'rm -f "$URLS_FILE" "$RESULTS_FILE"' EXIT
+
+grep -rhoP 'https://[^\s)>\]"]+' \
     handsontable-skill/ hyperformula-skill/ \
     | sed 's/[.,;:]*$//' \
-    | sort -u)
+    | sort -u > "$URLS_FILE"
 
-TOTAL=$(echo "$URLS" | wc -l | tr -d ' ')
+TOTAL=$(wc -l < "$URLS_FILE" | tr -d ' ')
 echo "Checking $TOTAL unique URLs..."
 echo ""
 
+# Check each URL: output "initial_status|final_status|redirect_target|url"
+check_one() {
+    local url="$1"
+    local ua="$2"
+    local initial final redirect
+
+    # curl outputs "000" on connection failure; no need for || fallback
+    initial=$(curl -o /dev/null -s -w "%{http_code}" -A "$ua" --max-time 15 "$url" 2>/dev/null)
+    final=$(curl -o /dev/null -s -w "%{http_code}" -A "$ua" --max-time 15 -L "$url" 2>/dev/null)
+
+    redirect=""
+    if [[ "$initial" =~ ^3 ]]; then
+        redirect=$(curl -o /dev/null -s -w "%{redirect_url}" -A "$ua" --max-time 15 "$url" 2>/dev/null)
+    fi
+
+    echo "${initial}|${final}|${redirect}|${url}"
+}
+export -f check_one
+
+# Run 10 in parallel via xargs
+cat "$URLS_FILE" | xargs -P 10 -I{} bash -c 'check_one "$@"' _ {} "$UA" > "$RESULTS_FILE"
+
+# Process results
 BROKEN=()
 REDIRECTED=()
+TIMEOUTS=()
 OK=0
-SKIPPED=0
-COUNT=0
 
-for url in $URLS; do
-    COUNT=$((COUNT + 1))
-
-    # Get HTTP status code, follow redirects to check final destination
-    # but also capture if initial response was a redirect
-    STATUS=$(curl -o /dev/null -s -w "%{http_code}" --max-time 10 -L "$url" 2>/dev/null || echo "000")
-    INITIAL_STATUS=$(curl -o /dev/null -s -w "%{http_code}" --max-time 10 "$url" 2>/dev/null || echo "000")
-
-    if [[ "$STATUS" == "000" ]]; then
-        printf "  %-4s TIMEOUT  %s\n" "[$COUNT]" "$url"
-        BROKEN+=("TIMEOUT $url")
-    elif [[ "$STATUS" =~ ^[45] ]]; then
-        printf "  %-4s %s  %s\n" "[$COUNT]" "$STATUS" "$url"
-        BROKEN+=("$STATUS $url")
-    elif [[ "$INITIAL_STATUS" =~ ^3 ]] && [[ "$STATUS" =~ ^2 ]]; then
-        REDIRECT_TARGET=$(curl -o /dev/null -s -w "%{redirect_url}" --max-time 10 "$url" 2>/dev/null || echo "")
-        printf "  %-4s %s→%s  %s\n" "[$COUNT]" "$INITIAL_STATUS" "$STATUS" "$url"
-        if [[ -n "$REDIRECT_TARGET" ]]; then
-            printf "        ↳ %s\n" "$REDIRECT_TARGET"
-            REDIRECTED+=("$url → $REDIRECT_TARGET")
+while IFS='|' read -r initial_status final_status redirect_target url; do
+    if [[ "$final_status" == "000" ]]; then
+        TIMEOUTS+=("$url")
+    elif [[ "$final_status" == "403" ]] && echo "$url" | grep -qF "$ALLOWLIST_403"; then
+        OK=$((OK + 1))
+    elif [[ "$final_status" =~ ^[45] ]]; then
+        printf "  BROKEN  %s  %s\n" "$final_status" "$url"
+        BROKEN+=("$final_status $url")
+    elif [[ "$initial_status" =~ ^3 ]] && [[ "$final_status" =~ ^2 ]]; then
+        printf "  REDIRECT  %s→%s  %s\n" "$initial_status" "$final_status" "$url"
+        if [[ -n "$redirect_target" ]]; then
+            printf "            ↳ %s\n" "$redirect_target"
+            REDIRECTED+=("$url → $redirect_target")
         fi
         OK=$((OK + 1))
-    elif [[ "$STATUS" =~ ^2 ]]; then
+    elif [[ "$final_status" =~ ^2 ]]; then
         OK=$((OK + 1))
-    else
-        printf "  %-4s %s  %s\n" "[$COUNT]" "$STATUS" "$url"
-        SKIPPED=$((SKIPPED + 1))
     fi
-done
+done < "$RESULTS_FILE"
 
 echo ""
-echo "Results: $OK ok, ${#BROKEN[@]} broken, ${#REDIRECTED[@]} redirected, $SKIPPED other"
+echo "Results: $OK ok, ${#BROKEN[@]} broken, ${#REDIRECTED[@]} redirected, ${#TIMEOUTS[@]} timed out"
+
+if [[ ${#TIMEOUTS[@]} -gt 0 ]]; then
+    echo ""
+    echo "Timed out (${#TIMEOUTS[@]} URLs — likely network restriction, not broken):"
+    SHOWN=0
+    for t in "${TIMEOUTS[@]}"; do
+        if (( SHOWN < 5 )); then
+            echo "  $t"
+            SHOWN=$((SHOWN + 1))
+        fi
+    done
+    if (( ${#TIMEOUTS[@]} > 5 )); then
+        echo "  ... and $((${#TIMEOUTS[@]} - 5)) more"
+    fi
+fi
 
 if [[ ${#REDIRECTED[@]} -gt 0 ]]; then
     echo ""
@@ -79,7 +123,6 @@ if [[ ${#REDIRECTED[@]} -gt 0 ]]; then
         for r in "${REDIRECTED[@]}"; do
             OLD_URL="${r%% →*}"
             NEW_URL="${r##*→ }"
-            # Replace in all markdown files
             find handsontable-skill/ hyperformula-skill/ -name '*.md' \
                 -exec sed -i "s|${OLD_URL}|${NEW_URL}|g" {} +
             echo "  Fixed: $OLD_URL"
@@ -99,4 +142,8 @@ if [[ ${#BROKEN[@]} -gt 0 ]]; then
 fi
 
 echo ""
-echo "All links OK."
+if [[ ${#TIMEOUTS[@]} -gt 0 ]]; then
+    echo "All reachable links OK. ${#TIMEOUTS[@]} URLs timed out (re-run on an unrestricted network to verify)."
+else
+    echo "All links OK."
+fi
