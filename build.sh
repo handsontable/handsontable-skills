@@ -26,11 +26,15 @@ build_skill() {
 
     # Create tar with the skill name as the top-level directory
     # e.g., handsontable-skill/ → handsontable/ inside the archive
-    tar czf "$output" \
-        --transform "s|^${dir}|${name}|" \
-        --exclude='.DS_Store' \
-        --exclude='*.swp' \
-        "$dir"
+    # BSD tar (macOS) doesn't support --transform, so we copy to a temp dir
+    local tmpdir
+    tmpdir="$(mktemp -d)"
+    trap "rm -rf '$tmpdir'" RETURN
+
+    # Copy contents, excluding unwanted files
+    rsync -a --exclude='.DS_Store' --exclude='*.swp' "$dir/" "$tmpdir/$name/"
+
+    tar czf "$output" -C "$tmpdir" "$name"
 
     echo "Built $output ($(du -h "$output" | cut -f1))"
 }
