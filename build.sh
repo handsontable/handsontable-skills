@@ -35,6 +35,21 @@ build_skill() {
     echo "Built $output ($(du -h "$output" | cut -f1))"
 }
 
+SKIP_LINKS=false
+for arg in "$@"; do
+    case "$arg" in
+        --skip-links) SKIP_LINKS=true ;;
+    esac
+done
+
+# Check links first (unless skipped)
+if [ "$SKIP_LINKS" = false ] && [ -f "$SCRIPT_DIR/check-links.sh" ]; then
+    echo "Checking links..."
+    echo ""
+    "$SCRIPT_DIR/check-links.sh"
+    echo ""
+fi
+
 echo "Building .skill packages..."
 echo ""
 

@@ -56,7 +56,8 @@ cp -r handsontable-skills/hyperformula-skill .claude/skills/hyperformula
 │       └── docs-map.md
 ├── handsontable.skill          ← installable package (built from raw)
 ├── hyperformula.skill          ← installable package (built from raw)
-└── build.sh                    ← regenerates .skill files from raw dirs
+├── build.sh                    ← checks links + regenerates .skill files
+└── check-links.sh              ← verifies all docs-map URLs return 200
 ```
 
 ## Building `.skill` packages
@@ -67,7 +68,20 @@ After editing the raw skill directories, regenerate the installable packages:
 ./build.sh
 ```
 
-This creates `handsontable.skill` and `hyperformula.skill` as gzipped tar archives that Cowork and Claude Code can install directly.
+This checks all documentation links for 404s, then creates `handsontable.skill` and `hyperformula.skill` as gzipped tar archives that Cowork and Claude Code can install directly.
+
+To skip the link check (e.g., offline or in CI where speed matters):
+
+```bash
+./build.sh --skip-links
+```
+
+To check links independently, or auto-fix redirects:
+
+```bash
+./check-links.sh
+./check-links.sh --fix-redirects
+```
 
 ## Resources
 
