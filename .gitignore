@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Claude / Cowork working files
+.auto-memory/
