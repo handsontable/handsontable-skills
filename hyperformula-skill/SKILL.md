@@ -3,15 +3,13 @@ name: hyperformula
 description: >
   Use this skill whenever the user asks about HyperFormula — a headless, open-source spreadsheet
   calculation engine written in TypeScript. Triggers include: mentions of "hyperformula",
-  "HyperFormula", "headless spreadsheet", "spreadsheet engine", "formula engine", "spreadsheet
-  calculation engine", server-side formula evaluation, evaluating Excel/Google Sheets formulas in
-  code, "buildFromArray", "buildFromSheets", "buildEmpty", custom spreadsheet functions
-  (FunctionPlugin), named expressions in a non-UI context, cell references in a calculation engine,
-  or embedding spreadsheet logic in a backend or browser app without a grid UI. Also trigger when
-  the user wants to parse or evaluate formulas programmatically, build a calculator, add
-  spreadsheet-like computation to any JS/TS application, validate whether a formula is syntactically
-  correct, do what-if analysis with spreadsheet data on the server side, or implement a pricing
-  engine or financial model in code. Do NOT use this skill when the user is working with
+  "HyperFormula", "headless spreadsheet", "formula engine", "spreadsheet calculation engine",
+  server-side formula evaluation, evaluating Excel/Google Sheets formulas in code, "buildFromArray",
+  "buildFromSheets", "buildEmpty", custom spreadsheet functions (FunctionPlugin), named expressions
+  in a non-UI context, or embedding spreadsheet logic in a backend or browser app without a grid UI.
+  Also trigger when the user wants to evaluate formulas programmatically, add spreadsheet-like
+  computation to any JS/TS application, do what-if analysis on the server side, or implement a
+  pricing engine or financial model in code. Do NOT use this skill when the user is working with
   HyperFormula inside Handsontable's Formulas plugin — that is covered by the handsontable skill.
 ---
 
