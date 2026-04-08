@@ -28,10 +28,10 @@ cp -r node_modules/@handsontable/claude-skills/hyperformula-skill .claude/skills
 
 ### From GitHub releases
 
-Download the `.skill` file from the [latest release](https://github.com/handsontable/handsontable-skills/releases/latest) and install it:
+Download from the [latest release](https://github.com/handsontable/handsontable-skills/releases/latest):
 
-- **Cowork:** Drag the `.skill` file into the chat, or use the "Save skill" button if presented.
-- **Claude Code:** Place the skill folder in your project's `.claude/skills/` directory.
+- **Cowork:** Download the `.zip` file and drag it into the chat, or use the "Save skill" button if presented.
+- **Claude Code:** Download the `.skill` file (gzipped tar) and place the extracted skill folder in your project's `.claude/skills/` directory.
 
 ### From source
 
@@ -54,9 +54,11 @@ cp -r handsontable-skills/hyperformula-skill .claude/skills/hyperformula
 │   ├── SKILL.md
 │   └── references/
 │       └── docs-map.md
-├── handsontable.skill          ← installable package (built from raw)
-├── hyperformula.skill          ← installable package (built from raw)
-├── build.sh                    ← checks links + regenerates .skill files
+├── handsontable.skill          ← installable package for Claude Code (tar.gz)
+├── hyperformula.skill          ← installable package for Claude Code (tar.gz)
+├── handsontable.zip            ← installable package for Cowork (zip)
+├── hyperformula.zip            ← installable package for Cowork (zip)
+├── build.sh                    ← checks links + regenerates .skill and .zip files
 └── check-links.sh              ← verifies all docs-map URLs return 200
 ```
 

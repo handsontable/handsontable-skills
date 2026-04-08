@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Builds .skill packages from raw skill directories.
-# Each .skill file is a gzipped tar archive with the skill folder at the root.
+# Produces two formats per skill:
+#   .skill  — gzipped tar archive (Claude Code)
+#   .zip    — zip archive (Cowork / drag-and-drop install)
 #
 # Usage: ./build.sh
 
@@ -12,7 +14,8 @@ cd "$SCRIPT_DIR"
 build_skill() {
     local dir="$1"
     local name="${dir%-skill}"          # handsontable-skill → handsontable
-    local output="${name}.skill"
+    local tar_output="${name}.skill"
+    local zip_output="${name}.zip"
 
     if [ ! -d "$dir" ]; then
         echo "ERROR: Directory '$dir' not found" >&2
@@ -24,19 +27,20 @@ build_skill() {
         return 1
     fi
 
-    # Create tar with the skill name as the top-level directory
-    # e.g., handsontable-skill/ → handsontable/ inside the archive
-    # BSD tar (macOS) doesn't support --transform, so we copy to a temp dir
+    # Stage clean copy: handsontable-skill/ → tmp/handsontable/
     local tmpdir
     tmpdir="$(mktemp -d)"
     trap "rm -rf '$tmpdir'" RETURN
 
-    # Copy contents, excluding unwanted files
     rsync -a --exclude='.DS_Store' --exclude='*.swp' "$dir/" "$tmpdir/$name/"
 
-    tar czf "$output" -C "$tmpdir" "$name"
+    # tar.gz for Claude Code
+    tar czf "$tar_output" -C "$tmpdir" "$name"
 
-    echo "Built $output ($(du -h "$output" | cut -f1))"
+    # zip for Cowork
+    (cd "$tmpdir" && zip -rq "$SCRIPT_DIR/$zip_output" "$name")
+
+    echo "Built $tar_output ($(du -h "$tar_output" | cut -f1)) + $zip_output ($(du -h "$zip_output" | cut -f1))"
 }
 
 SKIP_LINKS=false
@@ -61,4 +65,4 @@ build_skill "handsontable-skill"
 build_skill "hyperformula-skill"
 
 echo ""
-echo "Done. Verify contents with: tar tzf <file>.skill"
+echo "Done. Verify with: tar tzf <file>.skill  /  unzip -l <file>.zip"
