@@ -110,7 +110,13 @@ hf.setCellContents({ sheet: sheetId, col: 0, row: 0 }, [['10', '20', '=SUM(A1:B1
 
 ### Cell addresses
 
-All addresses use zero-indexed `{ sheet: number, col: number, row: number }`.
+All addresses use zero-indexed `{ sheet: number, col: number, row: number }`. Convert to/from A1
+notation:
+
+```ts
+hf.simpleCellAddressFromString('B3', 0);  // → { sheet: 0, col: 1, row: 2 }
+hf.simpleCellAddressToString({ sheet: 0, col: 1, row: 2 }, 0);  // → 'B3'
+```
 
 - Basic usage guide: https://hyperformula.handsontable.com/guide/basic-usage.html
 - Advanced usage guide: https://hyperformula.handsontable.com/guide/advanced-usage.html
@@ -127,6 +133,7 @@ hf.setCellContents({ sheet: 0, col: 1, row: 0 }, '=A1 & " World"');
 // Read values
 hf.getCellValue({ sheet: 0, col: 1, row: 0 });   // computed result
 hf.getCellFormula({ sheet: 0, col: 1, row: 0 });  // '=A1 & " World"'
+hf.getCellType({ sheet: 0, col: 0, row: 0 });     // CellType.FORMULA | VALUE | EMPTY
 
 // Rows and columns — second arg is [startIndex, count]
 hf.addRows(sheetId, [rowIndex, numberOfRows]);
@@ -138,20 +145,41 @@ hf.removeColumns(sheetId, [colIndex, numberOfColumns]);
 hf.addSheet('NewSheet');
 hf.removeSheet(sheetId);
 hf.renameSheet(sheetId, 'BetterName');
+hf.countSheets();
+hf.getSheetName(sheetId);
+hf.getSheetId('SheetName');
+hf.getSheetDimensions(sheetId);   // → { width: cols, height: rows }
+
+// Exporting data
+hf.getSheetValues(sheetId);       // computed values as 2D array
+hf.getSheetSerialized(sheetId);   // formulas/raw values as 2D array
+hf.getAllSheetsValues();           // { SheetName: values[][] }
+hf.getAllSheetsSerialized();       // { SheetName: formulas[][] }
 ```
 
 ### Batch operations (performance)
 
-Wrap multiple mutations in a batch to defer recalculation until the end:
+**Every `setCellContents` call triggers a full dependency-graph recalculation.** If you're writing
+more than one cell, always batch:
 
 ```ts
+// Option 1: batch() — preferred, returns ExportedChange[]
 const changes = hf.batch(() => {
   hf.setCellContents({ sheet: 0, col: 0, row: 0 }, '100');
   hf.setCellContents({ sheet: 0, col: 0, row: 1 }, '200');
   hf.addRows(0, [2, 1]);
 });
 // `changes` contains all cells that were recalculated
+
+// Option 2: suspendEvaluation / resumeEvaluation — for bulk imports
+hf.suspendEvaluation();
+// ... hundreds of operations ...
+hf.resumeEvaluation();  // single recalc
 ```
+
+**Pitfall:** Row/column structural operations (`addRows`, `moveRows`, etc.) during
+`suspendEvaluation()` have degraded performance. Prefer `batch()` when mixing structural and value
+operations.
 
 - Basic operations: https://hyperformula.handsontable.com/guide/basic-operations.html
 - Batch operations: https://hyperformula.handsontable.com/guide/batch-operations.html
@@ -172,7 +200,11 @@ hf.addNamedExpression('TOTAL_REVENUE', '=SUM(Revenue!A:A)');
 hf.setCellContents({ sheet: 0, col: 0, row: 0 }, '=1000 * TAX_RATE');
 ```
 
-Named expressions can be global or scoped to a specific sheet.
+Named expressions can be global or scoped to a specific sheet. Local names shadow global ones.
+
+```ts
+hf.listNamedExpressions();  // all registered names
+```
 
 Guide: https://hyperformula.handsontable.com/guide/named-expressions.html
 
@@ -209,6 +241,9 @@ console.log(hf.getCellValue({ sheet: 0, col: 1, row: 0 })); // "Hello, World!"
 
 Key steps: extend FunctionPlugin → define `implementedFunctions` with method + parameters →
 add translations → register with `HyperFormula.registerFunctionPlugin()` → create instance.
+
+Mark custom functions as volatile with `isVolatile: true` if they should recalculate on every
+change (like `RAND` or `NOW`).
 
 The full guide covers argument validation, range arguments, returning arrays, error handling,
 function aliases, and localized function names:
@@ -253,6 +288,25 @@ const hf = HyperFormula.buildEmpty({
 
 Full options reference: https://hyperformula.handsontable.com/api/interfaces/configparams.html
 
+### Excel vs Google Sheets configuration
+
+```ts
+// Maximum Excel compatibility
+const excelCompat = {
+  licenseKey: 'gpl-v3',
+  useArrayArithmetic: true,
+  useWildcards: true,
+  evaluateNullToZero: true,
+  leapYear1900: true,        // Excel's intentional 1900 leap year bug
+  ignoreWhiteSpace: 'any',
+  caseSensitive: false,
+  accentSensitive: true,
+};
+
+// Google Sheets compatibility — use defaults (leapYear1900: false, useArrayArithmetic: false)
+const hf = HyperFormula.buildEmpty({ licenseKey: 'gpl-v3' });
+```
+
 ---
 
 ## Compatibility & Limitations
@@ -288,12 +342,17 @@ import { CellError, ErrorType } from 'hyperformula';
 const value = hf.getCellValue({ sheet: 0, col: 0, row: 0 });
 
 if (value instanceof CellError) {
-  console.log('Error type:', value.type);   // e.g., ErrorType.DIV_BY_ZERO
+  // value.type is ErrorType enum: DIV_BY_ZERO, VALUE, REF, NAME, NUM, NA, CYCLE, ERROR
+  console.log('Error type:', value.type);
   console.log('Error message:', value.message);
 } else {
   console.log('Value:', value);
 }
 ```
+
+`#CYCLE!` (circular reference) is HyperFormula-specific — standard spreadsheet apps handle cycles
+differently. If you see `#NAME?`, the function isn't registered (check custom plugin registration or
+i18n language setting).
 
 You can also check what type a cell holds with `getCellValueDetailedType()`, which returns
 `CellValueDetailedType` (NUMBER, STRING, BOOLEAN, ERROR, EMPTY).
@@ -321,6 +380,16 @@ After `destroy()`, the instance is unusable — create a new one if needed.
 
 - **Forgetting `licenseKey`**: Every factory method requires it. Use `'gpl-v3'` for open source or your commercial key.
 - **Not calling `destroy()`**: In servers or SPAs, leaking instances accumulates memory. Always clean up when done.
+- **Vue 3 — must use `markRaw`**: Vue 3's Composition API wraps objects in a reactive Proxy that intercepts property access and **corrupts HyperFormula's internal state**, causing silent data corruption or crashes. Always use `markRaw()`:
+  ```ts
+  import { markRaw } from 'vue';
+  const hf = markRaw(HyperFormula.buildEmpty({ licenseKey: 'gpl-v3' }));
+  ```
+  React, Angular, and Svelte need no special handling.
+- **`functionArgSeparator` vs `thousandSeparator`**: These two config options **cannot be the same character**. European locales using `,` as thousand separator must set `functionArgSeparator: ';'`.
+- **Volatile functions are expensive**: `RAND`, `RANDBETWEEN`, `NOW`, `TODAY`, `ROWS`, `COLUMNS`, `INDEX` recalculate on *every* change. Minimize their use in large sheets.
+- **Sorting uses permutation arrays, not comparators**: `setRowOrder(sheetId, [2, 0, 1, 3])` reorders rows by specifying the new index sequence — not a sort key or comparison function. Compute your sort order externally, then pass the permutation.
+- **Force a string value**: Prefix with `'` (apostrophe) — e.g. `'=SUM(1,2)` stores the literal text `=SUM(1,2)`.
 - **Node.js without full ICU**: String comparisons (used in MATCH, VLOOKUP, sorting) can silently produce wrong results on Node.js < 13 or builds without full ICU. Verify with `process.versions.icu`.
 - **Assuming Excel parity**: ~68% of Excel functions are covered. Check the built-in functions list before assuming a function exists. Runtime differences can also produce different results for the same formula.
 - **Registering custom functions after instance creation**: `registerFunctionPlugin()` must be called before `buildFromArray` / `buildFromSheets` / `buildEmpty`. Functions registered afterward won't be available.
