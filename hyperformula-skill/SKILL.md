@@ -113,9 +113,6 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 - ConfigParams interface (all options): https://hyperformula.handsontable.com/api/interfaces/configparams.html
 - Listeners interface (all events): https://hyperformula.handsontable.com/api/interfaces/listeners.html
 
-### CDN (jsDelivr) — pin a version with `@3.2.0`
-- Full bundle: https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js
-
 ### npm
 - npm page: https://www.npmjs.com/package/hyperformula
 
@@ -127,9 +124,6 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 - Commercial support: support@handsontable.com
 - Sales (commercial license): sales@handsontable.com
 - Contact form: https://handsontable.com/contact
-
-### StackBlitz Demos
-- Mortgage calculator: https://stackblitz.com/github/handsontable/hyperformula-demos/tree/3.1.x/mortgage-calculator
 
 ---
 
