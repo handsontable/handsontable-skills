@@ -1,409 +1,134 @@
 ---
 name: hyperformula
 description: >
-  Use this skill whenever the user asks about HyperFormula — a headless, open-source spreadsheet
-  calculation engine written in TypeScript. Triggers include: mentions of "hyperformula",
-  "HyperFormula", "headless spreadsheet", "formula engine", "spreadsheet calculation engine",
-  server-side formula evaluation, evaluating Excel/Google Sheets formulas in code, "buildFromArray",
-  "buildFromSheets", "buildEmpty", custom spreadsheet functions (FunctionPlugin), named expressions
-  in a non-UI context, or embedding spreadsheet logic in a backend or browser app without a grid UI.
-  Also trigger when the user wants to evaluate formulas programmatically, add spreadsheet-like
-  computation to any JS/TS application, do what-if analysis on the server side, or implement a
-  pricing engine or financial model in code. Do NOT use this skill when the user is working with
-  HyperFormula inside Handsontable's Formulas plugin — that is covered by the handsontable skill.
+  Use this skill when the user works with HyperFormula (HF) — a headless,
+  open-source TypeScript spreadsheet calculation engine. Use it when the user:
+  mentions HyperFormula or HF; wants to integrate Excel-like formulas into a
+  JS/TS app; evaluate formulas programmatically in a browser or Node.js;
+  simulate spreadsheet or Excel calculation behavior server-side; run
+  calculations over data parsed from XLSX files (e.g. via SheetJS) in code;
+  build a pricing engine, financial model, or what-if analysis in code; define
+  custom spreadsheet functions or named expressions outside of a UI context. Do
+  NOT use this skill for: general Excel questions unrelated to HF; general
+  Google Sheets questions; generic spreadsheet formula-syntax questions outside
+  an HF context; formulas used inside Handsontable (use the "handsontable"
+  skill instead).
 ---
 
 # HyperFormula
 
-HyperFormula is a **headless, open-source spreadsheet calculation engine** built in TypeScript. It
-has no UI — it is a pure computation engine for embedding spreadsheet logic in any JavaScript or
-TypeScript application (browser or Node.js).
+HyperFormula is a **headless, open-source TypeScript spreadsheet calculation engine** for embedding spreadsheet logic in any JavaScript/TypeScript application (browser or Node.js). ~400 built-in functions, dependency graph, undo/redo, i18n (17 languages). Dual-licensed: GPLv3 or commercial.
 
-- **Latest version:** 3.2.0 (February 2026)
-- **Language:** TypeScript
-- **~400 built-in functions** (~68% Excel coverage): math, logical, lookup, text, date/time, statistical, financial, information, array
-- **Also provides:** dependency graph traversal (precedents/dependents), undo/redo (configurable depth), data type auto-detection, clipboard operations, sorting, and i18n (17 languages for localized function names)
-- **License:** GPLv3 (open source) or commercial. Use `licenseKey: 'gpl-v3'` for open source.
-- **Works in:** All modern browsers + Node.js 13+ (requires full ICU support)
+- Docs: https://hyperformula.handsontable.com/
+- npm: https://www.npmjs.com/package/hyperformula
+- GitHub: https://github.com/handsontable/hyperformula
 
-Always check `references/docs-map.md` (in this skill folder) for the full organized link directory
-when you need to point the user to specific documentation.
+## Where to go next
 
-### What this skill does NOT cover
+Task-oriented references in `references/` (open the one that matches what the user is doing):
 
-- **HyperFormula inside Handsontable** (the Formulas plugin) — use the "handsontable" skill instead.
-- **UI/grid rendering** — HyperFormula is headless. If the user needs a visible spreadsheet, point them to Handsontable.
-- **Excel file I/O** — HyperFormula doesn't read/write `.xlsx` files. Use a library like SheetJS for parsing, then feed the data to HyperFormula.
+- [`getting-started.md`](references/getting-started.md) — how to install, create an instance (`buildFromArray` / `buildFromSheets` / `buildEmpty`), and work with cell addresses. Open this for onboarding questions and first-run errors.
+- [`api-quickref.md`](references/api-quickref.md) — runnable examples for CRUD, rows/columns, sheets, exporting data, batching, named expressions, events, undo/redo, clipboard. Open this when implementing or debugging HF API calls.
+- [`custom-functions.md`](references/custom-functions.md) — extending HyperFormula via `FunctionPlugin`: minimal plugin, argument types, volatile functions, range arguments, returning arrays, error handling, aliases, localized names. Open this when adding or debugging custom spreadsheet functions.
+- [`configuration.md`](references/configuration.md) — `ConfigParams` options, Excel-compatibility preset, Google-Sheets preset, and config-related pitfalls (separator collisions, Node ICU, `precisionRounding` change in v3). Open this when tuning behavior or diagnosing locale issues.
+- [`vue3.md`](references/vue3.md) — Vue 3 integration: `markRaw` requirement, Composition API, Pinia/Vuex stores, `destroy()` on unmount. Open this when embedding HF in a Vue 3 app.
+- [`error-handling.md`](references/error-handling.md) — inspecting `CellError`, `ErrorType` enum, `getCellValueDetailedType`, common error causes (`#NAME?`, `#CYCLE!`, `#REF!`, …). Open this when a cell returns an error or you need to branch on result type.
+- [`general-pitfalls.md`](references/general-pitfalls.md) — cross-cutting gotchas: `destroy()` lifecycle, forcing literal strings, Excel-parity caveats, hard limits. Open this when results look wrong or memory grows unboundedly.
 
----
+Below this section is the **Documentation map** — the canonical directory of links to the official HyperFormula docs. Use it when pointing the user to authoritative material.
 
-## Installation
+## Documentation map
 
-### npm
+All links resolve to `hyperformula.handsontable.com` unless noted.
 
-```bash
-npm install hyperformula
-```
+### Introduction
+- Welcome / Homepage: https://hyperformula.handsontable.com/
+- Demo (mortgage calculator): https://hyperformula.handsontable.com/guide/demo.html
 
-### CDN (jsDelivr)
+### Overview
+- Quality (test coverage, CI): https://hyperformula.handsontable.com/guide/quality.html
+- Supported browsers: https://hyperformula.handsontable.com/guide/supported-browsers.html
+- Dependencies: https://hyperformula.handsontable.com/guide/dependencies.html
+- Licensing (GPLv3 vs commercial): https://hyperformula.handsontable.com/guide/licensing.html
+- Support: https://hyperformula.handsontable.com/guide/support.html
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js"></script>
-```
-
-Pin a version with `hyperformula@3.2.0` in the URL.
-
-### Server-side (Node.js)
-
-Same npm install. Requires Node.js 13+ with full ICU for locale-aware string comparison. Older
-Node versions may not compare culture-insensitive strings correctly.
-
+### Getting Started
 - Client-side installation: https://hyperformula.handsontable.com/guide/client-side-installation.html
-- Server-side installation: https://hyperformula.handsontable.com/guide/server-side-installation.html
+- Server-side installation (Node.js): https://hyperformula.handsontable.com/guide/server-side-installation.html
+- Basic usage: https://hyperformula.handsontable.com/guide/basic-usage.html
+- Advanced usage: https://hyperformula.handsontable.com/guide/advanced-usage.html
+- Configuration options guide: https://hyperformula.handsontable.com/guide/configuration-options.html
+- License key setup: https://hyperformula.handsontable.com/guide/license-key.html
 
----
+### Framework Integration
+- React: https://hyperformula.handsontable.com/guide/integration-with-react.html
+- Vue: https://hyperformula.handsontable.com/guide/integration-with-vue.html
+- Angular: https://hyperformula.handsontable.com/guide/integration-with-angular.html
+- Svelte: https://hyperformula.handsontable.com/guide/integration-with-svelte.html
 
-## Creating an Instance
-
-HyperFormula provides three static factory methods. All require a `licenseKey`.
-
-### buildFromArray — single sheet from a 2D array
-
-```ts
-import { HyperFormula } from 'hyperformula';
-
-const hf = HyperFormula.buildFromArray(
-  [
-    ['10', '20', '=SUM(A1:B1)'],
-    ['30', '40', '=SUM(A2:B2)'],
-  ],
-  { licenseKey: 'gpl-v3' }
-);
-
-// Read a computed value (zero-indexed: sheet, col, row)
-console.log(hf.getCellValue({ sheet: 0, col: 2, row: 0 })); // 30
-```
-
-### buildFromSheets — multi-sheet workbook
-
-```ts
-const hf = HyperFormula.buildFromSheets(
-  {
-    Revenue: [['100', '200', '=SUM(A1:B1)']],
-    Expenses: [['50', '=Revenue!C1 - A1']],
-  },
-  { licenseKey: 'gpl-v3' }
-);
-```
-
-Cross-sheet references use `SheetName!CellRef` syntax, just like Excel.
-
-### buildEmpty — start with nothing, add sheets later
-
-```ts
-const hf = HyperFormula.buildEmpty({ licenseKey: 'gpl-v3' });
-const sheetName = hf.addSheet('Data');
-const sheetId = hf.getSheetId(sheetName);
-
-hf.setCellContents({ sheet: sheetId, col: 0, row: 0 }, [['10', '20', '=SUM(A1:B1)']]);
-```
-
-### Cell addresses
-
-All addresses use zero-indexed `{ sheet: number, col: number, row: number }`. Convert to/from A1
-notation:
-
-```ts
-hf.simpleCellAddressFromString('B3', 0);  // → { sheet: 0, col: 1, row: 2 }
-hf.simpleCellAddressToString({ sheet: 0, col: 1, row: 2 }, 0);  // → 'B3'
-```
-
-- Basic usage guide: https://hyperformula.handsontable.com/guide/basic-usage.html
-- Advanced usage guide: https://hyperformula.handsontable.com/guide/advanced-usage.html
-
----
-
-## CRUD Operations
-
-```ts
-// Set a cell value (string, number, or formula)
-hf.setCellContents({ sheet: 0, col: 0, row: 0 }, 'Hello');
-hf.setCellContents({ sheet: 0, col: 1, row: 0 }, '=A1 & " World"');
-
-// Read values
-hf.getCellValue({ sheet: 0, col: 1, row: 0 });   // computed result
-hf.getCellFormula({ sheet: 0, col: 1, row: 0 });  // '=A1 & " World"'
-hf.getCellType({ sheet: 0, col: 0, row: 0 });     // CellType.FORMULA | VALUE | EMPTY
-
-// Rows and columns — second arg is [startIndex, count]
-hf.addRows(sheetId, [rowIndex, numberOfRows]);
-hf.removeRows(sheetId, [rowIndex, numberOfRows]);
-hf.addColumns(sheetId, [colIndex, numberOfColumns]);
-hf.removeColumns(sheetId, [colIndex, numberOfColumns]);
-
-// Sheets
-hf.addSheet('NewSheet');
-hf.removeSheet(sheetId);
-hf.renameSheet(sheetId, 'BetterName');
-hf.countSheets();
-hf.getSheetName(sheetId);
-hf.getSheetId('SheetName');
-hf.getSheetDimensions(sheetId);   // → { width: cols, height: rows }
-
-// Exporting data
-hf.getSheetValues(sheetId);       // computed values as 2D array
-hf.getSheetSerialized(sheetId);   // formulas/raw values as 2D array
-hf.getAllSheetsValues();           // { SheetName: values[][] }
-hf.getAllSheetsSerialized();       // { SheetName: formulas[][] }
-```
-
-### Batch operations (performance)
-
-**Every `setCellContents` call triggers a full dependency-graph recalculation.** If you're writing
-more than one cell, always batch:
-
-```ts
-// Option 1: batch() — preferred, returns ExportedChange[]
-const changes = hf.batch(() => {
-  hf.setCellContents({ sheet: 0, col: 0, row: 0 }, '100');
-  hf.setCellContents({ sheet: 0, col: 0, row: 1 }, '200');
-  hf.addRows(0, [2, 1]);
-});
-// `changes` contains all cells that were recalculated
-
-// Option 2: suspendEvaluation / resumeEvaluation — for bulk imports
-hf.suspendEvaluation();
-// ... hundreds of operations ...
-hf.resumeEvaluation();  // single recalc
-```
-
-**Pitfall:** Row/column structural operations (`addRows`, `moveRows`, etc.) during
-`suspendEvaluation()` have degraded performance. Prefer `batch()` when mixing structural and value
-operations.
-
-- Basic operations: https://hyperformula.handsontable.com/guide/basic-operations.html
+### Data Operations
+- Basic operations (CRUD): https://hyperformula.handsontable.com/guide/basic-operations.html
 - Batch operations: https://hyperformula.handsontable.com/guide/batch-operations.html
 - Clipboard operations: https://hyperformula.handsontable.com/guide/clipboard-operations.html
 - Undo-redo: https://hyperformula.handsontable.com/guide/undo-redo.html
+- Sorting data: https://hyperformula.handsontable.com/guide/sorting-data.html
 
----
-
-## Named Expressions
-
-Define reusable names for values or formulas:
-
-```ts
-hf.addNamedExpression('TAX_RATE', '0.21');
-hf.addNamedExpression('TOTAL_REVENUE', '=SUM(Revenue!A:A)');
-
-// Use in any cell formula
-hf.setCellContents({ sheet: 0, col: 0, row: 0 }, '=1000 * TAX_RATE');
-```
-
-Named expressions can be global or scoped to a specific sheet. Local names shadow global ones.
-
-```ts
-hf.listNamedExpressions();  // all registered names
-```
-
-Guide: https://hyperformula.handsontable.com/guide/named-expressions.html
-
----
-
-## Custom Functions
-
-Extend HyperFormula with your own functions by creating a `FunctionPlugin`:
-
-```ts
-import { HyperFormula, FunctionPlugin, FunctionArgumentType } from 'hyperformula';
-
-class MyPlugin extends FunctionPlugin {
-  greet(ast, state) {
-    return this.runFunction(ast.args, state, this.metadata('GREET'), (name) => `Hello, ${name}!`);
-  }
-}
-
-MyPlugin.implementedFunctions = {
-  GREET: {
-    method: 'greet',
-    parameters: [{ argumentType: FunctionArgumentType.STRING }],
-  },
-};
-
-const translations = { enGB: { GREET: 'GREET' }, enUS: { GREET: 'GREET' } };
-
-// Register BEFORE creating an instance
-HyperFormula.registerFunctionPlugin(MyPlugin, translations);
-
-const hf = HyperFormula.buildFromArray([['World', '=GREET(A1)']], { licenseKey: 'gpl-v3' });
-console.log(hf.getCellValue({ sheet: 0, col: 1, row: 0 })); // "Hello, World!"
-```
-
-Key steps: extend FunctionPlugin → define `implementedFunctions` with method + parameters →
-add translations → register with `HyperFormula.registerFunctionPlugin()` → create instance.
-
-Mark custom functions as volatile with `isVolatile: true` if they should recalculate on every
-change (like `RAND` or `NOW`).
-
-The full guide covers argument validation, range arguments, returning arrays, error handling,
-function aliases, and localized function names:
-https://hyperformula.handsontable.com/guide/custom-functions.html
-
----
-
-## Events
-
-Subscribe to events on the HyperFormula instance:
-
-```ts
-hf.on('valuesUpdated', (changes) => {
-  changes.forEach((c) => console.log(c.address, c.newValue));
-});
-
-hf.on('sheetAdded', (addedSheetName) => { /* ... */ });
-hf.on('sheetRemoved', (removedSheetName, removedSheetData) => { /* ... */ });
-hf.on('sheetRenamed', (oldName, newName) => { /* ... */ });
-```
-
-Full event list: https://hyperformula.handsontable.com/api/interfaces/listeners.html
-
----
-
-## Key Configuration Options
-
-Pass options as the second argument to any factory method:
-
-```ts
-const hf = HyperFormula.buildEmpty({
-  licenseKey: 'gpl-v3',           // required — 'gpl-v3' for open source
-  precisionRounding: 10,          // decimal rounding precision (default 10, was 14 before v3)
-  functionArgSeparator: ',',      // separator between function arguments
-  dateFormats: ['DD/MM/YYYY', 'DD-MM-YYYY'],
-  nullDate: { year: 1900, month: 1, day: 1 },
-  leapYear1900: false,            // Excel bug compat: treat 1900 as leap year
-  maxRows: 40000,                 // max rows per sheet (default 40000)
-  maxColumns: 18278,              // max columns per sheet (default 18278, = 'ZZZ')
-});
-```
-
-Full options reference: https://hyperformula.handsontable.com/api/interfaces/configparams.html
-
-### Excel vs Google Sheets configuration
-
-```ts
-// Maximum Excel compatibility
-const excelCompat = {
-  licenseKey: 'gpl-v3',
-  useArrayArithmetic: true,
-  useWildcards: true,
-  evaluateNullToZero: true,
-  leapYear1900: true,        // Excel's intentional 1900 leap year bug
-  ignoreWhiteSpace: 'any',
-  caseSensitive: false,
-  accentSensitive: true,
-};
-
-// Google Sheets compatibility — use defaults (leapYear1900: false, useArrayArithmetic: false)
-const hf = HyperFormula.buildEmpty({ licenseKey: 'gpl-v3' });
-```
-
----
-
-## Compatibility & Limitations
-
-HyperFormula aims for Excel/Google Sheets formula syntax compatibility but has known differences:
-
-- ~400 built-in functions covering ~68% of Excel's function set
-- Supported categories: math/trig, engineering, statistical, financial, logical, lookup/reference, text, date/time, information, array
-- Runtime differences exist between HyperFormula and Excel/Sheets — consult the docs before assuming identical behavior
-
-Key limitations:
-- **Single workbook per instance** — no multi-workbook support
-- No 3D references, dynamic arrays, async functions, structured references ("Tables"), or relative named expressions
-- The IF function reports cycles for all branches, even unreachable ones
-- Custom function result arrays don't auto-resize when dependencies change
-- Node.js < 13 needs full ICU enabled for correct locale handling
-
-- Built-in functions list: https://hyperformula.handsontable.com/guide/built-in-functions.html
-- Excel compatibility: https://hyperformula.handsontable.com/guide/compatibility-with-microsoft-excel.html
-- Google Sheets compatibility: https://hyperformula.handsontable.com/guide/compatibility-with-google-sheets.html
-- Runtime differences: https://hyperformula.handsontable.com/guide/list-of-differences.html
-- Known limitations: https://hyperformula.handsontable.com/guide/known-limitations.html
-
----
-
-## Error Handling
-
-Cell values can be errors (e.g., `#DIV/0!`, `#VALUE!`, `#REF!`). Always check before using a result:
-
-```ts
-import { CellError, ErrorType } from 'hyperformula';
-
-const value = hf.getCellValue({ sheet: 0, col: 0, row: 0 });
-
-if (value instanceof CellError) {
-  // value.type is ErrorType enum: DIV_BY_ZERO, VALUE, REF, NAME, NUM, NA, CYCLE, ERROR
-  console.log('Error type:', value.type);
-  console.log('Error message:', value.message);
-} else {
-  console.log('Value:', value);
-}
-```
-
-`#CYCLE!` (circular reference) is HyperFormula-specific — standard spreadsheet apps handle cycles
-differently. If you see `#NAME?`, the function isn't registered (check custom plugin registration or
-i18n language setting).
-
-You can also check what type a cell holds with `getCellValueDetailedType()`, which returns
-`CellValueDetailedType` (NUMBER, STRING, BOOLEAN, ERROR, EMPTY).
-
-- Types of errors: https://hyperformula.handsontable.com/guide/types-of-errors.html
+### Formulas
+- Specifications and limits: https://hyperformula.handsontable.com/guide/specifications-and-limits.html
+- Cell references (relative, absolute, mixed, cross-sheet): https://hyperformula.handsontable.com/guide/cell-references.html
 - Types of values: https://hyperformula.handsontable.com/guide/types-of-values.html
+- Types of errors: https://hyperformula.handsontable.com/guide/types-of-errors.html
+- Types of operators: https://hyperformula.handsontable.com/guide/types-of-operators.html
+- Order of precedence: https://hyperformula.handsontable.com/guide/order-of-precendece.html
+- Built-in functions (full list, ~400): https://hyperformula.handsontable.com/guide/built-in-functions.html
+- Volatile functions: https://hyperformula.handsontable.com/guide/volatile-functions.html
+- Named expressions: https://hyperformula.handsontable.com/guide/named-expressions.html
+- Array formulas / ARRAYFORMULA: https://hyperformula.handsontable.com/guide/arrays.html
 
----
+### Internationalization
+- i18n features (17 languages): https://hyperformula.handsontable.com/guide/i18n-features.html
+- Localizing function names: https://hyperformula.handsontable.com/guide/localizing-functions.html
+- Date and time handling: https://hyperformula.handsontable.com/guide/date-and-time-handling.html
 
-## Cleanup / Lifecycle
+### Compatibility
+- Microsoft Excel compatibility: https://hyperformula.handsontable.com/guide/compatibility-with-microsoft-excel.html
+- Google Sheets compatibility: https://hyperformula.handsontable.com/guide/compatibility-with-google-sheets.html
+- Runtime differences (Excel & Sheets): https://hyperformula.handsontable.com/guide/list-of-differences.html
 
-In long-running applications (servers, SPAs), call `destroy()` when you're done with an instance to
-free memory. HyperFormula maintains internal data structures (dependency graph, address mapping) that
-won't be garbage-collected until `destroy()` is called.
+### Advanced Topics
+- Key concepts (AST, dependency graph, evaluation): https://hyperformula.handsontable.com/guide/key-concepts.html
+- Dependency graph: https://hyperformula.handsontable.com/guide/dependency-graph.html
+- Building & testing from source: https://hyperformula.handsontable.com/guide/building.html
+- Custom functions (FunctionPlugin): https://hyperformula.handsontable.com/guide/custom-functions.html
+- Performance: https://hyperformula.handsontable.com/guide/performance.html
+- Known limitations: https://hyperformula.handsontable.com/guide/known-limitations.html
+- File import: https://hyperformula.handsontable.com/guide/file-import.html
 
-```ts
-hf.destroy();
-```
-
-After `destroy()`, the instance is unusable — create a new one if needed.
-
----
-
-## Common Pitfalls
-
-- **Forgetting `licenseKey`**: Every factory method requires it. Use `'gpl-v3'` for open source or your commercial key.
-- **Not calling `destroy()`**: In servers or SPAs, leaking instances accumulates memory. Always clean up when done.
-- **Vue 3 — must use `markRaw`**: Vue 3's Composition API wraps objects in a reactive Proxy that intercepts property access and **corrupts HyperFormula's internal state**, causing silent data corruption or crashes. Always use `markRaw()`:
-  ```ts
-  import { markRaw } from 'vue';
-  const hf = markRaw(HyperFormula.buildEmpty({ licenseKey: 'gpl-v3' }));
-  ```
-  React, Angular, and Svelte need no special handling.
-- **`functionArgSeparator` vs `thousandSeparator`**: These two config options **cannot be the same character**. European locales using `,` as thousand separator must set `functionArgSeparator: ';'`.
-- **Volatile functions are expensive**: `RAND`, `RANDBETWEEN`, `NOW`, `TODAY`, `ROWS`, `COLUMNS`, `INDEX` recalculate on *every* change. Minimize their use in large sheets.
-- **Sorting uses permutation arrays, not comparators**: `setRowOrder(sheetId, [2, 0, 1, 3])` reorders rows by specifying the new index sequence — not a sort key or comparison function. Compute your sort order externally, then pass the permutation.
-- **Force a string value**: Prefix with `'` (apostrophe) — e.g. `'=SUM(1,2)` stores the literal text `=SUM(1,2)`.
-- **Node.js without full ICU**: String comparisons (used in MATCH, VLOOKUP, sorting) can silently produce wrong results on Node.js < 13 or builds without full ICU. Verify with `process.versions.icu`.
-- **Assuming Excel parity**: ~68% of Excel functions are covered. Check the built-in functions list before assuming a function exists. Runtime differences can also produce different results for the same formula.
-- **Registering custom functions after instance creation**: `registerFunctionPlugin()` must be called before `buildFromArray` / `buildFromSheets` / `buildEmpty`. Functions registered afterward won't be available.
-
----
-
-## Version Awareness
-
-- **Current:** 3.2.0 (February 2026)
-- **v3.0 breaking changes:** i18n import paths changed, `precisionRounding` default changed (see Key Configuration Options above), moduleResolution changes for TypeScript projects.
-- Migration guides cover every major version boundary — link users to the right one.
-
-For the full organized directory of documentation links, read `references/docs-map.md` in this
-skill's folder.
-
-- Release notes: https://hyperformula.handsontable.com/guide/release-notes.html
+### Upgrade & Migration
+- Release notes / Changelog: https://hyperformula.handsontable.com/guide/release-notes.html
+- 0.6 → 1.0 migration: https://hyperformula.handsontable.com/guide/migration-from-0.6-to-1.0.html
+- 1.x → 2.0 migration: https://hyperformula.handsontable.com/guide/migration-from-1.x-to-2.0.html
 - 2.x → 3.0 migration: https://hyperformula.handsontable.com/guide/migration-from-2.x-to-3.0.html
+
+### API Reference
+- API overview: https://hyperformula.handsontable.com/api/
+- HyperFormula class (all methods): https://hyperformula.handsontable.com/api/classes/hyperformula.html
+- ConfigParams interface (all options): https://hyperformula.handsontable.com/api/interfaces/configparams.html
+- Listeners interface (all events): https://hyperformula.handsontable.com/api/interfaces/listeners.html
+
+### npm
+- npm page: https://www.npmjs.com/package/hyperformula
+
+### Community & Support
+- GitHub repo: https://github.com/handsontable/hyperformula
+- GitHub Issues: https://github.com/handsontable/hyperformula/issues
+- GitHub Discussions: https://github.com/handsontable/hyperformula/discussions
+- Developer Forum: https://forum.handsontable.com/
+- Commercial support: support@handsontable.com
+- Sales (commercial license): sales@handsontable.com
+- Contact form: https://handsontable.com/contact
+
+---
+
+> **Last updated: 2026-04-20 · Aligned with HyperFormula 3.2.0.**
+> If the user is on a newer release, confirm API shape against the latest docs (see the **Release notes** link above) before relying on this file.
