@@ -1,45 +1,13 @@
 # General Pitfalls
 
 Cross-cutting gotchas that aren't tied to a specific API or config option. Authoritative docs:
-- Types of errors: https://hyperformula.handsontable.com/guide/types-of-errors.html
-- Types of values: https://hyperformula.handsontable.com/guide/types-of-values.html
 - Known limitations: https://hyperformula.handsontable.com/guide/known-limitations.html
 - Built-in functions (full list): https://hyperformula.handsontable.com/guide/built-in-functions.html
 - Runtime differences vs Excel/Sheets: https://hyperformula.handsontable.com/guide/list-of-differences.html
 
-## Error handling — always check `CellError`
+## Error handling
 
-Cell values can be errors (`#DIV/0!`, `#VALUE!`, `#REF!`, etc.). Always test before using a result.
-
-```ts
-import { CellError, ErrorType } from 'hyperformula';
-
-const value = hf.getCellValue({ sheet: 0, col: 0, row: 0 });
-
-if (value instanceof CellError) {
-  // ErrorType enum: DIV_BY_ZERO, VALUE, REF, NAME, NUM, NA, CYCLE, ERROR
-  switch (value.type) {
-    case ErrorType.CYCLE:
-      console.log('Circular reference');
-      break;
-    case ErrorType.NAME:
-      // Usually: function not registered (check plugin registration or i18n language)
-      console.log('Unknown name:', value.message);
-      break;
-    default:
-      console.log('Error:', value.type, value.message);
-  }
-} else {
-  console.log('Value:', value);
-}
-```
-
-`#CYCLE!` is HyperFormula-specific — standard spreadsheet apps handle cycles differently. To check value shape without catching errors, use:
-
-```ts
-hf.getCellValueDetailedType({ sheet: 0, col: 0, row: 0 });
-// → CellValueDetailedType.NUMBER | STRING | BOOLEAN | ERROR | EMPTY | ...
-```
+See [error-handling.md](error-handling.md) — checking `CellError`, `ErrorType` enum, `getCellValueDetailedType`, common error causes.
 
 ## Always call `destroy()` in long-running apps
 

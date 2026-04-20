@@ -32,7 +32,8 @@ Task-oriented references in `references/` (open the one that matches what the us
 - [`custom-functions.md`](references/custom-functions.md) — extending HyperFormula via `FunctionPlugin`: minimal plugin, argument types, volatile functions, range arguments, returning arrays, error handling, aliases, localized names. Open this when adding or debugging custom spreadsheet functions.
 - [`configuration.md`](references/configuration.md) — `ConfigParams` options, Excel-compatibility preset, Google-Sheets preset, and config-related pitfalls (separator collisions, Node ICU, `precisionRounding` change in v3). Open this when tuning behavior or diagnosing locale issues.
 - [`vue3.md`](references/vue3.md) — Vue 3 integration: `markRaw` requirement, Composition API, Pinia/Vuex stores, `destroy()` on unmount. Open this when embedding HF in a Vue 3 app.
-- [`general-pitfalls.md`](references/general-pitfalls.md) — cross-cutting gotchas: error handling with `CellError`/`ErrorType`, `destroy()` lifecycle, forcing literal strings, Excel-parity caveats, hard limits. Open this when results look wrong or memory grows unboundedly.
+- [`error-handling.md`](references/error-handling.md) — inspecting `CellError`, `ErrorType` enum, `getCellValueDetailedType`, common error causes (`#NAME?`, `#CYCLE!`, `#REF!`, …). Open this when a cell returns an error or you need to branch on result type.
+- [`general-pitfalls.md`](references/general-pitfalls.md) — cross-cutting gotchas: `destroy()` lifecycle, forcing literal strings, Excel-parity caveats, hard limits. Open this when results look wrong or memory grows unboundedly.
 
 Below this section is the **Documentation map** — the canonical directory of links to the official HyperFormula docs. Use it when pointing the user to authoritative material.
 
