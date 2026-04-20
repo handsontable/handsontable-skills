@@ -49,18 +49,9 @@ const hf = HyperFormula.buildEmpty({ licenseKey: 'gpl-v3' });
 
 ## Config-specific pitfalls
 
-### Vue 3 — must use `markRaw`
+### Vue 3
 
-Vue 3's Composition API wraps objects in a reactive Proxy that intercepts property access and **corrupts HyperFormula's internal state**, causing silent data corruption or crashes. React, Angular, and Svelte need no special handling.
-
-```ts
-import { markRaw } from 'vue';
-import { HyperFormula } from 'hyperformula';
-
-const hf = markRaw(
-  HyperFormula.buildEmpty({ licenseKey: 'gpl-v3' })
-);
-```
+Vue 3 requires wrapping the instance with `markRaw` — see [vue3.md](vue3.md) for the full integration guide (React / Angular / Svelte need no special handling).
 
 ### `functionArgSeparator` vs `thousandSeparator` collision
 
