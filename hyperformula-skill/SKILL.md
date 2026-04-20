@@ -28,7 +28,8 @@ HyperFormula is a **headless, open-source TypeScript spreadsheet calculation eng
 Task-oriented references in `references/` (open the one that matches what the user is doing):
 
 - [`getting-started.md`](references/getting-started.md) — how to install, create an instance (`buildFromArray` / `buildFromSheets` / `buildEmpty`), and work with cell addresses. Open this for onboarding questions and first-run errors.
-- [`api-quickref.md`](references/api-quickref.md) — runnable examples for CRUD, rows/columns, sheets, exporting data, batching, named expressions, **custom functions (`FunctionPlugin`)**, events, undo/redo, clipboard. Open this when implementing or debugging HF API calls.
+- [`api-quickref.md`](references/api-quickref.md) — runnable examples for CRUD, rows/columns, sheets, exporting data, batching, named expressions, events, undo/redo, clipboard. Open this when implementing or debugging HF API calls.
+- [`custom-functions.md`](references/custom-functions.md) — extending HyperFormula via `FunctionPlugin`: minimal plugin, argument types, volatile functions, range arguments, returning arrays, error handling, aliases, localized names. Open this when adding or debugging custom spreadsheet functions.
 - [`configuration.md`](references/configuration.md) — `ConfigParams` options, Excel-compatibility preset, Google-Sheets preset, and config-related pitfalls (Vue 3 `markRaw`, separator collisions, Node ICU, `precisionRounding` change in v3). Open this when tuning behavior or diagnosing locale/framework issues.
 - [`general-pitfalls.md`](references/general-pitfalls.md) — cross-cutting gotchas: error handling with `CellError`/`ErrorType`, `destroy()` lifecycle, forcing literal strings, Excel-parity caveats, hard limits. Open this when results look wrong or memory grows unboundedly.
 

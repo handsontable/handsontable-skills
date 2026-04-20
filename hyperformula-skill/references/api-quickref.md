@@ -4,7 +4,6 @@ Runnable examples for the most-used HyperFormula APIs. Authoritative docs:
 - Basic operations: https://hyperformula.handsontable.com/guide/basic-operations.html
 - Batch operations: https://hyperformula.handsontable.com/guide/batch-operations.html
 - Named expressions: https://hyperformula.handsontable.com/guide/named-expressions.html
-- Custom functions: https://hyperformula.handsontable.com/guide/custom-functions.html
 - Clipboard operations: https://hyperformula.handsontable.com/guide/clipboard-operations.html
 - Undo-redo: https://hyperformula.handsontable.com/guide/undo-redo.html
 - Sorting data: https://hyperformula.handsontable.com/guide/sorting-data.html
@@ -109,43 +108,7 @@ hf.listNamedExpressions(); // all registered names
 
 ## Custom functions
 
-Extend HyperFormula via `FunctionPlugin`. Register **before** creating any instance.
-
-```ts
-import { HyperFormula, FunctionPlugin, FunctionArgumentType } from 'hyperformula';
-
-class MyPlugin extends FunctionPlugin {
-  greet(ast, state) {
-    return this.runFunction(
-      ast.args,
-      state,
-      this.metadata('GREET'),
-      (name) => `Hello, ${name}!`
-    );
-  }
-}
-
-MyPlugin.implementedFunctions = {
-  GREET: {
-    method: 'greet',
-    parameters: [{ argumentType: FunctionArgumentType.STRING }],
-    // isVolatile: true,  // set for RAND/NOW-like behavior (recalc on every change)
-  },
-};
-
-const translations = { enGB: { GREET: 'GREET' }, enUS: { GREET: 'GREET' } };
-
-// PITFALL: this MUST run before buildFromArray / buildFromSheets / buildEmpty.
-HyperFormula.registerFunctionPlugin(MyPlugin, translations);
-
-const hf = HyperFormula.buildFromArray(
-  [['World', '=GREET(A1)']],
-  { licenseKey: 'gpl-v3' }
-);
-console.log(hf.getCellValue({ sheet: 0, col: 1, row: 0 })); // "Hello, World!"
-```
-
-The full guide covers argument validation, range arguments, returning arrays, error handling, and localized names: https://hyperformula.handsontable.com/guide/custom-functions.html
+See [custom-functions.md](custom-functions.md) — `FunctionPlugin`, argument types, volatile functions, range arguments, returning arrays, error handling, aliases, localized names.
 
 ## Events
 
