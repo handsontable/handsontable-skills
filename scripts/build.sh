@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
-# Builds .skill packages from raw skill directories.
-# Produces three formats per skill:
-#   .skill    — gzipped tar archive (Claude Code)
-#   .zip      — zip archive (Cowork / drag-and-drop install)
-#   -rag.md   — single flattened markdown doc (RAG sources)
+# Builds distributable artifacts for each skill.
+# Produces two formats per skill into ./dist/:
+#   <name>.zip      — zip archive (Cowork / Claude.ai web upload)
+#   <name>-rag.md   — single flattened markdown doc (RAG sources)
 #
-# Usage: ./build.sh
+# Source of truth is the raw folder at skills/<name>/. Both outputs are
+# regenerated from that folder; nothing is built incrementally.
+#
+# Usage: ./scripts/build.sh [--skip-links]
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
+REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+DIST_DIR="$REPO_DIR/dist"
+cd "$REPO_DIR"
+
+mkdir -p "$DIST_DIR"
 
 build_skill() {
-    local dir="$1"
-    local name="${dir%-skill}"          # handsontable-skill → handsontable
-    local tar_output="${name}.skill"
-    local zip_output="${name}.zip"
+    local name="$1"                      # e.g. handsontable
+    local dir="skills/$name"             # e.g. skills/handsontable
+    local zip_output="$DIST_DIR/${name}.zip"
 
     if [ ! -d "$dir" ]; then
         echo "ERROR: Directory '$dir' not found" >&2
@@ -28,27 +33,25 @@ build_skill() {
         return 1
     fi
 
-    # Stage clean copy: handsontable-skill/ → tmp/handsontable/
+    # Stage clean copy so the archive's top-level directory is just <name>/.
     local tmpdir
     tmpdir="$(mktemp -d)"
     trap "rm -rf '$tmpdir'" RETURN
 
     rsync -a --exclude='.DS_Store' --exclude='*.swp' "$dir/" "$tmpdir/$name/"
 
-    # tar.gz for Claude Code
-    tar czf "$tar_output" -C "$tmpdir" "$name"
+    # zip for Cowork / Claude.ai web — delete first so removed files don't
+    # linger (zip -r updates an existing archive in place).
+    rm -f "$zip_output"
+    (cd "$tmpdir" && zip -rq "$zip_output" "$name")
 
-    # zip for Cowork — delete first so removed files don't linger (zip -r updates in place)
-    rm -f "$SCRIPT_DIR/$zip_output"
-    (cd "$tmpdir" && zip -rq "$SCRIPT_DIR/$zip_output" "$name")
-
-    echo "Built $tar_output ($(du -h "$tar_output" | cut -f1)) + $zip_output ($(du -h "$zip_output" | cut -f1))"
+    echo "Built $(realpath --relative-to="$REPO_DIR" "$zip_output" 2>/dev/null || echo "${zip_output#$REPO_DIR/}") ($(du -h "$zip_output" | cut -f1))"
 }
 
 build_rag() {
-    local dir="$1"
-    local name="${dir%-skill}"
-    local rag_output="${name}-rag.md"
+    local name="$1"                          # e.g. handsontable
+    local dir="skills/$name"
+    local rag_output="$DIST_DIR/${name}-rag.md"
 
     if [ ! -f "$dir/SKILL.md" ]; then
         echo "ERROR: $dir/SKILL.md not found" >&2
@@ -82,7 +85,7 @@ build_rag() {
         fi
     } > "$rag_output"
 
-    echo "Built $rag_output ($(du -h "$rag_output" | cut -f1))"
+    echo "Built ${rag_output#$REPO_DIR/} ($(du -h "$rag_output" | cut -f1))"
 }
 
 SKIP_LINKS=false
@@ -100,18 +103,18 @@ if [ "$SKIP_LINKS" = false ] && [ -f "$SCRIPT_DIR/check-links.sh" ]; then
     echo ""
 fi
 
-echo "Building .skill packages..."
+echo "Building zip archives..."
 echo ""
 
-build_skill "handsontable-skill"
-build_skill "hyperformula-skill"
+build_skill "handsontable"
+build_skill "hyperformula"
 
 echo ""
 echo "Building RAG docs..."
 echo ""
 
-build_rag "handsontable-skill"
-build_rag "hyperformula-skill"
+build_rag "handsontable"
+build_rag "hyperformula"
 
 echo ""
-echo "Done. Verify with: tar tzf <file>.skill  /  unzip -l <file>.zip  /  head <file>-rag.md"
+echo "Done. Verify with: unzip -l dist/<name>.zip  /  head dist/<name>-rag.md"

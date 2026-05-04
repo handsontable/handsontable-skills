@@ -10,3 +10,6 @@
 
 # Claude / Cowork working files
 .auto-memory/
+
+# Built archives — produced by scripts/build.sh, distributed via GitHub Releases
+dist/*.zip

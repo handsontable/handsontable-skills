@@ -13,77 +13,102 @@ Claude skills for [Handsontable](https://handsontable.com) (data grid component)
 
 ## Installation
 
-### npm (recommended)
+### Claude Code — plugin marketplace (recommended)
 
-```bash
-npm install @handsontable/claude-skills
+```
+/plugin marketplace add handsontable/handsontable-skills
+/plugin install handsontable-skills@handsontable-skills
 ```
 
-Then copy the skill folders into your project:
+This installs both skills together. Claude Code will load `handsontable` and `hyperformula` automatically based on what you ask.
 
-```bash
-cp -r node_modules/@handsontable/claude-skills/handsontable-skill .claude/skills/handsontable
-cp -r node_modules/@handsontable/claude-skills/hyperformula-skill .claude/skills/hyperformula
-```
+### Cowork / Claude.ai web — zip upload
 
-### From GitHub releases
+Download `handsontable.zip` and/or `hyperformula.zip` from the [latest GitHub release](https://github.com/handsontable/handsontable-skills/releases/latest), then drag the zip into the Cowork chat or upload it via Settings → Features → Skills on Claude.ai.
 
-Download from the [latest release](https://github.com/handsontable/handsontable-skills/releases/latest):
-
-- **Cowork:** Download the `.zip` file and drag it into the chat, or use the "Save skill" button if presented.
-- **Claude Code:** Download the `.skill` file (gzipped tar) and place the extracted skill folder in your project's `.claude/skills/` directory.
-
-### From source
+### Claude Code — manual install from source
 
 ```bash
 git clone https://github.com/handsontable/handsontable-skills.git
-cp -r handsontable-skills/handsontable-skill .claude/skills/handsontable
-cp -r handsontable-skills/hyperformula-skill .claude/skills/hyperformula
+cp -r handsontable-skills/skills/handsontable .claude/skills/handsontable
+cp -r handsontable-skills/skills/hyperformula .claude/skills/hyperformula
 ```
+
+### Claude API — programmatic upload
+
+Upload `skills/handsontable/` and `skills/hyperformula/` to the Skills API. Each folder contains the `SKILL.md` and `references/` that the API expects.
+
+## Distribution formats
+
+We ship the skills in three forms because Anthropic's surfaces accept different inputs. Use whichever matches the platform you're installing into.
+
+| Format | Where it lives | Use case |
+|---|---|---|
+| **Raw skill folder** | `skills/<name>/` (this repo) | Source of truth. Used directly by Claude Code (`.claude/skills/`), the Claude API (folder upload), and as the input to every other format. Edit here when contributing. |
+| **`.zip` archive** | [GitHub Releases](https://github.com/handsontable/handsontable-skills/releases) (built from source on tag push) | Drag-and-drop install for Cowork and Claude.ai web. Both platforms require zip and reject other archive formats. |
+| **`-rag.md` flat doc** | `dist/` (this repo) | Single concatenated markdown of `SKILL.md` + every reference file. For loading the skill into a RAG / vector store / chatbot context window where directory trees aren't supported. |
+
+> Earlier versions also shipped a `.skill` (gzipped tar) artifact. That format isn't accepted by Cowork or Claude.ai web and isn't part of Anthropic's documented spec, so it was removed.
 
 ## Repository structure
 
 ```
+.
 ├── README.md
 ├── LICENSE.txt
-├── handsontable-skill/         ← raw skill (source of truth)
-│   ├── SKILL.md
-│   └── references/
-│       └── docs-map.md
-├── hyperformula-skill/         ← raw skill (source of truth)
-│   ├── SKILL.md
-│   └── references/
-│       └── docs-map.md
-├── handsontable.skill          ← installable package for Claude Code (tar.gz)
-├── hyperformula.skill          ← installable package for Claude Code (tar.gz)
-├── handsontable.zip            ← installable package for Cowork (zip)
-├── hyperformula.zip            ← installable package for Cowork (zip)
-├── build.sh                    ← checks links + regenerates .skill and .zip files
-└── check-links.sh              ← verifies all docs-map URLs return 200
+├── .claude-plugin/
+│   └── marketplace.json          ← enables /plugin marketplace add
+├── skills/                       ← source of truth
+│   ├── handsontable/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   └── hyperformula/
+│       ├── SKILL.md
+│       └── references/
+├── dist/                         ← generated artifacts (some tracked, some gitignored)
+│   ├── handsontable-rag.md       ← tracked
+│   ├── hyperformula-rag.md       ← tracked
+│   ├── handsontable.zip          ← gitignored, built on demand / by CI
+│   └── hyperformula.zip          ← gitignored, built on demand / by CI
+├── scripts/
+│   ├── build.sh                  ← regenerates dist/*.zip and dist/*-rag.md
+│   └── check-links.sh            ← verifies all skill URLs return 200
+└── .github/workflows/release.yml ← builds zips on tag push, attaches to Release
 ```
 
-## Building `.skill` packages
+## Building artifacts
 
-After editing the raw skill directories, regenerate the installable packages:
+After editing files in `skills/`, regenerate the dist artifacts:
 
 ```bash
-./build.sh
+./scripts/build.sh
 ```
 
-This checks all documentation links for 404s, then creates `handsontable.skill` and `hyperformula.skill` as gzipped tar archives that Cowork and Claude Code can install directly.
+This checks all documentation links for 404s, then writes `dist/handsontable.zip`, `dist/hyperformula.zip`, `dist/handsontable-rag.md`, and `dist/hyperformula-rag.md`.
 
-To skip the link check (e.g., offline or in CI where speed matters):
+To skip the link check (e.g., offline, or in CI):
 
 ```bash
-./build.sh --skip-links
+./scripts/build.sh --skip-links
 ```
 
 To check links independently, or auto-fix redirects:
 
 ```bash
-./check-links.sh
-./check-links.sh --fix-redirects
+./scripts/check-links.sh
+./scripts/check-links.sh --fix-redirects
 ```
+
+### Releasing a new version
+
+The `.github/workflows/release.yml` workflow builds the zips and attaches them to the GitHub Release on every `v*` tag push:
+
+```bash
+git tag v1.2.3
+git push origin v1.2.3
+```
+
+The tracked `dist/*-rag.md` files should be regenerated and committed before tagging so RAG consumers see the same content as the released zips.
 
 ## Resources
 
@@ -112,9 +137,9 @@ We welcome contributions to improve these skills. A few things to know about how
 
 **Design philosophy.** These skills are intentionally conceptual rather than exhaustive. They teach Claude how to think about each product — when to use what, common patterns, pitfalls to avoid — rather than trying to replicate the full documentation. The goal is for the skills to remain useful across product versions with minimal updates.
 
-**The docs-map pattern.** Each skill includes a `references/docs-map.md` file that serves as a curated link directory to the live documentation. When Claude needs specific details (API signatures, configuration options, migration steps), the skill directs it to fetch the relevant docs page rather than embedding those details in the skill itself. This means the real source of truth is always the live documentation, and the skill acts as a knowledgeable guide that knows where to look.
+**Progressive disclosure via `references/`.** Each skill keeps `SKILL.md` short (under ~500 lines) as the always-loaded entry point, and pushes detail into `references/*.md` files that Claude reads on demand. The `handsontable` skill currently uses one `references/docs-map.md` curated link directory; the `hyperformula` skill is split into seven topic-specific reference files (api-quickref, configuration, custom-functions, error-handling, general-pitfalls, getting-started, vue3) plus the docs map. Both patterns are valid — split when one file grows past readability.
 
-**Why this works.** Claude reads the SKILL.md on every invocation, so it always has the conceptual foundation. For specifics, it follows links from the docs-map to the live docs. This approach means a new product version typically only requires updating version numbers and adding new docs-map entries — not rewriting the skill.
+**Why this works.** Claude reads `SKILL.md` on every invocation, so it always has the conceptual foundation. For specifics, it follows links from the docs-map (or the topic-specific references) to the live docs. This approach means a new product version typically only requires updating version numbers and adding new entries — not rewriting the skill.
 
 **Standards we followed when creating these skills:**
 

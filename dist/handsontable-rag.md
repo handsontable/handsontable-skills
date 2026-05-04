@@ -1,10 +1,10 @@
 # handsontable skill
 
-_Flattened single-doc build of `handsontable-skill/` for RAG ingestion. Source of truth is the skill directory._
+_Flattened single-doc build of `skills/handsontable/` for RAG ingestion. Source of truth is the skill directory._
 
 ---
 
-## handsontable-skill/SKILL.md
+## skills/handsontable/SKILL.md
 
 ---
 name: handsontable
@@ -535,7 +535,7 @@ Migration guide: https://handsontable.com/docs/react-data-grid/migration-from-16
 
 ---
 
-## handsontable-skill/references/docs-map.md
+## skills/handsontable/references/docs-map.md
 
 # Handsontable Documentation Map
 

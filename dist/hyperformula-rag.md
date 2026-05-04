@@ -1,10 +1,10 @@
 # hyperformula skill
 
-_Flattened single-doc build of `hyperformula-skill/` for RAG ingestion. Source of truth is the skill directory._
+_Flattened single-doc build of `skills/hyperformula/` for RAG ingestion. Source of truth is the skill directory._
 
 ---
 
-## hyperformula-skill/SKILL.md
+## skills/hyperformula/SKILL.md
 
 ---
 name: hyperformula
@@ -143,7 +143,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 
 ---
 
-## hyperformula-skill/references/api-quickref.md
+## skills/hyperformula/references/api-quickref.md
 
 # API Quick Reference
 
@@ -295,7 +295,7 @@ hf.clearClipboard();
 
 ---
 
-## hyperformula-skill/references/configuration.md
+## skills/hyperformula/references/configuration.md
 
 # Configuration
 
@@ -387,7 +387,7 @@ const hf = HyperFormula.buildEmpty({
 
 ---
 
-## hyperformula-skill/references/custom-functions.md
+## skills/hyperformula/references/custom-functions.md
 
 # Custom Functions
 
@@ -566,7 +566,7 @@ HyperFormula.getRegisteredFunctionNames('enGB');
 
 ---
 
-## hyperformula-skill/references/error-handling.md
+## skills/hyperformula/references/error-handling.md
 
 # Error Handling
 
@@ -640,7 +640,7 @@ return new CellError(ErrorType.DIV_BY_ZERO);
 
 ---
 
-## hyperformula-skill/references/general-pitfalls.md
+## skills/hyperformula/references/general-pitfalls.md
 
 # General Pitfalls
 
@@ -691,7 +691,7 @@ Every factory method (`buildFromArray`, `buildFromSheets`, `buildEmpty`) require
 
 ---
 
-## hyperformula-skill/references/getting-started.md
+## skills/hyperformula/references/getting-started.md
 
 # Getting Started
 
@@ -778,7 +778,7 @@ hf.simpleCellAddressToString({ sheet: 0, col: 1, row: 2 }, 0);
 
 ---
 
-## hyperformula-skill/references/vue3.md
+## skills/hyperformula/references/vue3.md
 
 # Vue 3
 

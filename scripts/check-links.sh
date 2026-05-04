@@ -16,7 +16,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
+REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_DIR"
 
 FIX_REDIRECTS=false
 for arg in "$@"; do
@@ -37,7 +38,7 @@ trap 'rm -f "$URLS_FILE" "$RESULTS_FILE"' EXIT
 
 # Extract URLs — use grep -oE for macOS/BSD compatibility (no -P flag)
 grep -rhoE 'https://[^[:space:])"<>]+' \
-    handsontable-skill/ hyperformula-skill/ \
+    skills/handsontable/ skills/hyperformula/ \
     | sed 's/[.,;:)]*$//' \
     | sort -u > "$URLS_FILE"
 
@@ -126,10 +127,10 @@ if [[ ${#REDIRECTED[@]} -gt 0 ]]; then
             NEW_URL="${r##*→ }"
             # sed -i differs between GNU and BSD — detect and handle both
             if sed --version 2>/dev/null | grep -q GNU; then
-                find handsontable-skill/ hyperformula-skill/ -name '*.md' \
+                find skills/handsontable/ skills/hyperformula/ -name '*.md' \
                     -exec sed -i "s|${OLD_URL}|${NEW_URL}|g" {} +
             else
-                find handsontable-skill/ hyperformula-skill/ -name '*.md' \
+                find skills/handsontable/ skills/hyperformula/ -name '*.md' \
                     -exec sed -i '' "s|${OLD_URL}|${NEW_URL}|g" {} +
             fi
             echo "  Fixed: $OLD_URL"
