@@ -101,14 +101,22 @@ To check links independently, or auto-fix redirects:
 
 ### Releasing a new version
 
-The `.github/workflows/release.yml` workflow builds the zips and attaches them to the GitHub Release on every `v*` tag push:
+Each skill is tagged independently and the tag's version matches the underlying product version, so `handsontable-skills/handsontable@v17.0.0` is the skill that targets Handsontable 17.0.0. Both skills live in one repo (rather than two) because they cross-reference each other constantly — a change in one almost always wants a paired check in the other, and a monorepo keeps that atomic.
+
+Tag formats:
 
 ```bash
-git tag v1.2.3
-git push origin v1.2.3
+# Skill matches a Handsontable / HyperFormula product release
+git tag handsontable/v17.0.0   && git push origin handsontable/v17.0.0
+git tag hyperformula/v3.2.0    && git push origin hyperformula/v3.2.0
+
+# Skill-only fix (typo, broken link, no product change) — same product version + suffix
+git tag handsontable/v17.0.0+skill.1   && git push origin handsontable/v17.0.0+skill.1
 ```
 
-The tracked `dist/*-rag.md` files should be regenerated and committed before tagging so RAG consumers see the same content as the released zips.
+Each push triggers `.github/workflows/release.yml`, which builds the matching skill's zip and attaches it (plus the flat `-rag.md`) to a GitHub Release named after the tag. The other skill is unaffected.
+
+Regenerate and commit the tracked `dist/*-rag.md` files before tagging so RAG consumers see the same content as the released zip.
 
 ## Resources
 
