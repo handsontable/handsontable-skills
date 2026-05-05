@@ -28,10 +28,24 @@ Download `handsontable.zip` and/or `hyperformula.zip` from the [latest GitHub re
 
 ### Claude Code — manual install from source
 
+User-scope (available in every project — recommended for product-knowledge skills like these):
+
 ```bash
-git clone https://github.com/handsontable/handsontable-skills.git
-cp -r handsontable-skills/skills/handsontable .claude/skills/handsontable
-cp -r handsontable-skills/skills/hyperformula .claude/skills/hyperformula
+git clone https://github.com/handsontable/handsontable-skills.git /tmp/handsontable-skills
+mkdir -p ~/.claude/skills
+cp -r /tmp/handsontable-skills/skills/handsontable ~/.claude/skills/
+cp -r /tmp/handsontable-skills/skills/hyperformula ~/.claude/skills/
+rm -rf /tmp/handsontable-skills
+```
+
+Project-scope (only available in this project — run from your project root):
+
+```bash
+git clone https://github.com/handsontable/handsontable-skills.git /tmp/handsontable-skills
+mkdir -p .claude/skills
+cp -r /tmp/handsontable-skills/skills/handsontable .claude/skills/
+cp -r /tmp/handsontable-skills/skills/hyperformula .claude/skills/
+rm -rf /tmp/handsontable-skills
 ```
 
 ### Claude API — programmatic upload
