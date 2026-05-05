@@ -28,25 +28,29 @@ Download `handsontable.zip` and/or `hyperformula.zip` from the [latest GitHub re
 
 ### Claude Code — manual install from source
 
-User-scope (available in every project — recommended for product-knowledge skills like these):
+Clone the repo somewhere convenient:
 
 ```bash
-git clone https://github.com/handsontable/handsontable-skills.git /tmp/handsontable-skills
-mkdir -p ~/.claude/skills
-cp -r /tmp/handsontable-skills/skills/handsontable ~/.claude/skills/
-cp -r /tmp/handsontable-skills/skills/hyperformula ~/.claude/skills/
-rm -rf /tmp/handsontable-skills
+git clone https://github.com/handsontable/handsontable-skills.git
 ```
 
-Project-scope (only available in this project — run from your project root):
+Then copy the two skill folders into your Claude Code skills directory. Pick the scope that fits — both assume Claude Code is already set up so `.claude/skills/` exists.
+
+**User-scope** — skills available in every project (recommended for product-knowledge skills like these):
 
 ```bash
-git clone https://github.com/handsontable/handsontable-skills.git /tmp/handsontable-skills
-mkdir -p .claude/skills
-cp -r /tmp/handsontable-skills/skills/handsontable .claude/skills/
-cp -r /tmp/handsontable-skills/skills/hyperformula .claude/skills/
-rm -rf /tmp/handsontable-skills
+cp -r handsontable-skills/skills/handsontable ~/.claude/skills/
+cp -r handsontable-skills/skills/hyperformula ~/.claude/skills/
 ```
+
+**Project-scope** — skills available only in one project. From inside that project's root:
+
+```bash
+cp -r /path/to/handsontable-skills/skills/handsontable .claude/skills/
+cp -r /path/to/handsontable-skills/skills/hyperformula .claude/skills/
+```
+
+Keep the cloned repo around to `git pull` updates and re-copy when this skill ships a new release.
 
 ### Claude API — programmatic upload
 
