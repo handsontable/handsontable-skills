@@ -1,10 +1,10 @@
 # Configuration
 
 `ConfigParams` + compatibility presets + config-specific pitfalls. Authoritative docs:
-- Configuration options guide: https://hyperformula.handsontable.com/guide/configuration-options.html
-- ConfigParams (all options): https://hyperformula.handsontable.com/api/interfaces/configparams.html
-- Excel compatibility: https://hyperformula.handsontable.com/guide/compatibility-with-microsoft-excel.html
-- Google Sheets compatibility: https://hyperformula.handsontable.com/guide/compatibility-with-google-sheets.html
+- Configuration options guide: https://hyperformula.handsontable.com/docs/guide/configuration-options.html
+- ConfigParams (all options): https://hyperformula.handsontable.com/docs/api/interfaces/configparams.html
+- Excel compatibility: https://hyperformula.handsontable.com/docs/guide/compatibility-with-microsoft-excel.html
+- Google Sheets compatibility: https://hyperformula.handsontable.com/docs/guide/compatibility-with-google-sheets.html
 
 ## ConfigParams highlights
 
@@ -21,6 +21,7 @@ const hf = HyperFormula.buildEmpty({
   maxRows: 40000,                 // max rows per sheet (default 40000)
   maxColumns: 18278,              // max columns per sheet (default 18278 = 'ZZZ')
   undoLimit: 20,                  // undo history depth
+  maxPendingLazyTransformations: 1000, // v3.3+ — cap accumulated lazy transformations before cleanup
 });
 ```
 
@@ -74,6 +75,10 @@ String comparisons (used in `MATCH`, `VLOOKUP`, sorting) can silently produce wr
 // Must report 'full' (or a detailed ICU version), not 'small'.
 console.log(process.versions.icu);
 ```
+
+### Tuning `maxPendingLazyTransformations` (v3.3+)
+
+HyperFormula defers some structural transformations (row/column insertions, moves) and applies them lazily. In long-lived instances with heavy mutation throughput — bulk imports, frequent undo/redo, scripted batch edits — the pending queue can grow before cleanup. v3.3 fixed the unbounded-growth leak; this option lets you cap the queue explicitly. Lower values trade memory for more frequent flush work; the default is suitable for typical UI workloads.
 
 ### `precisionRounding` default changed in v3
 

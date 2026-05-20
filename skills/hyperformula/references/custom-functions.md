@@ -1,7 +1,7 @@
 # Custom Functions
 
 Extend HyperFormula with your own functions via `FunctionPlugin`. Authoritative doc:
-- Custom functions guide: https://hyperformula.handsontable.com/guide/custom-functions.html
+- Custom functions guide: https://hyperformula.handsontable.com/docs/guide/custom-functions.html
 
 ## Minimal plugin
 

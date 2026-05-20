@@ -1,7 +1,7 @@
 # Vue 3
 
 HyperFormula + Vue 3 integration. Authoritative doc:
-- Vue integration guide: https://hyperformula.handsontable.com/guide/integration-with-vue.html
+- Vue integration guide: https://hyperformula.handsontable.com/docs/guide/integration-with-vue.html
 
 ## Always wrap the instance with `markRaw`
 

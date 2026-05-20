@@ -1,9 +1,9 @@
 # Getting Started
 
 Install, create an instance, read/write cells. Authoritative docs:
-- Client-side install: https://hyperformula.handsontable.com/guide/client-side-installation.html
-- Server-side install: https://hyperformula.handsontable.com/guide/server-side-installation.html
-- Basic usage: https://hyperformula.handsontable.com/guide/basic-usage.html
+- Client-side install: https://hyperformula.handsontable.com/docs/guide/client-side-installation.html
+- Server-side install: https://hyperformula.handsontable.com/docs/guide/server-side-installation.html
+- Basic usage: https://hyperformula.handsontable.com/docs/guide/basic-usage.html
 
 ## Install
 

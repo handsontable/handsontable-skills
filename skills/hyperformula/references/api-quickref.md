@@ -1,14 +1,14 @@
 # API Quick Reference
 
 Runnable examples for the most-used HyperFormula APIs. Authoritative docs:
-- Basic operations: https://hyperformula.handsontable.com/guide/basic-operations.html
-- Batch operations: https://hyperformula.handsontable.com/guide/batch-operations.html
-- Named expressions: https://hyperformula.handsontable.com/guide/named-expressions.html
-- Clipboard operations: https://hyperformula.handsontable.com/guide/clipboard-operations.html
-- Undo-redo: https://hyperformula.handsontable.com/guide/undo-redo.html
-- Sorting data: https://hyperformula.handsontable.com/guide/sorting-data.html
-- HyperFormula class (all methods): https://hyperformula.handsontable.com/api/classes/hyperformula.html
-- Listeners (all events): https://hyperformula.handsontable.com/api/interfaces/listeners.html
+- Basic operations: https://hyperformula.handsontable.com/docs/guide/basic-operations.html
+- Batch operations: https://hyperformula.handsontable.com/docs/guide/batch-operations.html
+- Named expressions: https://hyperformula.handsontable.com/docs/guide/named-expressions.html
+- Clipboard operations: https://hyperformula.handsontable.com/docs/guide/clipboard-operations.html
+- Undo-redo: https://hyperformula.handsontable.com/docs/guide/undo-redo.html
+- Sorting data: https://hyperformula.handsontable.com/docs/guide/sorting-data.html
+- HyperFormula class (all methods): https://hyperformula.handsontable.com/docs/api/classes/hyperformula.html
+- Listeners (all events): https://hyperformula.handsontable.com/docs/api/interfaces/listeners.html
 
 ## CRUD
 
@@ -112,7 +112,7 @@ See [custom-functions.md](custom-functions.md) — `FunctionPlugin`, argument ty
 
 ## Events
 
-Subscribe via `.on()` on the instance. Full list: https://hyperformula.handsontable.com/api/interfaces/listeners.html
+Subscribe via `.on()` on the instance. Full list: https://hyperformula.handsontable.com/docs/api/interfaces/listeners.html
 
 ```ts
 hf.on('valuesUpdated', (changes) => {
