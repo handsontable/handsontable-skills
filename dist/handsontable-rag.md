@@ -420,60 +420,64 @@ HyperFormula version compatibility table: https://handsontable.com/docs/react-da
 
 ## Server-side data with DataProvider (v17.1+)
 
-The **DataProvider plugin** (new in v17.1) wires the grid up to a remote data source so rows are fetched, mutated, and persisted server-side instead of held in memory. Use it for datasets too large to load up front, or when the source of truth lives in a backend.
+The **DataProvider plugin** (new in v17.1) wires the grid up to a remote data source so rows are fetched, sorted, and mutated server-side instead of held in memory. Use it for datasets too large to load up front, or when the source of truth lives in a backend.
 
-The `dataProvider` option is an object with a row-id resolver, a paginated fetch callback, and three mutation callbacks (create / update / remove):
+The `dataProvider` option is an object with five required keys: a row-id resolver, a paginated `fetchRows` callback, and three mutation callbacks. For a read-only grid, stub the mutation callbacks with `async () => {}` — they must still be present.
 
 ```jsx
 <HotTable
-  colHeaders={['ID', 'Name', 'Price']}
-  height="auto"
+  colHeaders={['ID', 'Name', 'Email']}
+  pagination={{ pageSize: 25 }}
+  columnSorting={true}
+  emptyDataState={true}
+  height={360}
   licenseKey="non-commercial-and-evaluation"
   dataProvider={{
-    // How to extract a stable id from each row (property path or function)
+    // Required: how to extract a stable id from each row
     rowId: 'id',
 
-    // Page-based fetch. `sort` and `filters` are null when not active.
-    async fetchRows({ page, pageSize, sort, filters }) {
-      const res = await fetch(
-        `/api/products?page=${page}&pageSize=${pageSize}`
-      );
+    // Required: paginated fetch. `sort` is null when no column is sorted.
+    // Second arg carries an AbortSignal — pass it to fetch() so the plugin
+    // can cancel superseded requests when the user pages/sorts quickly.
+    async fetchRows({ page, pageSize, sort }, { signal }) {
+      const params = new URLSearchParams({ page, pageSize });
+      if (sort) {
+        // sort = { prop: string, order: 'asc' | 'desc' }
+        params.set('sortBy', sort.prop);
+        params.set('order', sort.order);
+      }
+      const res = await fetch(`/api/users?${params}`, { signal });
       const { rows, totalRows } = await res.json();
       return { rows, totalRows };
     },
 
-    // Cell edits arrive as a batch of { id, changes, rowData? } entries.
-    async onRowsUpdate(updates) {
-      await Promise.all(updates.map(({ id, changes }) =>
-        fetch(`/api/products/${id}`, {
-          method: 'PATCH',
-          body: JSON.stringify(changes),
-        })
-      ));
-    },
-
-    // Optional — wire up if you allow row insertion.
-    async onRowsCreate({ position, referenceRowId, rowsAmount }) {
-      await fetch('/api/products', {
-        method: 'POST',
-        body: JSON.stringify({ position, referenceRowId, rowsAmount }),
-      });
-    },
-
-    // Optional — wire up if you allow row deletion.
-    async onRowsRemove(rowIds) {
-      await fetch('/api/products', {
-        method: 'DELETE',
-        body: JSON.stringify({ rowIds }),
-      });
-    },
+    // Required. Stub with async () => {} if your grid is read-only.
+    // The plugin auto-refetches the current page after each callback resolves.
+    // See the plugin API ref for the exact payload shapes.
+    onRowsCreate: async () => {},
+    onRowsUpdate: async () => {},
+    onRowsRemove: async () => {},
   }}
 />
 ```
 
-The plugin pages rows as the user scrolls and routes mutations through your callbacks — the grid does not own the data. Combine with the Pagination, ColumnSorting, and Filters plugins for fully server-driven sort/filter/paginate.
+### Loading and error UI
 
-Plugin docs: https://handsontable.com/docs/react-data-grid/api/data-provider/
+The plugin fires three hooks you can wire up as `<HotTable>` props for loading indicators and error surfaces:
+
+- `beforeDataProviderFetch(params)` — fires before each fetch. `params.skipLoading` is set when the plugin wants to suppress your loading indicator (e.g., during a quick refetch).
+- `afterDataProviderFetch(result)` — fires after a successful fetch.
+- `afterDataProviderFetchError(error)` — fires when `fetchRows` throws or returns a rejected promise.
+
+### Companion options
+
+The plugin is built to pair with `pagination` (paginates server-side), `columnSorting` (single-column server-side sort), and `emptyDataState` (loading + empty state UI). Enable all three when you use DataProvider.
+
+### Authoritative references
+
+- Guide: https://handsontable.com/docs/react-data-grid/server-side-data-fetching/
+- Recipe (REST API): https://handsontable.com/docs/react-data-grid/recipes/data-management/load-data-rest-api/
+- Plugin API: https://handsontable.com/docs/react-data-grid/api/data-provider/
 
 ## Notifications (v17.1+)
 
@@ -625,6 +629,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Installation: https://handsontable.com/docs/react-data-grid/installation/
 - Demo: https://handsontable.com/docs/react-data-grid/demo/
 - Binding to data: https://handsontable.com/docs/react-data-grid/binding-to-data/
+- Server-side data fetching (DataProvider, v17.1+): https://handsontable.com/docs/react-data-grid/server-side-data-fetching/
 - Saving data: https://handsontable.com/docs/react-data-grid/saving-data/
 - Configuration options guide: https://handsontable.com/docs/react-data-grid/configuration-options/
 - Grid size: https://handsontable.com/docs/react-data-grid/grid-size/
@@ -797,6 +802,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 
 ## Recipes (new in v17)
 - Recipes index: https://handsontable.com/docs/react-data-grid/recipes/
+- Load data from a REST API (DataProvider, v17.1+): https://handsontable.com/docs/react-data-grid/recipes/data-management/load-data-rest-api/
 
 ## Upgrade & Migration
 - Changelog: https://handsontable.com/docs/react-data-grid/changelog/

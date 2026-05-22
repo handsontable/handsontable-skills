@@ -10,6 +10,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Installation: https://handsontable.com/docs/react-data-grid/installation/
 - Demo: https://handsontable.com/docs/react-data-grid/demo/
 - Binding to data: https://handsontable.com/docs/react-data-grid/binding-to-data/
+- Server-side data fetching (DataProvider, v17.1+): https://handsontable.com/docs/react-data-grid/server-side-data-fetching/
 - Saving data: https://handsontable.com/docs/react-data-grid/saving-data/
 - Configuration options guide: https://handsontable.com/docs/react-data-grid/configuration-options/
 - Grid size: https://handsontable.com/docs/react-data-grid/grid-size/
@@ -182,6 +183,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 
 ## Recipes (new in v17)
 - Recipes index: https://handsontable.com/docs/react-data-grid/recipes/
+- Load data from a REST API (DataProvider, v17.1+): https://handsontable.com/docs/react-data-grid/recipes/data-management/load-data-rest-api/
 
 ## Upgrade & Migration
 - Changelog: https://handsontable.com/docs/react-data-grid/changelog/
