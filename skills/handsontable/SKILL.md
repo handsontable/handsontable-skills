@@ -21,7 +21,7 @@ brings spreadsheet-like UX to web apps: cell editing, copy/paste, sorting, filte
 keyboard navigation, context menus, merged cells, frozen rows/columns, conditional formatting, data
 validation, pagination, and 400+ built-in formulas via HyperFormula.
 
-- **Latest version:** 17.0.0 (March 2026)
+- **Latest version:** 17.1.0 (May 2026)
 - **Frameworks:** Vanilla JS/TS, React (`@handsontable/react-wrapper`), Angular (`@handsontable/angular-wrapper`), Vue 3 (`@handsontable/vue3`)
 - **React wrapper requires:** React 18+
 - **License:** Dual — free for non-commercial use (`licenseKey: 'non-commercial-and-evaluation'`), paid for commercial. Per-developer annual license, offline validation (no server connection). Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
@@ -101,8 +101,8 @@ npm install handsontable
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main.min.css" />
 ```
 
-To pin a specific version, add `@17.0` after `handsontable` in the URL (e.g.,
-`handsontable@17.0/dist/handsontable.full.min.js`).
+To pin a specific version, add `@17.1` after `handsontable` in the URL (e.g.,
+`handsontable@17.1/dist/handsontable.full.min.js`).
 
 ### Minimal working example
 
@@ -136,11 +136,13 @@ Full JS docs: https://handsontable.com/docs/javascript-data-grid/installation/
 
 ## Other Frameworks
 
-### Angular (v16+)
+### Angular (v17–19)
 
 ```bash
 npm install handsontable @handsontable/angular-wrapper
 ```
+
+The Angular wrapper was modernized in Handsontable v17.1 to align with Angular 17–19, simplifying setup and reducing dependencies. Earlier Angular versions are no longer the target — upgrade Angular first if you're below v17.
 
 Docs: https://handsontable.com/docs/angular-data-grid/installation/
 
@@ -403,8 +405,75 @@ Use in cells: `=A1 * TAX_RATE`
 - `getSourceData()` operates on physical indexes; formulas use visual indexes.
 
 Full guide: https://handsontable.com/docs/react-data-grid/formula-calculation/
-HyperFormula functions list: https://hyperformula.handsontable.com/guide/built-in-functions.html
+HyperFormula functions list: https://hyperformula.handsontable.com/docs/guide/built-in-functions.html
 HyperFormula version compatibility table: https://handsontable.com/docs/react-data-grid/formula-calculation/#hyperformula-version-support
+
+---
+
+## Server-side data with DataProvider (v17.1+)
+
+The **DataProvider plugin** (new in v17.1) wires the grid up to a remote data source so rows are fetched, sorted, and mutated server-side instead of held in memory. Use it for datasets too large to load up front, or when the source of truth lives in a backend.
+
+The `dataProvider` option is an object with five required keys: a row-id resolver, a paginated `fetchRows` callback, and three mutation callbacks. For a read-only grid, stub the mutation callbacks with `async () => {}` — they must still be present.
+
+```jsx
+<HotTable
+  colHeaders={['ID', 'Name', 'Email']}
+  pagination={{ pageSize: 25 }}
+  columnSorting={true}
+  emptyDataState={true}
+  height={360}
+  licenseKey="non-commercial-and-evaluation"
+  dataProvider={{
+    // Required: how to extract a stable id from each row
+    rowId: 'id',
+
+    // Required: paginated fetch. `sort` is null when no column is sorted.
+    // Second arg carries an AbortSignal — pass it to fetch() so the plugin
+    // can cancel superseded requests when the user pages/sorts quickly.
+    async fetchRows({ page, pageSize, sort }, { signal }) {
+      const params = new URLSearchParams({ page, pageSize });
+      if (sort) {
+        // sort = { prop: string, order: 'asc' | 'desc' }
+        params.set('sortBy', sort.prop);
+        params.set('order', sort.order);
+      }
+      const res = await fetch(`/api/users?${params}`, { signal });
+      const { rows, totalRows } = await res.json();
+      return { rows, totalRows };
+    },
+
+    // Required. Stub with async () => {} if your grid is read-only.
+    // The plugin auto-refetches the current page after each callback resolves.
+    // See the plugin API ref for the exact payload shapes.
+    onRowsCreate: async () => {},
+    onRowsUpdate: async () => {},
+    onRowsRemove: async () => {},
+  }}
+/>
+```
+
+### Loading and error UI
+
+The plugin fires three hooks you can wire up as `<HotTable>` props for loading indicators and error surfaces:
+
+- `beforeDataProviderFetch(params)` — fires before each fetch. `params.skipLoading` is set when the plugin wants to suppress your loading indicator (e.g., during a quick refetch).
+- `afterDataProviderFetch(result)` — fires after a successful fetch.
+- `afterDataProviderFetchError(error)` — fires when `fetchRows` throws or returns a rejected promise.
+
+### Companion options
+
+The plugin is built to pair with `pagination` (paginates server-side), `columnSorting` (single-column server-side sort), and `emptyDataState` (loading + empty state UI). Enable all three when you use DataProvider.
+
+### Authoritative references
+
+- Guide: https://handsontable.com/docs/react-data-grid/server-side-data-fetching/
+- Recipe (REST API): https://handsontable.com/docs/react-data-grid/recipes/data-management/load-data-rest-api/
+- Plugin API: https://handsontable.com/docs/react-data-grid/api/data-provider/
+
+## Notifications (v17.1+)
+
+The **Notification plugin** (new in v17.1) shows non-blocking toast notifications anchored to the grid — useful for confirming saves, surfacing validation errors, or signaling background sync state. Enable with `notifications: true` and trigger via `hot.getPlugin('notifications').showMessage(...)`. See the plugin guide for placement, severity levels, and auto-dismiss timing: https://handsontable.com/docs/react-data-grid/notification/
 
 ---
 
@@ -499,6 +568,7 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 - **Using the old wrapper packages**: v17 removed `@handsontable/react` and `@handsontable/angular`. Use `@handsontable/react-wrapper` and `@handsontable/angular-wrapper`.
 - **Using legacy CSS imports**: `handsontable.full.min.css` was removed in v17. Use `handsontable/styles/handsontable.min.css` plus a theme file.
 - **Formulas with nested object data**: HyperFormula formulas don't work when `data` is an array of nested objects — use flat objects or arrays of arrays.
+- **ExportFile `columnHeaders` renamed**: In v17.1 the ExportFile plugin's `columnHeaders` option was renamed to `colHeaders` to match the table-level option. Update any `exportAsString` / `exportAsBlob` / `downloadFile` calls that pass `columnHeaders: ...`.
 
 ---
 
@@ -513,7 +583,17 @@ common. Point them to the relevant migration guide if they're upgrading.
 For the full organized directory of documentation links, read `references/docs-map.md` in this
 skill's folder.
 
-### v17.0 Breaking Changes (latest)
+### v17.1 changes (latest, May 2026)
+
+- **New plugins:** DataProvider (server-side row loading via `dataProvider` option), Notification (toast notifications).
+- **NestedHeaders rowspan:** column headers can now span multiple header rows.
+- **ExportFile:** XLSX export added; the `columnHeaders` option was renamed to `colHeaders` (see Common Pitfalls).
+- **Angular wrapper:** modernized for Angular 17–19; simpler setup, fewer deps.
+- **Touch:** long-press now opens the context menu on touch devices.
+- **TypeScript:** `dateFormat` option now accepts `Intl.DateTimeFormatOptions`.
+- No removals or deprecations in v17.1.
+
+### v17.0 Breaking Changes
 
 - Removed legacy wrapper packages (`@handsontable/react`, `@handsontable/angular`). Use
   `@handsontable/react-wrapper` and `@handsontable/angular-wrapper`.

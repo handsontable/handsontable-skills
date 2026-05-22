@@ -1,8 +1,8 @@
 # Error Handling
 
 Inspect cell values that may be errors, tell error types apart, and check value shape. Authoritative docs:
-- Types of errors: https://hyperformula.handsontable.com/guide/types-of-errors.html
-- Types of values: https://hyperformula.handsontable.com/guide/types-of-values.html
+- Types of errors: https://hyperformula.handsontable.com/docs/guide/types-of-errors.html
+- Types of values: https://hyperformula.handsontable.com/docs/guide/types-of-values.html
 
 ## Always check `CellError` before using a result
 

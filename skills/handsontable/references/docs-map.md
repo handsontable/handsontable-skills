@@ -1,6 +1,6 @@
 # Handsontable Documentation Map
 
-> Last verified: March 2026
+> Last verified: May 2026 · Aligned with Handsontable 17.1.0
 
 Organized link directory for all Handsontable and HyperFormula (in-grid) documentation. Use these
 to point users to the right page. Links default to the React docs; replace `react-data-grid` with
@@ -10,6 +10,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Installation: https://handsontable.com/docs/react-data-grid/installation/
 - Demo: https://handsontable.com/docs/react-data-grid/demo/
 - Binding to data: https://handsontable.com/docs/react-data-grid/binding-to-data/
+- Server-side data fetching (DataProvider, v17.1+): https://handsontable.com/docs/react-data-grid/server-side-data-fetching/
 - Saving data: https://handsontable.com/docs/react-data-grid/saving-data/
 - Configuration options guide: https://handsontable.com/docs/react-data-grid/configuration-options/
 - Grid size: https://handsontable.com/docs/react-data-grid/grid-size/
@@ -86,11 +87,11 @@ to point users to the right page. Links default to the React docs; replace `reac
 ## Formulas (HyperFormula in Handsontable)
 - Formula calculation guide: https://handsontable.com/docs/react-data-grid/formula-calculation/
 - Formulas plugin API: https://handsontable.com/docs/react-data-grid/api/formulas/
-- HyperFormula built-in functions list: https://hyperformula.handsontable.com/guide/built-in-functions.html
-- HyperFormula configuration options: https://hyperformula.handsontable.com/guide/configuration-options.html
-- HyperFormula custom functions: https://hyperformula.handsontable.com/guide/custom-functions.html
-- HyperFormula named expressions: https://hyperformula.handsontable.com/guide/cell-references.html#relative-references
-- HyperFormula license key: https://hyperformula.handsontable.com/guide/license-key.html
+- HyperFormula built-in functions list: https://hyperformula.handsontable.com/docs/guide/built-in-functions.html
+- HyperFormula configuration options: https://hyperformula.handsontable.com/docs/guide/configuration-options.html
+- HyperFormula custom functions: https://hyperformula.handsontable.com/docs/guide/custom-functions.html
+- HyperFormula named expressions: https://hyperformula.handsontable.com/docs/guide/cell-references.html#relative-references
+- HyperFormula license key: https://hyperformula.handsontable.com/docs/guide/license-key.html
 
 ## Navigation
 - Keyboard shortcuts: https://handsontable.com/docs/react-data-grid/keyboard-shortcuts/
@@ -106,6 +107,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Undo and redo: https://handsontable.com/docs/react-data-grid/undo-redo/
 - Icon pack: https://handsontable.com/docs/react-data-grid/icon-pack/
 - Export to CSV: https://handsontable.com/docs/react-data-grid/export-to-csv/
+- Export to Excel/XLSX (v17.1+): https://handsontable.com/docs/react-data-grid/export-to-excel/
+- Notification (v17.1+): https://handsontable.com/docs/react-data-grid/notification/
 - Empty data state: https://handsontable.com/docs/react-data-grid/empty-data-state/
 
 ## Dialog & Loading
@@ -151,6 +154,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - ContextMenu: https://handsontable.com/docs/react-data-grid/api/context-menu/
 - CopyPaste: https://handsontable.com/docs/react-data-grid/api/copy-paste/
 - CustomBorders: https://handsontable.com/docs/react-data-grid/api/custom-borders/
+- DataProvider (v17.1+): https://handsontable.com/docs/react-data-grid/api/data-provider/
 - Dialog: https://handsontable.com/docs/react-data-grid/api/dialog/
 - DragToScroll: https://handsontable.com/docs/react-data-grid/api/drag-to-scroll/
 - DropdownMenu: https://handsontable.com/docs/react-data-grid/api/dropdown-menu/
@@ -170,6 +174,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - MultiColumnSorting: https://handsontable.com/docs/react-data-grid/api/multi-column-sorting/
 - NestedHeaders: https://handsontable.com/docs/react-data-grid/api/nested-headers/
 - NestedRows: https://handsontable.com/docs/react-data-grid/api/nested-rows/
+- Notification (v17.1+): https://handsontable.com/docs/react-data-grid/api/notification/
 - Pagination: https://handsontable.com/docs/react-data-grid/api/pagination/
 - Search: https://handsontable.com/docs/react-data-grid/api/search/
 - StretchColumns: https://handsontable.com/docs/react-data-grid/api/stretch-columns/
@@ -178,6 +183,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 
 ## Recipes (new in v17)
 - Recipes index: https://handsontable.com/docs/react-data-grid/recipes/
+- Load data from a REST API (DataProvider, v17.1+): https://handsontable.com/docs/react-data-grid/recipes/data-management/load-data-rest-api/
 
 ## Upgrade & Migration
 - Changelog: https://handsontable.com/docs/react-data-grid/changelog/
@@ -195,10 +201,10 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Vue 3: https://handsontable.com/docs/react-data-grid/vue3-installation/
 
 ## SSR Examples (CodeSandbox)
-- Next.js: https://handsontable.com/codesandbox-vm?example-dir=next.js&handsontable-version=17.0
-- Astro: https://handsontable.com/codesandbox-vm?example-dir=astro&handsontable-version=17.0
-- Remix: https://handsontable.com/codesandbox-vm?example-dir=remix&handsontable-version=17.0
-- Nuxt: https://handsontable.com/codesandbox-vm?example-dir=nuxt&handsontable-version=17.0
+- Next.js: https://codesandbox.io/p/sandbox/kwnjph?file=https://handsontable.com/codesandbox-vm?example-dir=next.js&handsontable-version=17.1preview=true
+- Astro: https://codesandbox.io/p/sandbox/gnqcwn?file=https://handsontable.com/codesandbox-vm?example-dir=astro&handsontable-version=17.1preview=true
+- Remix: https://codesandbox.io/p/sandbox/njcjlq?file=https://handsontable.com/codesandbox-vm?example-dir=remix&handsontable-version=17.1preview=true
+- Nuxt: https://codesandbox.io/p/sandbox/r7qsjc?file=https://handsontable.com/codesandbox-vm?example-dir=nuxt&handsontable-version=17.1preview=true
 
 ## CDN Links (jsDelivr) — latest
 - JS (full bundle): https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js
@@ -209,7 +215,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - React wrapper: https://cdn.jsdelivr.net/npm/@handsontable/react-wrapper/dist/react-handsontable.min.js
 - HyperFormula: https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js
 
-Pin versions by adding `@17.0` after the package name (e.g., `handsontable@17.0`).
+Pin versions by adding `@17.1` after the package name (e.g., `handsontable@17.1`).
 
 ## Package Registries
 - npm: https://www.npmjs.com/package/handsontable
