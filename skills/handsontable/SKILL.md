@@ -414,7 +414,7 @@ HyperFormula version compatibility table: https://handsontable.com/docs/react-da
 
 The **DataProvider plugin** (new in v17.1) wires the grid up to a remote data source so rows are fetched, mutated, and persisted server-side instead of held in memory. Use it for datasets too large to load up front, or when the source of truth lives in a backend.
 
-Enable by passing a `dataProvider` table option:
+The `dataProvider` option is an object with a row-id resolver, a paginated fetch callback, and three mutation callbacks (create / update / remove):
 
 ```jsx
 <HotTable
@@ -422,24 +422,48 @@ Enable by passing a `dataProvider` table option:
   height="auto"
   licenseKey="non-commercial-and-evaluation"
   dataProvider={{
-    async load({ offset, limit, sortConfig, filters }) {
+    // How to extract a stable id from each row (property path or function)
+    rowId: 'id',
+
+    // Page-based fetch. `sort` and `filters` are null when not active.
+    async fetchRows({ page, pageSize, sort, filters }) {
       const res = await fetch(
-        `/api/products?offset=${offset}&limit=${limit}`
+        `/api/products?page=${page}&pageSize=${pageSize}`
       );
-      const { rows, total } = await res.json();
-      return { rows, total };
+      const { rows, totalRows } = await res.json();
+      return { rows, totalRows };
     },
-    async update({ row, changes }) {
-      await fetch(`/api/products/${row.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(changes),
+
+    // Cell edits arrive as a batch of { id, changes, rowData? } entries.
+    async onRowsUpdate(updates) {
+      await Promise.all(updates.map(({ id, changes }) =>
+        fetch(`/api/products/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(changes),
+        })
+      ));
+    },
+
+    // Optional — wire up if you allow row insertion.
+    async onRowsCreate({ position, referenceRowId, rowsAmount }) {
+      await fetch('/api/products', {
+        method: 'POST',
+        body: JSON.stringify({ position, referenceRowId, rowsAmount }),
+      });
+    },
+
+    // Optional — wire up if you allow row deletion.
+    async onRowsRemove(rowIds) {
+      await fetch('/api/products', {
+        method: 'DELETE',
+        body: JSON.stringify({ rowIds }),
       });
     },
   }}
 />
 ```
 
-The plugin pages rows as the user scrolls and routes edits through your `update` handler — the grid does not own the data. Combine with the Pagination, ColumnSorting, and Filters plugins for fully server-driven sort/filter/paginate.
+The plugin pages rows as the user scrolls and routes mutations through your callbacks — the grid does not own the data. Combine with the Pagination, ColumnSorting, and Filters plugins for fully server-driven sort/filter/paginate.
 
 Plugin docs: https://handsontable.com/docs/react-data-grid/api/data-provider/
 
