@@ -51,7 +51,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 
 ### Introduction
 - Welcome / Homepage: https://hyperformula.handsontable.com/
-- Demo (mortgage calculator): https://hyperformula.handsontable.com/docs/guide/demo.html
+- Demo: https://hyperformula.handsontable.com/docs/guide/demo.html
 
 ### Overview
 - Quality (test coverage, CI): https://hyperformula.handsontable.com/docs/guide/quality.html

@@ -453,7 +453,7 @@ Plugin docs: https://handsontable.com/docs/react-data-grid/api/data-provider/
 
 ## Notifications (v17.1+)
 
-The **Notification plugin** (new in v17.1) shows non-blocking toast notifications anchored to the grid — useful for confirming saves, surfacing validation errors, or signaling background sync state. Enable with `notifications: true` and trigger via `hot.getPlugin('notifications').show(...)`. See the plugin guide for placement, severity levels, and auto-dismiss timing: https://handsontable.com/docs/react-data-grid/notification/
+The **Notification plugin** (new in v17.1) shows non-blocking toast notifications anchored to the grid — useful for confirming saves, surfacing validation errors, or signaling background sync state. Enable with `notifications: true` and trigger via `hot.getPlugin('notifications').showMessage(...)`. See the plugin guide for placement, severity levels, and auto-dismiss timing: https://handsontable.com/docs/react-data-grid/notification/
 
 ---
 
@@ -696,7 +696,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Context menu: https://handsontable.com/docs/react-data-grid/context-menu/
 - Undo and redo: https://handsontable.com/docs/react-data-grid/undo-redo/
 - Icon pack: https://handsontable.com/docs/react-data-grid/icon-pack/
-- Export to CSV / XLSX (XLSX added in v17.1): https://handsontable.com/docs/react-data-grid/export-to-csv/
+- Export to CSV: https://handsontable.com/docs/react-data-grid/export-to-csv/
+- Export to Excel/XLSX (v17.1+): https://handsontable.com/docs/react-data-grid/export-to-excel/
 - Notification (v17.1+): https://handsontable.com/docs/react-data-grid/notification/
 - Empty data state: https://handsontable.com/docs/react-data-grid/empty-data-state/
 

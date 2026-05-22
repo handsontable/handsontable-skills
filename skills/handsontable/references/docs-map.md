@@ -105,7 +105,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Context menu: https://handsontable.com/docs/react-data-grid/context-menu/
 - Undo and redo: https://handsontable.com/docs/react-data-grid/undo-redo/
 - Icon pack: https://handsontable.com/docs/react-data-grid/icon-pack/
-- Export to CSV / XLSX (XLSX added in v17.1): https://handsontable.com/docs/react-data-grid/export-to-csv/
+- Export to CSV: https://handsontable.com/docs/react-data-grid/export-to-csv/
+- Export to Excel/XLSX (v17.1+): https://handsontable.com/docs/react-data-grid/export-to-excel/
 - Notification (v17.1+): https://handsontable.com/docs/react-data-grid/notification/
 - Empty data state: https://handsontable.com/docs/react-data-grid/empty-data-state/
 
