@@ -1,0 +1,33 @@
+{
+  "name": "@handsontable/hyperformula-skill",
+  "version": "3.3.0",
+  "description": "Claude skill for HyperFormula — the headless, open-source TypeScript spreadsheet calculation engine. Teaches Claude how to integrate, configure, and debug HyperFormula.",
+  "license": "MIT",
+  "author": "Handsontable <support@handsontable.com> (https://handsontable.com)",
+  "homepage": "https://github.com/handsontable/handsontable-skills#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/handsontable/handsontable-skills.git",
+    "directory": "skills/hyperformula"
+  },
+  "bugs": {
+    "url": "https://github.com/handsontable/handsontable-skills/issues"
+  },
+  "keywords": [
+    "claude",
+    "claude-skill",
+    "anthropic",
+    "ai",
+    "hyperformula",
+    "spreadsheet",
+    "formula-engine",
+    "handsontable"
+  ],
+  "files": [
+    "SKILL.md",
+    "references/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
