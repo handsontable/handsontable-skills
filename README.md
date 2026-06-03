@@ -136,6 +136,17 @@ Each push triggers `.github/workflows/release.yml`, which builds the matching sk
 
 Regenerate and commit the tracked `dist/*-rag.md` files before tagging so RAG consumers see the same content as the released zip.
 
+#### npm publishing (hyperformula)
+
+A `hyperformula/v*` tag additionally publishes [`@handsontable/hyperformula-skill`](https://www.npmjs.com/package/@handsontable/hyperformula-skill) to npm. The npm version is derived from the tag (`hyperformula/v3.3.0` → `3.3.0`) by the same workflow, so you never bump `skills/hyperformula/package.json` by hand — keep it at the current product version as a sane default. Publishing is gated to the `hyperformula` skill because it's the only folder carrying a `package.json`; the `handsontable` tag is unaffected.
+
+Two one-time setup requirements for npm publishing to work:
+
+- **`NPM_TOKEN` secret** — add a [granular npm automation token](https://docs.npmjs.com/creating-and-viewing-access-tokens) with publish rights to the `@handsontable` scope under **Settings → Secrets and variables → Actions**.
+- **npm scope access** — `@handsontable` is a scoped package published with `--access public`. The token's owner must be a member of the `@handsontable` org on npm.
+
+Skill-only re-tags (`hyperformula/v3.3.0+skill.1`) are published as an npm prerelease under the `skill-fix` dist-tag (`3.3.0-skill.1`), because npm strips semver build metadata and would otherwise collide with the already-published `3.3.0`. These prereleases never overwrite `latest`; install them explicitly with `npm install @handsontable/hyperformula-skill@skill-fix`.
+
 ## Resources
 
 - [Handsontable docs](https://handsontable.com/docs/)
