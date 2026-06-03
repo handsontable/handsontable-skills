@@ -1,9 +1,8 @@
-name: Release
+name: HT Skill Release
 
-# Each skill is tagged independently with its underlying product version.
-# Tag formats:
+# Releases the handsontable skill independently of hyperformula.
+# Tag format:
 #   handsontable/v<X.Y.Z>   — Handsontable product version this skill targets
-#   hyperformula/v<X.Y.Z>   — HyperFormula product version this skill targets
 #
 # Skill-only fixes (typos, broken links, no product change) can re-tag the
 # same product version with a +skill.<n> suffix, e.g. handsontable/v17.0.0+skill.1.
@@ -12,7 +11,6 @@ on:
   push:
     tags:
       - 'handsontable/v*'
-      - 'hyperformula/v*'
 
 permissions:
   contents: write
@@ -28,9 +26,7 @@ jobs:
         id: tag
         run: |
           # GITHUB_REF_NAME is e.g. "handsontable/v17.0.0"
-          SKILL="${GITHUB_REF_NAME%%/*}"
           VERSION="${GITHUB_REF_NAME##*/}"
-          echo "skill=$SKILL"     >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build skill archive and RAG doc
@@ -39,8 +35,8 @@ jobs:
       - name: Attach release asset
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ steps.tag.outputs.skill }} ${{ steps.tag.outputs.version }}
+          name: handsontable ${{ steps.tag.outputs.version }}
           files: |
-            dist/${{ steps.tag.outputs.skill }}.zip
-            dist/${{ steps.tag.outputs.skill }}-rag.md
+            dist/handsontable.zip
+            dist/handsontable-rag.md
           generate_release_notes: true

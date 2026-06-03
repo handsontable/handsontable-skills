@@ -38,7 +38,13 @@ build_skill() {
     tmpdir="$(mktemp -d)"
     trap "rm -rf '$tmpdir'" RETURN
 
-    rsync -a --exclude='.DS_Store' --exclude='*.swp' "$dir/" "$tmpdir/$name/"
+    # package.json / README.md are npm-distribution metadata (consumed by
+    # hf-skill-release.yml), not part of the skill itself. The zip is the
+    # Cowork / Claude.ai skill payload — SKILL.md + references/ — so keep the
+    # npm files out of it. The RAG build only reads SKILL.md + references/, so
+    # it is unaffected.
+    rsync -a --exclude='.DS_Store' --exclude='*.swp' \
+        --exclude='package.json' --exclude='README.md' "$dir/" "$tmpdir/$name/"
 
     # zip for Cowork / Claude.ai web — delete first so removed files don't
     # linger (zip -r updates an existing archive in place).
