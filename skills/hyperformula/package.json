@@ -3,7 +3,7 @@
   "version": "3.3.0",
   "description": "Agent skill for HyperFormula — the headless, open-source TypeScript spreadsheet calculation engine. Teaches AI coding agents how to integrate, configure, and debug HyperFormula.",
   "license": "MIT",
-  "author": "Handsontable (https://handsontable.com)",
+  "author": "Handsontable <hello@handsontable.com> (https://handsontable.com)",
   "homepage": "https://github.com/handsontable/handsontable-skills#readme",
   "repository": {
     "type": "git",
