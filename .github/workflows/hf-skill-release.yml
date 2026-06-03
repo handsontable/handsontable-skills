@@ -1,17 +1,15 @@
-name: Release
+name: HF Skill Release
 
-# Each skill is tagged independently with its underlying product version.
-# Tag formats:
-#   handsontable/v<X.Y.Z>   — Handsontable product version this skill targets
+# Releases the hyperformula skill independently of handsontable.
+# Tag format:
 #   hyperformula/v<X.Y.Z>   — HyperFormula product version this skill targets
 #
 # Skill-only fixes (typos, broken links, no product change) can re-tag the
-# same product version with a +skill.<n> suffix, e.g. handsontable/v17.0.0+skill.1.
+# same product version with a +skill.<n> suffix, e.g. hyperformula/v3.3.0+skill.1.
 
 on:
   push:
     tags:
-      - 'handsontable/v*'
       - 'hyperformula/v*'
 
 permissions:
@@ -28,10 +26,8 @@ jobs:
       - name: Parse tag
         id: tag
         run: |
-          # GITHUB_REF_NAME is e.g. "handsontable/v17.0.0"
-          SKILL="${GITHUB_REF_NAME%%/*}"
+          # GITHUB_REF_NAME is e.g. "hyperformula/v3.3.0"
           VERSION="${GITHUB_REF_NAME##*/}"
-          echo "skill=$SKILL"     >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build skill archive and RAG doc
@@ -40,24 +36,19 @@ jobs:
       - name: Attach release asset
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ steps.tag.outputs.skill }} ${{ steps.tag.outputs.version }}
+          name: hyperformula ${{ steps.tag.outputs.version }}
           files: |
-            dist/${{ steps.tag.outputs.skill }}.zip
-            dist/${{ steps.tag.outputs.skill }}-rag.md
+            dist/hyperformula.zip
+            dist/hyperformula-rag.md
           generate_release_notes: true
 
-      # Only the hyperformula skill is published to npm (it carries a
-      # package.json). Add a package.json to another skill folder and extend the
-      # `if:` below to publish it too.
       - name: Set up Node.js for npm publish
-        if: steps.tag.outputs.skill == 'hyperformula'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
 
       - name: Publish skill to npm
-        if: steps.tag.outputs.skill == 'hyperformula'
         working-directory: skills/hyperformula
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

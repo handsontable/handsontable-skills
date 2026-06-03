@@ -1,0 +1,42 @@
+name: HT Skill Release
+
+# Releases the handsontable skill independently of hyperformula.
+# Tag format:
+#   handsontable/v<X.Y.Z>   — Handsontable product version this skill targets
+#
+# Skill-only fixes (typos, broken links, no product change) can re-tag the
+# same product version with a +skill.<n> suffix, e.g. handsontable/v17.0.0+skill.1.
+
+on:
+  push:
+    tags:
+      - 'handsontable/v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Parse tag
+        id: tag
+        run: |
+          # GITHUB_REF_NAME is e.g. "handsontable/v17.0.0"
+          VERSION="${GITHUB_REF_NAME##*/}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build skill archive and RAG doc
+        run: ./scripts/build.sh --skip-links
+
+      - name: Attach release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          name: handsontable ${{ steps.tag.outputs.version }}
+          files: |
+            dist/handsontable.zip
+            dist/handsontable-rag.md
+          generate_release_notes: true

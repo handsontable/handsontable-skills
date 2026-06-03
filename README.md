@@ -58,13 +58,14 @@ Upload `skills/handsontable/` and `skills/hyperformula/` to the Skills API. Each
 
 ## Distribution formats
 
-We ship the skills in three forms because Anthropic's surfaces accept different inputs. Use whichever matches the platform you're installing into.
+We ship the skills in several forms because Anthropic's surfaces accept different inputs. Use whichever matches the platform you're installing into.
 
 | Format | Where it lives | Use case |
 |---|---|---|
 | **Raw skill folder** | `skills/<name>/` (this repo) | Source of truth. Used directly by Claude Code (`.claude/skills/`), the Claude API (folder upload), and as the input to every other format. Edit here when contributing. |
 | **`.zip` archive** | [GitHub Releases](https://github.com/handsontable/handsontable-skills/releases) (built from source on tag push) | Drag-and-drop install for Cowork and Claude.ai web. Both platforms require zip and reject other archive formats. |
 | **`-rag.md` flat doc** | `dist/` (this repo) | Single concatenated markdown of `SKILL.md` + every reference file. For loading the skill into a RAG / vector store / chatbot context window where directory trees aren't supported. |
+| **npm package** | [`@handsontable/hyperformula-skill`](https://www.npmjs.com/package/@handsontable/hyperformula-skill) (published on tag push) | `npm install` the skill into a JS/TS toolchain and copy it into `.claude/skills/`. Currently the `hyperformula` skill only; the package version tracks the HyperFormula product version. |
 
 > Earlier versions also shipped a `.skill` (gzipped tar) artifact. That format isn't accepted by Cowork or Claude.ai web and isn't part of Anthropic's documented spec, so it was removed.
 
@@ -82,7 +83,9 @@ We ship the skills in three forms because Anthropic's surfaces accept different 
 │   │   └── references/
 │   └── hyperformula/
 │       ├── SKILL.md
-│       └── references/
+│       ├── references/
+│       ├── package.json          ← npm distribution metadata
+│       └── README.md             ← npm package page
 ├── dist/                         ← generated artifacts (some tracked, some gitignored)
 │   ├── handsontable-rag.md       ← tracked
 │   ├── hyperformula-rag.md       ← tracked
@@ -91,7 +94,9 @@ We ship the skills in three forms because Anthropic's surfaces accept different 
 ├── scripts/
 │   ├── build.sh                  ← regenerates dist/*.zip and dist/*-rag.md
 │   └── check-links.sh            ← verifies all skill URLs return 200
-└── .github/workflows/release.yml ← builds zips on tag push, attaches to Release
+└── .github/workflows/
+    ├── ht-skill-release.yml      ← handsontable: build zip on tag push, attach to Release
+    └── hf-skill-release.yml      ← hyperformula: build zip + publish to npm on tag push
 ```
 
 ## Building artifacts
@@ -132,13 +137,13 @@ git tag hyperformula/v3.2.0    && git push origin hyperformula/v3.2.0
 git tag handsontable/v17.0.0+skill.1   && git push origin handsontable/v17.0.0+skill.1
 ```
 
-Each push triggers `.github/workflows/release.yml`, which builds the matching skill's zip and attaches it (plus the flat `-rag.md`) to a GitHub Release named after the tag. The other skill is unaffected.
+Each skill has its own workflow so they release independently: a `handsontable/v*` tag triggers [`.github/workflows/ht-skill-release.yml`](.github/workflows/ht-skill-release.yml) and a `hyperformula/v*` tag triggers [`.github/workflows/hf-skill-release.yml`](.github/workflows/hf-skill-release.yml). Each builds its own skill's zip and attaches it (plus the flat `-rag.md`) to a GitHub Release named after the tag. The other skill is unaffected.
 
 Regenerate and commit the tracked `dist/*-rag.md` files before tagging so RAG consumers see the same content as the released zip.
 
 #### npm publishing (hyperformula)
 
-A `hyperformula/v*` tag additionally publishes [`@handsontable/hyperformula-skill`](https://www.npmjs.com/package/@handsontable/hyperformula-skill) to npm. The npm version is derived from the tag (`hyperformula/v3.3.0` → `3.3.0`) by the same workflow, so you never bump `skills/hyperformula/package.json` by hand — keep it at the current product version as a sane default. Publishing is gated to the `hyperformula` skill because it's the only folder carrying a `package.json`; the `handsontable` tag is unaffected.
+A `hyperformula/v*` tag additionally publishes [`@handsontable/hyperformula-skill`](https://www.npmjs.com/package/@handsontable/hyperformula-skill) to npm from `hf-skill-release.yml`. The npm version is derived from the tag (`hyperformula/v3.3.0` → `3.3.0`), so you never bump `skills/hyperformula/package.json` by hand — keep it at the current product version as a sane default. Only the `hyperformula` skill publishes to npm because it's the only folder carrying a `package.json`; the handsontable workflow is unaffected.
 
 Two one-time setup requirements for npm publishing to work:
 
