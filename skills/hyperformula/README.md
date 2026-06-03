@@ -47,6 +47,24 @@ cp -r node_modules/@handsontable/hyperformula-skill .claude/skills/hyperformula
 
 Upload the package contents (`SKILL.md` + `references/`) to the [Skills API](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
 
+### OpenAI Codex
+
+Codex discovers [skills](https://developers.openai.com/codex/skills) as folders containing a `SKILL.md`, under `~/.agents/skills` (available in every repo) or `.agents/skills` in a repo (checked in for your team). Copy the package into one of those locations:
+
+```bash
+# User scope — available in every repo
+cp -r node_modules/@handsontable/hyperformula-skill ~/.agents/skills/hyperformula
+
+# Repo scope — from your project root
+cp -r node_modules/@handsontable/hyperformula-skill .agents/skills/hyperformula
+```
+
+Codex also follows symlinked skill folders, so you can instead link the installed package and let `npm install` keep it current:
+
+```bash
+ln -s "$PWD/node_modules/@handsontable/hyperformula-skill" ~/.agents/skills/hyperformula
+```
+
 ### Any other agent
 
 Most coding agents support a skills, rules, or knowledge directory. Copy (or symlink) the package folder into it, for example:
