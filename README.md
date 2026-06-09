@@ -220,7 +220,7 @@ Handsontable and HyperFormula themselves are separately licensed products. A com
 | **Non-commercial** | Free (`licenseKey: 'non-commercial-and-evaluation'`) | Free (GPLv3, `licenseKey: 'gpl-v3'`) |
 | **Commercial** | Paid, per developer/year *includes HyperFormula* | Paid, per user/year |
 | **Pricing** | [handsontable.com/pricing](https://handsontable.com/pricing) | [sales@handsontable.com](mailto:sales@handsontable.com) |
-| **License details** | [License key docs](https://handsontable.com/docs/react-data-grid/license-key/) | [Licensing guide](https://hyperformula.handsontable.com/guide/licensing.html) |
+| **License details** | [License key docs](https://handsontable.com/docs/react-data-grid/license-key/) | [Licensing guide](https://hyperformula.handsontable.com/docs/guide/licensing.html) |
 
 ## Contributing
 
