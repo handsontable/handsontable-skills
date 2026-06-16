@@ -1,6 +1,6 @@
-# Handsontable Skills for Claude
+# Handsontable Agent Skills
 
-Claude skills for [Handsontable](https://handsontable.com) (data grid component) and [HyperFormula](https://hyperformula.handsontable.com) (headless spreadsheet calculation engine). These skills give Claude deep knowledge of both products so it can help you build, configure, and debug faster.
+Agent skills for [Handsontable](https://handsontable.com) (data grid component) and [HyperFormula](https://hyperformula.handsontable.com) (headless spreadsheet calculation engine) to use in Claude Code, Codex, and other coding agents. These skills give your agent deep knowledge of both products so it can help you build, configure, and debug faster.
 
 ## Skills included
 
@@ -14,17 +14,19 @@ Claude skills for [Handsontable](https://handsontable.com) (data grid component)
 ## Installation
 
 ### Claude Code — plugin marketplace (recommended)
+Run these as prompts in Claude Code, not as terminal commands. 
 
 ```
 /plugin marketplace add handsontable/handsontable-skills
 /plugin install handsontable-skills@handsontable-skills
 ```
+Then restart Claude Code or prompt with `/reload-plugins` slash command. 
 
 This installs both skills together. Claude Code will load `handsontable` and `hyperformula` automatically based on what you ask.
 
 ### Cowork / Claude.ai web — zip upload
 
-Download `handsontable.zip` and/or `hyperformula.zip` from the [latest GitHub release](https://github.com/handsontable/handsontable-skills/releases/latest), then drag the zip into the Cowork chat or upload it via Settings → Features → Skills on Claude.ai.
+Download `handsontable.zip` and/or `hyperformula.zip` from the [latest GitHub release](https://github.com/handsontable/handsontable-skills/releases), then drag the zip into the Cowork chat or upload it via Settings → Features → Skills on Claude.ai.
 
 ### Claude Code — manual install from source
 
@@ -63,8 +65,33 @@ The `hyperformula` skill is also published to npm as [`@handsontable/hyperformul
 ```bash
 npm install @handsontable/hyperformula-skill
 ```
-
 See the [package README](skills/hyperformula/README.md) for how to wire it into Claude Code, the Claude API, or any other agent.
+
+### Other coding agents — npx skills installer
+
+The community `skills` CLI can install this repo into agents that support Agent Skills, including Codex.
+
+Install both skills for Codex:
+
+```bash
+npx skills add handsontable/handsontable-skills \
+  --agent codex \
+  --global \
+  --skill '*' \
+  --copy \
+  --yes
+```
+
+Install only HyperFormula Skill:
+```bash
+npx skills add handsontable/handsontable-skills \
+  --agent codex \
+  --global \
+  --skill hyperformula \
+  --copy \
+  --yes
+  ```
+Replace codex with another supported agent id from the skills CLI [agent list](https://github.com/vercel-labs/skills#supported-agents). Omit --global for project-scoped installation.
 
 ## Distribution formats
 
