@@ -1,6 +1,6 @@
 # Handsontable Documentation Map
 
-> Last verified: May 2026 · Aligned with Handsontable 17.1.0
+> Last verified: June 2026 · Aligned with Handsontable 18.0.0
 
 Organized link directory for all Handsontable and HyperFormula (in-grid) documentation. Use these
 to point users to the right page. Links default to the React docs; replace `react-data-grid` with
@@ -74,8 +74,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 ## Cell Types
 - Cell type overview: https://handsontable.com/docs/react-data-grid/cell-type/
 - Numeric: https://handsontable.com/docs/react-data-grid/numeric-cell-type/
-- Date: https://handsontable.com/docs/react-data-grid/date-cell-type/
-- Time: https://handsontable.com/docs/react-data-grid/time-cell-type/
+- Intl-date (v18+ — page documents the `intl-date` type; legacy `date` was removed in v18): https://handsontable.com/docs/react-data-grid/date-cell-type/
+- Intl-time (v18+ — page documents the `intl-time` type; legacy `time` was removed in v18): https://handsontable.com/docs/react-data-grid/time-cell-type/
 - Checkbox: https://handsontable.com/docs/react-data-grid/checkbox-cell-type/
 - Select: https://handsontable.com/docs/react-data-grid/select-cell-type/
 - Dropdown: https://handsontable.com/docs/react-data-grid/dropdown-cell-type/
@@ -140,6 +140,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Core (instance methods): https://handsontable.com/docs/react-data-grid/api/core/
 - Hooks (all events): https://handsontable.com/docs/react-data-grid/api/hooks/
 - Configuration options (all props): https://handsontable.com/docs/react-data-grid/api/options/
+- `layout` option (v18+): https://handsontable.com/docs/react-data-grid/api/options/#layout
 - Plugins index: https://handsontable.com/docs/react-data-grid/api/plugins/
 
 ### Individual Plugin APIs
@@ -190,6 +191,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Versioning policy: https://handsontable.com/docs/react-data-grid/versioning-policy/
 - Deprecation policy: https://handsontable.com/docs/react-data-grid/deprecation-policy/
 - Long Term Support (LTS): https://handsontable.com/docs/react-data-grid/long-term-support/
+- 17.1 → 18.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-17.1-to-18.0/
 - 16.2 → 17.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-16.2-to-17.0/
 - 16.0 → 16.1 migration: https://handsontable.com/docs/react-data-grid/migration-from-16.0-to-16.1/
 - 15.3 → 16.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-15.3-to-16.0/
@@ -198,13 +200,13 @@ to point users to the right page. Links default to the React docs; replace `reac
 ## Other Framework Installation
 - JavaScript: https://handsontable.com/docs/javascript-data-grid/installation/
 - Angular: https://handsontable.com/docs/angular-data-grid/installation/
-- Vue 3: https://handsontable.com/docs/react-data-grid/vue3-installation/
+- Vue 3: https://handsontable.com/docs/vue-data-grid/installation/
 
 ## SSR Examples (CodeSandbox)
-- Next.js: https://codesandbox.io/p/sandbox/kwnjph?file=https://handsontable.com/codesandbox-vm?example-dir=next.js&handsontable-version=17.1preview=true
-- Astro: https://codesandbox.io/p/sandbox/gnqcwn?file=https://handsontable.com/codesandbox-vm?example-dir=astro&handsontable-version=17.1preview=true
-- Remix: https://codesandbox.io/p/sandbox/njcjlq?file=https://handsontable.com/codesandbox-vm?example-dir=remix&handsontable-version=17.1preview=true
-- Nuxt: https://codesandbox.io/p/sandbox/r7qsjc?file=https://handsontable.com/codesandbox-vm?example-dir=nuxt&handsontable-version=17.1preview=true
+- Next.js: https://codesandbox.io/p/sandbox/kwnjph?file=https://handsontable.com/codesandbox-vm?example-dir=next.js&handsontable-version=18.0preview=true
+- Astro: https://codesandbox.io/p/sandbox/gnqcwn?file=https://handsontable.com/codesandbox-vm?example-dir=astro&handsontable-version=18.0preview=true
+- Remix: https://codesandbox.io/p/sandbox/njcjlq?file=https://handsontable.com/codesandbox-vm?example-dir=remix&handsontable-version=18.0preview=true
+- Nuxt: https://codesandbox.io/p/sandbox/r7qsjc?file=https://handsontable.com/codesandbox-vm?example-dir=nuxt&handsontable-version=18.0preview=true
 
 ## CDN Links (jsDelivr) — latest
 - JS (full bundle): https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js
@@ -215,7 +217,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - React wrapper: https://cdn.jsdelivr.net/npm/@handsontable/react-wrapper/dist/react-handsontable.min.js
 - HyperFormula: https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js
 
-Pin versions by adding `@17.1` after the package name (e.g., `handsontable@17.1`).
+Pin versions by adding `@18.0` after the package name (e.g., `handsontable@18.0`).
 
 ## Package Registries
 - npm: https://www.npmjs.com/package/handsontable
@@ -227,5 +229,5 @@ Pin versions by adding `@17.1` after the package name (e.g., `handsontable@17.1`
 - Stack Overflow: https://stackoverflow.com/tags/handsontable
 - Commercial support: support@handsontable.com
 - Contact form: https://handsontable.com/contact
-- Blog / Release Notes: https://handsontable.com/blog/categories/release-notes
+- Blog / Release Notes: https://handsontable.com/blog/?category=release-notes
 - Download page: https://handsontable.com/download
