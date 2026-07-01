@@ -28,8 +28,9 @@ done
 
 UA="Mozilla/5.0 (compatible; link-checker/1.0)"
 
-# Domains that return 403 to automated requests but are not actually broken
-ALLOWLIST_403="npmjs.com"
+# Domains / URL patterns that return 403 to automated requests but are not actually broken.
+# Multiple patterns are joined with grep -qE alternation below.
+ALLOWLIST_403='npmjs\.com|handsontable\.com/blog'
 
 # Collect all URLs from markdown files in skill directories
 URLS_FILE=$(mktemp)
@@ -77,7 +78,7 @@ OK=0
 while IFS='|' read -r initial_status final_status redirect_target url; do
     if [[ "$final_status" == "000" ]]; then
         TIMEOUTS+=("$url")
-    elif [[ "$final_status" == "403" ]] && echo "$url" | grep -qF "$ALLOWLIST_403"; then
+    elif [[ "$final_status" == "403" ]] && echo "$url" | grep -qE "$ALLOWLIST_403"; then
         OK=$((OK + 1))
     elif [[ "$final_status" =~ ^[45] ]]; then
         printf "  BROKEN  %s  %s\n" "$final_status" "$url"
