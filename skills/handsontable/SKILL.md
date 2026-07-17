@@ -21,7 +21,7 @@ brings spreadsheet-like UX to web apps: cell editing, copy/paste, sorting, filte
 keyboard navigation, context menus, merged cells, frozen rows/columns, conditional formatting, data
 validation, pagination, and 400+ built-in formulas via HyperFormula.
 
-- **Latest version:** 17.1.0 (May 2026)
+- **Latest version:** 18.0.0 (June 2026)
 - **Frameworks:** Vanilla JS/TS, React (`@handsontable/react-wrapper`), Angular (`@handsontable/angular-wrapper`), Vue 3 (`@handsontable/vue3`)
 - **React wrapper requires:** React 18+
 - **License:** Dual — free for non-commercial use (`licenseKey: 'non-commercial-and-evaluation'`), paid for commercial. Per-developer annual license, offline validation (no server connection). Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
@@ -101,8 +101,8 @@ npm install handsontable
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main.min.css" />
 ```
 
-To pin a specific version, add `@17.1` after `handsontable` in the URL (e.g.,
-`handsontable@17.1/dist/handsontable.full.min.js`).
+To pin a specific version, add `@18.0` after `handsontable` in the URL (e.g.,
+`handsontable@18.0/dist/handsontable.full.min.js`).
 
 ### Minimal working example
 
@@ -136,13 +136,13 @@ Full JS docs: https://handsontable.com/docs/javascript-data-grid/installation/
 
 ## Other Frameworks
 
-### Angular (v17–19)
+### Angular (v16–22)
 
 ```bash
 npm install handsontable @handsontable/angular-wrapper
 ```
 
-The Angular wrapper was modernized in Handsontable v17.1 to align with Angular 17–19, simplifying setup and reducing dependencies. Earlier Angular versions are no longer the target — upgrade Angular first if you're below v17.
+The Angular wrapper supports Angular 16–22 as of Handsontable v18. If you're on an older Angular version, upgrade Angular first.
 
 Docs: https://handsontable.com/docs/angular-data-grid/installation/
 
@@ -152,7 +152,7 @@ Docs: https://handsontable.com/docs/angular-data-grid/installation/
 npm install handsontable @handsontable/vue3
 ```
 
-Docs: https://handsontable.com/docs/react-data-grid/vue3-installation/
+Docs: https://handsontable.com/docs/vue-data-grid/installation/
 
 All framework wrappers share the same version number as the core library and expose the same
 configuration options. The React examples in this skill translate directly — just use the
@@ -249,15 +249,33 @@ rowHeaders={true}                      // 1, 2, 3... or pass an array
 
 Set via the `columns` array or `cells` function. Built-in types:
 
-- `text` (default), `numeric`, `date`, `time`, `checkbox`, `select`, `dropdown`,
-  `autocomplete`, `password`, `handsontable` (nested grid), `multiselect` (v17+)
+- `text` (default), `numeric`, `intl-date` (v18+), `intl-time` (v18+), `checkbox`, `select`,
+  `dropdown`, `autocomplete`, `password`, `handsontable` (nested grid), `multiselect` (v17+)
+
+> The legacy `date` and `time` cell types were **removed in v18** (they depended on moment.js
+> and Pikaday). Use `intl-date` and `intl-time`, which take object-based format options and
+> require ISO 8601 source data.
 
 ```jsx
 columns={[
   { data: 'name', type: 'text' },
-  { data: 'price', type: 'numeric', numericFormat: { pattern: '$0,0.00' } },
+  // Numeric formatting in v18+ uses Intl.NumberFormat options — the old
+  // `numericFormat.pattern` / `culture` (numbro syntax) were removed.
+  {
+    data: 'price',
+    type: 'numeric',
+    locale: 'en-US',
+    numericFormat: { style: 'currency', currency: 'USD', minimumFractionDigits: 2 },
+  },
   { data: 'active', type: 'checkbox' },
   { data: 'category', type: 'dropdown', source: ['A', 'B', 'C'] },
+  // v18+ intl-date: ISO 8601 in source data, Intl.DateTimeFormat options for display.
+  {
+    data: 'startDate',
+    type: 'intl-date',
+    locale: 'en-GB',
+    dateFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
+  },
 ]}
 ```
 
@@ -319,8 +337,9 @@ AVERAGE, IF, VLOOKUP, etc.). This section covers using HyperFormula **inside** H
 npm install hyperformula
 ```
 
-> **Note:** Starting in Handsontable v18, HyperFormula will no longer be bundled. Install it
-> separately and pass it to the Formulas plugin.
+> **v18 change:** HyperFormula is no longer bundled with Handsontable — it must be installed
+> separately (verified in the `handsontable@18.0.0` npm package: `dependencies: {}`) and passed
+> to the Formulas plugin as shown below.
 
 ### CDN
 
@@ -410,7 +429,7 @@ HyperFormula version compatibility table: https://handsontable.com/docs/react-da
 
 ---
 
-## Server-side data with DataProvider (v17.1+)
+## Server-side data with DataProvider (v17.1+, unchanged in v18)
 
 The **DataProvider plugin** (new in v17.1) wires the grid up to a remote data source so rows are fetched, sorted, and mutated server-side instead of held in memory. Use it for datasets too large to load up front, or when the source of truth lives in a backend.
 
@@ -428,15 +447,18 @@ The `dataProvider` option is an object with five required keys: a row-id resolve
     // Required: how to extract a stable id from each row
     rowId: 'id',
 
-    // Required: paginated fetch. `sort` is null when no column is sorted.
+    // Required: paginated fetch. `sort` and `filters` are null when not active.
     // Second arg carries an AbortSignal — pass it to fetch() so the plugin
     // can cancel superseded requests when the user pages/sorts quickly.
-    async fetchRows({ page, pageSize, sort }, { signal }) {
+    async fetchRows({ page, pageSize, sort, filters }, { signal }) {
       const params = new URLSearchParams({ page, pageSize });
       if (sort) {
         // sort = { prop: string, order: 'asc' | 'desc' }
         params.set('sortBy', sort.prop);
         params.set('order', sort.order);
+      }
+      if (filters) {
+        params.set('filters', JSON.stringify(filters));
       }
       const res = await fetch(`/api/users?${params}`, { signal });
       const { rows, totalRows } = await res.json();
@@ -471,7 +493,34 @@ The plugin is built to pair with `pagination` (paginates server-side), `columnSo
 - Recipe (REST API): https://handsontable.com/docs/react-data-grid/recipes/data-management/load-data-rest-api/
 - Plugin API: https://handsontable.com/docs/react-data-grid/api/data-provider/
 
-## Notifications (v17.1+)
+## Layout & UI slots (v18+)
+
+v18 introduced a new layout system that renders plugin UI elements into orderable wrapper slots around the grid. The `layout` option lets you control the order of elements in the `top` and `bottom` slots — for example, deciding whether the pagination bar shows above or below the column summary.
+
+```jsx
+<HotTable
+  pagination={{ pageSize: 25 }}
+  columnSummary={/* ... */}
+  layout={{
+    // Elements you list are placed first in that order; anything else
+    // renders after them in the default weight order.
+    bottom: ['pagination', 'summary'],
+  }}
+  licenseKey="non-commercial-and-evaluation"
+/>
+```
+
+Notes (from the v18 docs):
+
+- `layout` accepts an object with optional `top` and `bottom` arrays of element key strings.
+- The grid itself and the overlays layer (modal/dialog surfaces) are **not** orderable through this option.
+- The license notification always renders last in the `bottom` slot regardless of your ordering.
+
+Full options reference: https://handsontable.com/docs/react-data-grid/api/options/#layout
+
+---
+
+## Notifications (v17.1+, unchanged in v18)
 
 The **Notification plugin** (new in v17.1) shows non-blocking toast notifications anchored to the grid — useful for confirming saves, surfacing validation errors, or signaling background sync state. Enable with `notifications: true` and trigger via `hot.getPlugin('notifications').showMessage(...)`. See the plugin guide for placement, severity levels, and auto-dismiss timing: https://handsontable.com/docs/react-data-grid/notification/
 
@@ -568,7 +617,13 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 - **Using the old wrapper packages**: v17 removed `@handsontable/react` and `@handsontable/angular`. Use `@handsontable/react-wrapper` and `@handsontable/angular-wrapper`.
 - **Using legacy CSS imports**: `handsontable.full.min.css` was removed in v17. Use `handsontable/styles/handsontable.min.css` plus a theme file.
 - **Formulas with nested object data**: HyperFormula formulas don't work when `data` is an array of nested objects — use flat objects or arrays of arrays.
-- **ExportFile `columnHeaders` renamed**: In v17.1 the ExportFile plugin's `columnHeaders` option was renamed to `colHeaders` to match the table-level option. Update any `exportAsString` / `exportAsBlob` / `downloadFile` calls that pass `columnHeaders: ...`.
+- **HTML in headers/menus/dialogs is not auto-sanitized in v18+**: DOMPurify was dropped from the bundle. If you render untrusted HTML in `colHeaders`, `rowHeaders`, context menus, dialogs, or select editors, pass a `sanitizer: (html) => …` function that returns the sanitized string (e.g., using your own DOMPurify install).
+- **Legacy `date` / `time` cell types removed in v18**: replaced by `intl-date` and `intl-time`, which use object-based format options (`Intl.DateTimeFormat` shape) and require ISO 8601 (`YYYY-MM-DD`, `HH:MM:SS`) values in the source data. The old string `dateFormat`/`timeFormat`, `correctFormat`, and `datePickerConfig` options are gone.
+- **Legacy `numericFormat.pattern` / `numericFormat.culture` removed in v18**: numbro is no longer bundled. Use `Intl.NumberFormat` options on `numericFormat` (`style`, `currency`, `minimumFractionDigits`, …) together with a `locale` on the column config.
+- **`handsontable/common` subpath is gone in v18**: import types from `handsontable` directly (e.g., `import type { GridSettings, CellChange } from 'handsontable';`).
+- **`hot.undo()` / `hot.redo()` core methods removed in v18**: use the UndoRedo plugin instead — `hot.getPlugin('undoRedo').undo()` / `.redo()`.
+- **PersistentState plugin removed in v18**: no drop-in replacement — persist column widths / row heights / your own state to `localStorage` manually if needed.
+- **Custom CSS targeting the wrapper**: v18 introduced new wrapper elements (`.ht-grid-content`, `.ht-slot-top`, `.ht-slot-bottom`, `.ht-overlay`). Selectors like `.ht-root-wrapper > .ht-grid > .handsontable` will break — target `.ht-grid-content > .handsontable` instead. Also, the `--ht-wrapper-border-radius` CSS var was renamed to `--ht-border-radius`, and `--ht-wrapper-border-width` / `--ht-wrapper-border-color` were removed.
 
 ---
 
@@ -583,7 +638,24 @@ common. Point them to the relevant migration guide if they're upgrading.
 For the full organized directory of documentation links, read `references/docs-map.md` in this
 skill's folder.
 
-### v17.1 changes (latest, May 2026)
+### v18.0 Breaking Changes (latest, June 2026)
+
+- **TypeScript core.** Handsontable's core is now written in TypeScript. Public types re-export from `handsontable` directly; the `handsontable/common` subpath was **removed**. TypeScript 5.1+ is required for consumers.
+- **HyperFormula unbundled.** `handsontable@18.0.0` ships with `dependencies: {}` — install `hyperformula` separately and pass it to the Formulas plugin.
+- **Legacy date/time cell types removed.** `date` and `time` (moment.js / Pikaday–backed) are gone. Use `intl-date` and `intl-time` with `Intl.DateTimeFormat`-shaped option objects and ISO 8601 source data.
+- **Legacy numeric formatting removed.** `numericFormat.pattern` and `numericFormat.culture` (numbro syntax) are gone. Use `Intl.NumberFormat` options + `locale`.
+- **DOMPurify dropped.** HTML in headers, menus, dialogs, and select editors is no longer auto-sanitized. Pass a `sanitizer: (html) => …` function if you render untrusted HTML.
+- **PersistentState plugin removed.** Along with the `saveManualColumnWidths` / `loadManualColumnWidths` / `saveManualRowHeights` / `loadManualRowHeights` methods.
+- **Core `hot.undo()` / `hot.redo()` removed.** The UndoRedo plugin remains — use `hot.getPlugin('undoRedo').undo()` / `.redo()` instead.
+- **New layout system.** New `layout` option orders plugin UI elements in the `top` and `bottom` wrapper slots. New DOM elements (`.ht-slot-top`, `.ht-slot-bottom`, `.ht-overlay`, `.ht-grid-content`) — audit custom CSS.
+- **Theme tokens.** `--ht-wrapper-border-radius` renamed to `--ht-border-radius`; `--ht-wrapper-border-width` and `--ht-wrapper-border-color` removed.
+- **Angular support broadened.** Angular 16–22 (was 17–19 in v17.1).
+- **New options:** `hashRevealDelay` (password cells), `visibleWhen` (nested headers), `layout`.
+- **Performance:** ~50% memory reduction overall; on 100k × 100 grids, ~90% memory reduction and ~30× faster initial render, per the release blog.
+
+Migration guide: https://handsontable.com/docs/react-data-grid/migration-from-17.1-to-18.0/
+
+### v17.1 changes (May 2026)
 
 - **New plugins:** DataProvider (server-side row loading via `dataProvider` option), Notification (toast notifications).
 - **NestedHeaders rowspan:** column headers can now span multiple header rows.
@@ -603,4 +675,4 @@ skill's folder.
 - Deprecated bundled HyperFormula (will require separate install in v18).
 - Deprecated numbro.js, Pikaday, moment.js, DOMPurify — use native alternatives.
 
-Migration guide: https://handsontable.com/docs/react-data-grid/migration-from-16.2-to-17.0/
+v17.0 migration guide: https://handsontable.com/docs/react-data-grid/migration-from-16.2-to-17.0/
