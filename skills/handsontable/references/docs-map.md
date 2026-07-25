@@ -143,6 +143,18 @@ to point users to the right page. Links default to the React docs; replace `reac
 - `layout` option (v18+): https://handsontable.com/docs/react-data-grid/api/options/#layout
 - Plugins index: https://handsontable.com/docs/react-data-grid/api/plugins/
 
+### TypeScript Type Definitions
+
+There is no dedicated TypeScript guide page on handsontable.com — for the curated public type
+surface (settings hierarchy, hook signatures, registry unions, React wrapper types, v17↔v18
+differences), read `type-definitions.md` in this references folder. To read the shipped
+definitions directly (version-pinned):
+
+- v18 `GridSettings` + hooks: https://cdn.jsdelivr.net/npm/handsontable@18.0.0/core/settings.d.ts
+- v18 data types & hierarchy: https://cdn.jsdelivr.net/npm/handsontable@18.0.0/settings.d.ts
+- v17 equivalents: https://cdn.jsdelivr.net/npm/handsontable@17.1.0/settings.d.ts
+- v18 TypeScript source: https://github.com/handsontable/handsontable/blob/develop/handsontable/src/core/settings.ts
+
 ### Individual Plugin APIs
 - AutoColumnSize: https://handsontable.com/docs/react-data-grid/api/auto-column-size/
 - AutoRowSize: https://handsontable.com/docs/react-data-grid/api/auto-row-size/
