@@ -647,8 +647,8 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 - **Legacy date/time formatting options removed in v18**: the `date` and `time` cell types were **not** removed — they were reimplemented natively (moment.js and Pikaday are gone), and `intl-date` / `intl-time` are interchangeable names for the same implementations. All four use object-based format options (`Intl.DateTimeFormat` shape) and require ISO 8601 source data (`YYYY-MM-DD` for dates; 24-hour `HH:mm`, `HH:mm:ss`, or `HH:mm:ss.SSS` for times). The old string `dateFormat`/`timeFormat` and `datePickerConfig` options are ignored with a console warning; `correctFormat` was removed. The editor is now a native `<input type="date">` / `<input type="time">`.
 - **Legacy `numericFormat.pattern` / `numericFormat.culture` removed in v18**: numbro is no longer bundled. Use `Intl.NumberFormat` options on `numericFormat` (`style`, `currency`, `minimumFractionDigits`, …) together with a `locale` on the column config.
 - **`handsontable/common` subpath is gone in v18**: import types from `handsontable` directly (e.g., `import type { GridSettings, CellChange } from 'handsontable';`).
-- **`hot.undo()` / `hot.redo()` core methods removed in v18**: use the UndoRedo plugin instead — `hot.getPlugin('undoRedo').undo()` / `.redo()`.
-- **PersistentState plugin removed in v18**: no drop-in replacement — persist column widths / row heights / your own state to `localStorage` manually if needed.
+- **`hot.undo()` / `hot.redo()` core methods removed in v17.0**: use the UndoRedo plugin instead — `hot.getPlugin('undoRedo').undo()` / `.redo()`. (The v18.0 changelog re-lists this removal, but it shipped in v17.0.)
+- **PersistentState plugin removed in v17.0**: no drop-in replacement — persist column widths / row heights / your own state to `localStorage` manually if needed. Beware: in v18.0 the related `saveManualColumnWidths()` / `loadManualColumnWidths()` / `saveManualRowHeights()` / `loadManualRowHeights()` plugin methods exist again, but only as deprecated no-op stubs that log a warning.
 - **Custom CSS targeting the wrapper**: v18 introduced new wrapper elements (`.ht-grid-content`, `.ht-slot-top`, `.ht-slot-bottom`, `.ht-overlay`). Selectors like `.ht-root-wrapper > .ht-grid > .handsontable` will break — target `.ht-grid-content > .handsontable` instead. Also, the `--ht-wrapper-border-radius` CSS var was renamed to `--ht-border-radius`, and `--ht-wrapper-border-width` / `--ht-wrapper-border-color` were removed.
 
 ---
@@ -671,8 +671,7 @@ skill's folder.
 - **Date/time cell types reimplemented natively.** moment.js and Pikaday were removed, but the `date` and `time` type names remain and are interchangeable with the new `intl-date` / `intl-time` names (same implementation). Formats are `Intl.DateTimeFormat`-shaped option objects, source data must be ISO 8601, and the editor is a native date/time input. String `dateFormat`/`timeFormat` and `datePickerConfig` are ignored with a console warning; `correctFormat` is removed.
 - **Legacy numeric formatting removed.** `numericFormat.pattern` and `numericFormat.culture` (numbro syntax) are gone. Use `Intl.NumberFormat` options + `locale`.
 - **DOMPurify dropped.** HTML in headers, menus, dialogs, and select editors is no longer auto-sanitized. Pass a `sanitizer: (html) => …` function if you render untrusted HTML.
-- **PersistentState plugin removed.** Along with the `saveManualColumnWidths` / `loadManualColumnWidths` / `saveManualRowHeights` / `loadManualRowHeights` methods.
-- **Core `hot.undo()` / `hot.redo()` removed.** The UndoRedo plugin remains — use `hot.getPlugin('undoRedo').undo()` / `.redo()` instead.
+- **`saveManualColumnWidths()` / `loadManualColumnWidths()` / `saveManualRowHeights()` / `loadManualRowHeights()` are deprecated no-ops.** These ManualColumnResize / ManualRowResize methods lost their storage when the PersistentState plugin was removed in v17.0; in v18.0 they only log a deprecation warning (`load…` returns `[]`). Note: the v18.0 changelog also re-lists the PersistentState plugin and core `hot.undo()` / `hot.redo()` removals, but both actually shipped in v17.0 (see v17.0 Breaking Changes below).
 - **New layout system.** New `layout` option orders plugin UI elements in the `top` and `bottom` wrapper slots. New DOM elements (`.ht-slot-top`, `.ht-slot-bottom`, `.ht-overlay`, `.ht-grid-content`) — audit custom CSS.
 - **Theme tokens.** `--ht-wrapper-border-radius` renamed to `--ht-border-radius`; `--ht-wrapper-border-width` and `--ht-wrapper-border-color` removed.
 - **Angular support broadened.** Angular 16–22 (was 17–19 in v17.1).
@@ -697,7 +696,13 @@ Migration guide: https://handsontable.com/docs/react-data-grid/migration-from-17
   `@handsontable/react-wrapper` and `@handsontable/angular-wrapper`.
 - Removed legacy CSS (`handsontable.full.min.css`). Use `handsontable/styles/` imports.
 - Removed core-js from dependencies.
-- Removed the PersistentState plugin.
+- Removed the PersistentState plugin, its `persistentState` option, and the `persistentStateSave` /
+  `persistentStateLoad` / `persistentStateReset` hooks. The `saveManualColumnWidths` /
+  `loadManualColumnWidths` / `saveManualRowHeights` / `loadManualRowHeights` plugin methods also
+  stopped existing at runtime (v18.0 reintroduced them as deprecated no-op stubs).
+- Removed the core `hot.undo()` / `hot.redo()` / `hot.clearUndo()` / `hot.isUndoAvailable()` /
+  `hot.isRedoAvailable()` methods and the `hot.undoRedo` property. Use the UndoRedo plugin:
+  `hot.getPlugin('undoRedo').undo()` / `.redo()`.
 - Deprecated bundled HyperFormula (will require separate install in v18).
 - Deprecated numbro.js, Pikaday, moment.js, DOMPurify — use native alternatives.
 
