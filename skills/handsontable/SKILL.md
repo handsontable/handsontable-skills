@@ -29,6 +29,18 @@ validation, pagination, and 400+ built-in formulas via HyperFormula.
 Always check `references/docs-map.md` (in this skill folder) for the full organized link directory
 when you need to point the user to specific documentation or need to look up more info.
 
+This skill folder also ships topic references with verified, copy-pasteable patterns — read the
+relevant one before writing code in its area:
+
+- `references/custom-cells.md` — custom renderers, editors, validators, and full custom cell
+  types (React component editors, `useHotEditor`, the v17+ factory API, conditional formatting).
+- `references/data-workflows.md` — saving to a backend, syncing grids, dependent dropdowns,
+  bulk validation with an error summary, CSV/Excel import, CSV/XLSX/PDF export, undo/redo UI.
+- `references/interaction-plugins.md` — custom context-menu items, programmatic Filters and
+  Search APIs, keyboard shortcuts, ColumnSummary, persisting column layout, and the
+  EmptyDataState / Loading / Dialog plugins.
+- `references/type-definitions.md` — the public TypeScript type surface (v17 and v18).
+
 ### What this skill does NOT cover
 
 - **Standalone HyperFormula** (headless formula engine without a grid UI) — use the "hyperformula" skill instead.
