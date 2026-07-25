@@ -348,6 +348,8 @@ import { HotTable, HotColumn } from '@handsontable/react-wrapper';
 
 Docs: https://handsontable.com/docs/react-data-grid/hot-column/
 
+> `@handsontable/react-wrapper@18.x` peer-requires `handsontable@^18`. On aligned versions, removing a `<HotColumn>` correctly removes the column — a v17-era phantom-column bug was fixed in 18.0 ([#12596](https://github.com/handsontable/handsontable/issues/12596)).
+
 ---
 
 ## HyperFormula Integration (Formulas Plugin)
@@ -696,6 +698,7 @@ skill's folder.
 - **Theme tokens.** `--ht-wrapper-border-radius` renamed to `--ht-border-radius`; `--ht-wrapper-border-width` and `--ht-wrapper-border-color` removed.
 - **Angular support broadened.** Angular 16–22 (was 17–19 in v17.1).
 - **New options:** `hashRevealDelay` (password cells), `visibleWhen` (nested headers), `layout`.
+- **React/Vue wrapper fixes:** removing a `<HotColumn>` no longer leaves a phantom column ([#12596](https://github.com/handsontable/handsontable/issues/12596)); `height: '100%'` inside a fixed-height parent no longer hides the wrapped table ([#12445](https://github.com/handsontable/handsontable/issues/12445)). Both wrappers peer-require `handsontable@^18` — keep versions aligned.
 - **Performance:** ~50% memory reduction overall; on 100k × 100 grids, ~90% memory reduction and ~30× faster initial render, per the release blog.
 
 Migration guide: https://handsontable.com/docs/react-data-grid/migration-from-17.1-to-18.0/
