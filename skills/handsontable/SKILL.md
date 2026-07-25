@@ -249,12 +249,16 @@ rowHeaders={true}                      // 1, 2, 3... or pass an array
 
 Set via the `columns` array or `cells` function. Built-in types:
 
-- `text` (default), `numeric`, `intl-date` (v18+), `intl-time` (v18+), `checkbox`, `select`,
-  `dropdown`, `autocomplete`, `password`, `handsontable` (nested grid), `multiselect` (v17+)
+- `text` (default), `numeric`, `date`, `time`, `checkbox`, `select`, `dropdown`,
+  `autocomplete`, `password`, `handsontable` (nested grid), `multiselect` (v17+),
+  `intl-date` (v18+), `intl-time` (v18+)
 
-> The legacy `date` and `time` cell types were **removed in v18** (they depended on moment.js
-> and Pikaday). Use `intl-date` and `intl-time`, which take object-based format options and
-> require ISO 8601 source data.
+> v18 **reimplemented** the `date` and `time` cell types natively — moment.js and Pikaday were
+> removed, but the `date` and `time` type names still work and are interchangeable with the new
+> `intl-date` / `intl-time` names (same implementation). In v18+, all four take object-based
+> format options (`Intl.DateTimeFormat` shape) and require ISO 8601 source data; the legacy
+> string `dateFormat`/`timeFormat` and `datePickerConfig` options are ignored with a console
+> warning, and `correctFormat` was removed.
 
 ```jsx
 columns={[
@@ -640,7 +644,7 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 - **Using legacy CSS imports**: `handsontable.full.min.css` was removed in v17. Use `handsontable/styles/handsontable.min.css` plus a theme file.
 - **Formulas with nested object data**: HyperFormula formulas don't work when `data` is an array of nested objects — use flat objects or arrays of arrays.
 - **HTML in headers/menus/dialogs is not auto-sanitized in v18+**: DOMPurify was dropped from the bundle. If you render untrusted HTML in `colHeaders`, `rowHeaders`, context menus, dialogs, or select editors, pass a `sanitizer: (html) => …` function that returns the sanitized string (e.g., using your own DOMPurify install).
-- **Legacy `date` / `time` cell types removed in v18**: replaced by `intl-date` and `intl-time`, which use object-based format options (`Intl.DateTimeFormat` shape) and require ISO 8601 (`YYYY-MM-DD`, `HH:MM:SS`) values in the source data. The old string `dateFormat`/`timeFormat`, `correctFormat`, and `datePickerConfig` options are gone.
+- **Legacy date/time formatting options removed in v18**: the `date` and `time` cell types were **not** removed — they were reimplemented natively (moment.js and Pikaday are gone), and `intl-date` / `intl-time` are interchangeable names for the same implementations. All four use object-based format options (`Intl.DateTimeFormat` shape) and require ISO 8601 source data (`YYYY-MM-DD` for dates; 24-hour `HH:mm`, `HH:mm:ss`, or `HH:mm:ss.SSS` for times). The old string `dateFormat`/`timeFormat` and `datePickerConfig` options are ignored with a console warning; `correctFormat` was removed. The editor is now a native `<input type="date">` / `<input type="time">`.
 - **Legacy `numericFormat.pattern` / `numericFormat.culture` removed in v18**: numbro is no longer bundled. Use `Intl.NumberFormat` options on `numericFormat` (`style`, `currency`, `minimumFractionDigits`, …) together with a `locale` on the column config.
 - **`handsontable/common` subpath is gone in v18**: import types from `handsontable` directly (e.g., `import type { GridSettings, CellChange } from 'handsontable';`).
 - **`hot.undo()` / `hot.redo()` core methods removed in v18**: use the UndoRedo plugin instead — `hot.getPlugin('undoRedo').undo()` / `.redo()`.
@@ -664,7 +668,7 @@ skill's folder.
 
 - **TypeScript core.** Handsontable's core is now written in TypeScript. Public types re-export from `handsontable` directly; the `handsontable/common` subpath was **removed**. TypeScript 5.1+ is required for consumers.
 - **HyperFormula unbundled.** `handsontable@18.0.0` ships with `dependencies: {}` — install `hyperformula` separately and pass it to the Formulas plugin.
-- **Legacy date/time cell types removed.** `date` and `time` (moment.js / Pikaday–backed) are gone. Use `intl-date` and `intl-time` with `Intl.DateTimeFormat`-shaped option objects and ISO 8601 source data.
+- **Date/time cell types reimplemented natively.** moment.js and Pikaday were removed, but the `date` and `time` type names remain and are interchangeable with the new `intl-date` / `intl-time` names (same implementation). Formats are `Intl.DateTimeFormat`-shaped option objects, source data must be ISO 8601, and the editor is a native date/time input. String `dateFormat`/`timeFormat` and `datePickerConfig` are ignored with a console warning; `correctFormat` is removed.
 - **Legacy numeric formatting removed.** `numericFormat.pattern` and `numericFormat.culture` (numbro syntax) are gone. Use `Intl.NumberFormat` options + `locale`.
 - **DOMPurify dropped.** HTML in headers, menus, dialogs, and select editors is no longer auto-sanitized. Pass a `sanitizer: (html) => …` function if you render untrusted HTML.
 - **PersistentState plugin removed.** Along with the `saveManualColumnWidths` / `loadManualColumnWidths` / `saveManualRowHeights` / `loadManualRowHeights` methods.

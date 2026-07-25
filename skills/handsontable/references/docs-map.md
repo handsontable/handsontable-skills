@@ -74,8 +74,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 ## Cell Types
 - Cell type overview: https://handsontable.com/docs/react-data-grid/cell-type/
 - Numeric: https://handsontable.com/docs/react-data-grid/numeric-cell-type/
-- Intl-date (v18+ — page documents the `intl-date` type; legacy `date` was removed in v18): https://handsontable.com/docs/react-data-grid/date-cell-type/
-- Intl-time (v18+ — page documents the `intl-time` type; legacy `time` was removed in v18): https://handsontable.com/docs/react-data-grid/time-cell-type/
+- Date (documents both `date` and its v18+ equivalent `intl-date` — same implementation since v18): https://handsontable.com/docs/react-data-grid/date-cell-type/
+- Time (documents both `time` and its v18+ equivalent `intl-time` — same implementation since v18): https://handsontable.com/docs/react-data-grid/time-cell-type/
 - Checkbox: https://handsontable.com/docs/react-data-grid/checkbox-cell-type/
 - Select: https://handsontable.com/docs/react-data-grid/select-cell-type/
 - Dropdown: https://handsontable.com/docs/react-data-grid/dropdown-cell-type/
