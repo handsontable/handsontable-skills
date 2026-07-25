@@ -583,6 +583,28 @@ Core API reference: https://handsontable.com/docs/react-data-grid/api/core/
 
 ---
 
+## TypeScript & Type Definitions
+
+Types are bundled with the package in every version — never install `@types/handsontable` (a
+deprecated stub). The universal import idiom (works in v17 and v18):
+
+```ts
+import Handsontable from 'handsontable';
+import type { GridSettings, ColumnSettings, CellProperties, CellChange, ChangeSource } from 'handsontable';
+```
+
+Everything derives from `GridSettings` (the full options interface): `ColumnSettings` →
+`CellMeta` → `CellProperties`, and React's `HotTableProps` spreads `GridSettings` directly.
+v18 rewrote the core in TypeScript (native types, TS 5.1+, stricter `CellValue: unknown`); v17
+and earlier used hand-maintained `.d.ts` files with the same public names. The
+`handsontable/common` subpath was removed in v18 — import from `handsontable` instead.
+
+**For the curated type reference — settings hierarchy, typed options excerpt, hook signatures,
+registry unions, React wrapper types, and v17↔v18 differences — read
+`references/type-definitions.md` in this skill's folder.**
+
+---
+
 ## Performance & Large Datasets
 
 Handsontable virtualizes rendering automatically — only visible rows and columns are in the DOM, so
