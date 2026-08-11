@@ -25,6 +25,10 @@ const hf = HyperFormula.buildEmpty({
 });
 ```
 
+### `stringifyCurrency` (v3.4+)
+
+HyperFormula 3.4.0 added a `stringifyCurrency` config option that lets you plug in a custom currency formatter for the `TEXT` function. The release sources don't show its exact shape — check the ConfigParams reference (linked above) before use.
+
 ## Excel compatibility preset
 
 ```ts

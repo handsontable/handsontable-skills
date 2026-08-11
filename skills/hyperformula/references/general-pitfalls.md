@@ -36,9 +36,15 @@ hf.setCellContents({ sheet: 0, col: 0, row: 0 }, "'=SUM(1,2)");
 - Full built-in list: https://hyperformula.handsontable.com/docs/guide/built-in-functions.html
 - Runtime differences: https://hyperformula.handsontable.com/docs/guide/list-of-differences.html
 
+Lookup behavior over ranges with empty cells changed in v3.4.0: `MATCH`, `VLOOKUP`, `HLOOKUP`, and `XLOOKUP` previously returned wrong results or `#N/A` when the search range contained empty cells, and `VLOOKUP`/`HLOOKUP`/`XLOOKUP` were fixed to return `0` instead of an empty value when the matched cell in the result range is empty. On versions before 3.4.0, treat lookup results over sparse ranges as suspect and suggest upgrading.
+
 ## `licenseKey` is always required
 
 Every factory method (`buildFromArray`, `buildFromSheets`, `buildEmpty`) requires `licenseKey`. Use `'gpl-v3'` for open-source use or your commercial key.
+
+## Page freeze on long digit strings (fixed in 3.4.0)
+
+Entering a long string of digits containing a non-digit character near the end (e.g. `012...789a` or `012...789 123`) could freeze the page in versions before 3.4.0. If a user reports this symptom, upgrading to ≥ 3.4.0 fixes it.
 
 ## Known hard limits
 
