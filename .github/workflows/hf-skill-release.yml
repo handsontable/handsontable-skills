@@ -6,6 +6,15 @@ name: HF Skill Release
 #
 # Skill-only fixes (typos, broken links, no product change) can re-tag the
 # same product version with a +skill.<n> suffix, e.g. hyperformula/v3.3.0+skill.1.
+#
+# npm auth: this workflow uses npm *trusted publishing* (OIDC). There is no
+# NPM_TOKEN secret — npm exchanges the GitHub Actions OIDC token for a
+# short-lived publish token at publish time. The trusted publisher must be
+# configured once on npmjs.com for @handsontable/hyperformula-skill:
+#   Organization: handsontable
+#   Repository:   handsontable-skills
+#   Workflow:     hf-skill-release.yml
+# See https://docs.npmjs.com/trusted-publishers/
 
 on:
   push:
@@ -14,7 +23,7 @@ on:
 
 permissions:
   contents: write
-  id-token: write # required for npm publish --provenance
+  id-token: write # required for npm trusted publishing (OIDC) + provenance
 
 jobs:
   release:
@@ -48,11 +57,25 @@ jobs:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Upgrade npm for trusted publishing
+        # Trusted publishing needs npm >= 11.5.1; Node 22 still bundles npm 10.x.
+        run: |
+          npm install -g npm@latest
+          npm --version
+
       - name: Publish skill to npm
         working-directory: skills/hyperformula
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          # actions/setup-node writes "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}"
+          # into ~/.npmrc when registry-url is set. Under trusted publishing there is no
+          # token, and that empty _authToken makes npm believe auth is already handled, so
+          # it skips the OIDC exchange and dies with ENEEDAUTH / E404. Strip the line.
+          # https://github.com/actions/setup-node/issues/1551
+          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+          if [[ -f "$npmrc" ]]; then
+            sed -i '/_authToken/d' "$npmrc"
+          fi
+
           # Tag version is e.g. "v3.3.0" or, for a skill-only re-tag,
           # "v3.3.0+skill.1". Derive the npm version from it.
           VER="${{ steps.tag.outputs.version }}"

@@ -217,16 +217,29 @@ Each skill has its own workflow, so the two release fully independently — tagg
 
 - **`hyperformula/v*`** → [`.github/workflows/hf-skill-release.yml`](.github/workflows/hf-skill-release.yml):
   1. Builds `dist/hyperformula.zip` and `dist/hyperformula-rag.md` and attaches them to a GitHub Release, same as above.
-  2. **Additionally publishes [`@handsontable/hyperformula-skill`](https://www.npmjs.com/package/@handsontable/hyperformula-skill) to npm** with provenance. The npm version is derived from the tag (`hyperformula/v3.3.0` → `3.3.0`). A skill-only re-tag (`hyperformula/v3.3.0+skill.1`) publishes a prerelease (`3.3.0-skill.1`) under the `skill-fix` dist-tag instead, because npm strips semver build metadata and would otherwise collide with the already-published `3.3.0`; these never overwrite `latest`. Install them explicitly with `npm install @handsontable/hyperformula-skill@skill-fix`.
+  2. **Additionally publishes [`@handsontable/hyperformula-skill`](https://www.npmjs.com/package/@handsontable/hyperformula-skill) to npm** with provenance, authenticated via trusted publishing (OIDC — no stored token). The npm version is derived from the tag (`hyperformula/v3.3.0` → `3.3.0`). A skill-only re-tag (`hyperformula/v3.3.0+skill.1`) publishes a prerelease (`3.3.0-skill.1`) under the `skill-fix` dist-tag instead, because npm strips semver build metadata and would otherwise collide with the already-published `3.3.0`; these never overwrite `latest`. Install them explicitly with `npm install @handsontable/hyperformula-skill@skill-fix`.
 
 `handsontable` is not published to npm — only the `hyperformula` folder carries a `package.json`.
 
 ### One-time npm setup (hyperformula)
 
-Before the first npm publish, an org owner must:
+The npm publish uses [trusted publishing](https://docs.npmjs.com/trusted-publishers/) (OIDC) — there is no `NPM_TOKEN` secret and nothing to rotate. npm exchanges the workflow's GitHub Actions OIDC token for a short-lived publish token at publish time.
 
-- **Add the `NPM_TOKEN` secret** — a [granular npm automation token](https://docs.npmjs.com/creating-and-viewing-access-tokens) with publish rights to the `@handsontable` scope, stored under **Settings → Secrets and variables → Actions**.
-- **Confirm scope access** — `@handsontable` is a scoped package published with `--access public`; the token's owner must be a member of the `@handsontable` org on npm.
+This is configured once, on npm rather than in this repo. On the [package access page](https://www.npmjs.com/package/@handsontable/hyperformula-skill/access), a package admin or `@handsontable` org owner adds a GitHub Actions trusted publisher with:
+
+| Field | Value |
+|---|---|
+| Organization or user | `handsontable` |
+| Repository | `handsontable-skills` |
+| Workflow filename | `hf-skill-release.yml` |
+| Environment | *(leave blank)* |
+
+The workflow filename is case-sensitive and must include the extension. Renaming `hf-skill-release.yml` breaks publishing until the trusted publisher is updated to match.
+
+Two requirements the workflow satisfies on purpose, worth knowing before editing it:
+
+- Trusted publishing needs npm >= 11.5.1, so the workflow upgrades npm — the Node 22 image still bundles npm 10.x.
+- `actions/setup-node` writes an `_authToken` line into `~/.npmrc` whenever `registry-url` is set. Under OIDC that line is empty, which makes npm skip the token exchange and fail with a misleading `ENEEDAUTH`/`E404`, so the workflow deletes it before publishing ([setup-node#1551](https://github.com/actions/setup-node/issues/1551)).
 
 ## Resources
 
