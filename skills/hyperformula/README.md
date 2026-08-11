@@ -2,7 +2,7 @@
 
 An agent skill for [**HyperFormula**](https://hyperformula.handsontable.com) — the headless, open-source TypeScript spreadsheet calculation engine. It gives any AI coding agent deep, task-oriented knowledge of HyperFormula so the agent can help you integrate, configure, and debug the engine faster.
 
-This package is the npm distribution of the `hyperformula` skill maintained in [`handsontable/handsontable-skills`](https://github.com/handsontable/handsontable-skills). The package version tracks the HyperFormula product version the skill targets (e.g. `3.3.0` targets HyperFormula 3.3.0).
+This package is the npm distribution of the `hyperformula` skill maintained in [`handsontable/handsontable-skills`](https://github.com/handsontable/handsontable-skills). The package version tracks the HyperFormula product version the skill targets (e.g. `3.4.0` targets HyperFormula 3.4.0).
 
 ## What's in the package
 

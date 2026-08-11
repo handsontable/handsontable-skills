@@ -16,7 +16,7 @@ npm install hyperformula
 ### CDN (jsDelivr, pinned version)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/hyperformula@3.2.0/dist/hyperformula.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hyperformula@3.4.0/dist/hyperformula.full.min.js"></script>
 ```
 
 ### Node.js

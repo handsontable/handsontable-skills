@@ -25,7 +25,7 @@ description: >
 
 # HyperFormula
 
-HyperFormula is a **headless, open-source TypeScript spreadsheet calculation engine** for embedding spreadsheet logic in any JavaScript/TypeScript application (browser or Node.js). ~420 built-in functions, dependency graph, undo/redo, i18n (17 languages). Dual-licensed: GPLv3 or commercial.
+HyperFormula is a **headless, open-source TypeScript spreadsheet calculation engine** for embedding spreadsheet logic in any JavaScript/TypeScript application (browser or Node.js). ~420 built-in functions, dependency graph, undo/redo, i18n (18 languages). Dual-licensed: GPLv3 or commercial.
 
 - Docs: https://hyperformula.handsontable.com/
 - npm: https://www.npmjs.com/package/hyperformula
@@ -58,7 +58,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 - Supported browsers: https://hyperformula.handsontable.com/docs/guide/supported-browsers.html
 - Dependencies: https://hyperformula.handsontable.com/docs/guide/dependencies.html
 - Licensing (GPLv3 vs commercial): https://hyperformula.handsontable.com/docs/guide/licensing.html
-- Support: https://hyperformula.handsontable.com/docs/guide/support.html
+- Support / contact: https://hyperformula.handsontable.com/docs/guide/contact.html
 
 ### Getting Started
 - Client-side installation: https://hyperformula.handsontable.com/docs/guide/client-side-installation.html
@@ -67,6 +67,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 - Advanced usage: https://hyperformula.handsontable.com/docs/guide/advanced-usage.html
 - Configuration options guide: https://hyperformula.handsontable.com/docs/guide/configuration-options.html
 - License key setup: https://hyperformula.handsontable.com/docs/guide/license-key.html
+- Set up your coding agent (agent-ready docs, llms-full.txt, MCP options): https://hyperformula.handsontable.com/docs/guide/setup-coding-agent.html
 
 ### Framework Integration
 - React: https://hyperformula.handsontable.com/docs/guide/integration-with-react.html
@@ -94,7 +95,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 - Array formulas / ARRAYFORMULA: https://hyperformula.handsontable.com/docs/guide/arrays.html
 
 ### Internationalization
-- i18n features (17 languages): https://hyperformula.handsontable.com/docs/guide/i18n-features.html
+- i18n features (18 languages): https://hyperformula.handsontable.com/docs/guide/i18n-features.html
 - Localizing function names: https://hyperformula.handsontable.com/docs/guide/localizing-functions.html
 - Date and time handling: https://hyperformula.handsontable.com/docs/guide/date-and-time-handling.html
 
@@ -138,7 +139,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 
 ---
 
-> **Last updated: 2026-05-20 · Aligned with HyperFormula 3.3.0.**
+> **Last updated: 2026-08-11 · Aligned with HyperFormula 3.4.0.**
 > If the user is on a newer release, confirm API shape against the latest docs (see the **Release notes** link above) before relying on this file.
 
 ---
@@ -257,6 +258,10 @@ hf.listNamedExpressions(); // all registered names
 
 See [custom-functions.md](custom-functions.md) — `FunctionPlugin`, argument types, volatile functions, range arguments, returning arrays, error handling, aliases, localized names.
 
+## Function metadata (v3.4+)
+
+HyperFormula 3.4.0 added `getAvailableFunctions()` and `getFunctionDetails()` — available as both static and instance methods — for retrieving metadata about built-in and registered functions. The release sources don't document their exact signatures or return shapes; check the HyperFormula class reference (linked in the list at the top of this file) before use.
+
 ## Events
 
 Subscribe via `.on()` on the instance. Full list: https://hyperformula.handsontable.com/docs/api/interfaces/listeners.html
@@ -293,6 +298,23 @@ hf.isClipboardEmpty();
 hf.clearClipboard();
 ```
 
+## Formula functions added in 3.4.0
+
+Five new functions (syntax as published in the release announcement):
+
+- `XIRR(values, dates, [guess])` — internal rate of return for cash flows on irregular dates. Complements `IRR` (shipped in 3.2.0), which assumes evenly spaced payments.
+- `SORT(array, [sort_index], [sort_order], [by_col])` — returns a sorted copy of a range, by any row or column (stable, locale-aware ordering).
+- `UNIQUE(array, [by_col], [exactly_once])` — returns the distinct rows or columns of a range; preserves first-occurrence order, and `exactly_once` optionally keeps only values that appear exactly once.
+- `VSTACK(array1, [array2], ...)` / `HSTACK(array1, [array2], ...)` — stack multiple ranges vertically / horizontally into one array; ragged inputs are padded the same way Excel pads them.
+
+They are designed to compose — merging two lists, removing duplicates, and sorting the result is a single formula:
+
+```
+=SORT(UNIQUE(VSTACK(A1:A10, C1:C10)))
+```
+
+These extend the modern dynamic-array family started by `SEQUENCE` in 3.3.0. All five require HyperFormula ≥ 3.4.0.
+
 ---
 
 ## skills/hyperformula/references/configuration.md
@@ -323,6 +345,10 @@ const hf = HyperFormula.buildEmpty({
   maxPendingLazyTransformations: 1000, // v3.3+ — cap accumulated lazy transformations before cleanup
 });
 ```
+
+### `stringifyCurrency` (v3.4+)
+
+HyperFormula 3.4.0 added a `stringifyCurrency` config option that lets you plug in a custom currency formatter for the `TEXT` function. The release sources don't show its exact shape — check the ConfigParams reference (linked above) before use.
 
 ## Excel compatibility preset
 
@@ -685,9 +711,15 @@ hf.setCellContents({ sheet: 0, col: 0, row: 0 }, "'=SUM(1,2)");
 - Full built-in list: https://hyperformula.handsontable.com/docs/guide/built-in-functions.html
 - Runtime differences: https://hyperformula.handsontable.com/docs/guide/list-of-differences.html
 
+Lookup behavior over ranges with empty cells changed in v3.4.0: `MATCH`, `VLOOKUP`, `HLOOKUP`, and `XLOOKUP` previously returned wrong results or `#N/A` when the search range contained empty cells, and `VLOOKUP`/`HLOOKUP`/`XLOOKUP` were fixed to return `0` instead of an empty value when the matched cell in the result range is empty. On versions before 3.4.0, treat lookup results over sparse ranges as suspect and suggest upgrading.
+
 ## `licenseKey` is always required
 
 Every factory method (`buildFromArray`, `buildFromSheets`, `buildEmpty`) requires `licenseKey`. Use `'gpl-v3'` for open-source use or your commercial key.
+
+## Page freeze on long digit strings (fixed in 3.4.0)
+
+Entering a long string of digits containing a non-digit character near the end (e.g. `012...789a` or `012...789 123`) could freeze the page in versions before 3.4.0. If a user reports this symptom, upgrading to ≥ 3.4.0 fixes it.
 
 ## Known hard limits
 
@@ -718,7 +750,7 @@ npm install hyperformula
 ### CDN (jsDelivr, pinned version)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/hyperformula@3.2.0/dist/hyperformula.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hyperformula@3.4.0/dist/hyperformula.full.min.js"></script>
 ```
 
 ### Node.js

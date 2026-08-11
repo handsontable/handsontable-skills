@@ -17,7 +17,7 @@ description: >
 
 # HyperFormula
 
-HyperFormula is a **headless, open-source TypeScript spreadsheet calculation engine** for embedding spreadsheet logic in any JavaScript/TypeScript application (browser or Node.js). ~420 built-in functions, dependency graph, undo/redo, i18n (17 languages). Dual-licensed: GPLv3 or commercial.
+HyperFormula is a **headless, open-source TypeScript spreadsheet calculation engine** for embedding spreadsheet logic in any JavaScript/TypeScript application (browser or Node.js). ~420 built-in functions, dependency graph, undo/redo, i18n (18 languages). Dual-licensed: GPLv3 or commercial.
 
 - Docs: https://hyperformula.handsontable.com/
 - npm: https://www.npmjs.com/package/hyperformula
@@ -50,7 +50,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 - Supported browsers: https://hyperformula.handsontable.com/docs/guide/supported-browsers.html
 - Dependencies: https://hyperformula.handsontable.com/docs/guide/dependencies.html
 - Licensing (GPLv3 vs commercial): https://hyperformula.handsontable.com/docs/guide/licensing.html
-- Support: https://hyperformula.handsontable.com/docs/guide/support.html
+- Support / contact: https://hyperformula.handsontable.com/docs/guide/contact.html
 
 ### Getting Started
 - Client-side installation: https://hyperformula.handsontable.com/docs/guide/client-side-installation.html
@@ -59,6 +59,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 - Advanced usage: https://hyperformula.handsontable.com/docs/guide/advanced-usage.html
 - Configuration options guide: https://hyperformula.handsontable.com/docs/guide/configuration-options.html
 - License key setup: https://hyperformula.handsontable.com/docs/guide/license-key.html
+- Set up your coding agent (agent-ready docs, llms-full.txt, MCP options): https://hyperformula.handsontable.com/docs/guide/setup-coding-agent.html
 
 ### Framework Integration
 - React: https://hyperformula.handsontable.com/docs/guide/integration-with-react.html
@@ -86,7 +87,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 - Array formulas / ARRAYFORMULA: https://hyperformula.handsontable.com/docs/guide/arrays.html
 
 ### Internationalization
-- i18n features (17 languages): https://hyperformula.handsontable.com/docs/guide/i18n-features.html
+- i18n features (18 languages): https://hyperformula.handsontable.com/docs/guide/i18n-features.html
 - Localizing function names: https://hyperformula.handsontable.com/docs/guide/localizing-functions.html
 - Date and time handling: https://hyperformula.handsontable.com/docs/guide/date-and-time-handling.html
 
@@ -130,5 +131,5 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 
 ---
 
-> **Last updated: 2026-05-20 · Aligned with HyperFormula 3.3.0.**
+> **Last updated: 2026-08-11 · Aligned with HyperFormula 3.4.0.**
 > If the user is on a newer release, confirm API shape against the latest docs (see the **Release notes** link above) before relying on this file.

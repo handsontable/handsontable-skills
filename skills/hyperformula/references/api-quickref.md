@@ -110,6 +110,10 @@ hf.listNamedExpressions(); // all registered names
 
 See [custom-functions.md](custom-functions.md) — `FunctionPlugin`, argument types, volatile functions, range arguments, returning arrays, error handling, aliases, localized names.
 
+## Function metadata (v3.4+)
+
+HyperFormula 3.4.0 added `getAvailableFunctions()` and `getFunctionDetails()` — available as both static and instance methods — for retrieving metadata about built-in and registered functions. The release sources don't document their exact signatures or return shapes; check the HyperFormula class reference (linked in the list at the top of this file) before use.
+
 ## Events
 
 Subscribe via `.on()` on the instance. Full list: https://hyperformula.handsontable.com/docs/api/interfaces/listeners.html
@@ -145,3 +149,20 @@ hf.paste({ sheet: 0, col: 5, row: 5 });
 hf.isClipboardEmpty();
 hf.clearClipboard();
 ```
+
+## Formula functions added in 3.4.0
+
+Five new functions (syntax as published in the release announcement):
+
+- `XIRR(values, dates, [guess])` — internal rate of return for cash flows on irregular dates. Complements `IRR` (shipped in 3.2.0), which assumes evenly spaced payments.
+- `SORT(array, [sort_index], [sort_order], [by_col])` — returns a sorted copy of a range, by any row or column (stable, locale-aware ordering).
+- `UNIQUE(array, [by_col], [exactly_once])` — returns the distinct rows or columns of a range; preserves first-occurrence order, and `exactly_once` optionally keeps only values that appear exactly once.
+- `VSTACK(array1, [array2], ...)` / `HSTACK(array1, [array2], ...)` — stack multiple ranges vertically / horizontally into one array; ragged inputs are padded the same way Excel pads them.
+
+They are designed to compose — merging two lists, removing duplicates, and sorting the result is a single formula:
+
+```
+=SORT(UNIQUE(VSTACK(A1:A10, C1:C10)))
+```
+
+These extend the modern dynamic-array family started by `SEQUENCE` in 3.3.0. All five require HyperFormula ≥ 3.4.0.
