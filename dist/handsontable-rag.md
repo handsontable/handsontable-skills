@@ -233,6 +233,26 @@ Then pass it as a prop:
 In v17, dark mode is controlled via `themeName` or the Theme API — there are no separate `-dark` or
 `-dark-auto` CSS files. Load the base theme CSS above and set the mode at runtime.
 
+### Wrapper border (v18+)
+
+v18 removed `--ht-wrapper-border-width` and `--ht-wrapper-border-color`, and renamed
+`--ht-wrapper-border-radius` to `--ht-border-radius`. The removed variables defaulted to `0px` and the base
+border color, so by default the table renders no wrapper border. Recreate one with a `box-shadow`:
+
+```css
+.ht-theme-main {
+  --ht-border-radius: 8px;        /* renamed from --ht-wrapper-border-radius */
+}
+
+/* Restore a visible wrapper border, if needed */
+.ht-theme-main .ht-root-wrapper {
+  box-shadow: 0 0 0 1px #a0aec0;  /* replaces --ht-wrapper-border-width / -color */
+}
+```
+
+A plain `border` on `.ht-grid-content` is not the equivalent — it does not follow `--ht-border-radius` and is
+applied inside the wrapper instead of around it.
+
 For CSS variable customization, the Theme Builder, Figma design system, and 200+ design tokens, see:
 - [Themes guide](https://handsontable.com/docs/react-data-grid/themes/)
 - [Theme customization](https://handsontable.com/docs/react-data-grid/theme-customization/)
@@ -671,7 +691,7 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 - **`handsontable/common` subpath is gone in v18**: import types from `handsontable` directly (e.g., `import type { GridSettings, CellChange } from 'handsontable';`).
 - **`hot.undo()` / `hot.redo()` core methods removed in v17.0**: use the UndoRedo plugin instead — `hot.getPlugin('undoRedo').undo()` / `.redo()`. (The v18.0 changelog re-lists this removal, but it shipped in v17.0.)
 - **PersistentState plugin removed in v17.0**: no drop-in replacement — persist column widths / row heights / your own state to `localStorage` manually if needed. Beware: in v18.0 the related `saveManualColumnWidths()` / `loadManualColumnWidths()` / `saveManualRowHeights()` / `loadManualRowHeights()` plugin methods exist again, but only as deprecated no-op stubs that log a warning.
-- **Custom CSS targeting the wrapper**: v18 introduced new wrapper elements (`.ht-grid-content`, `.ht-slot-top`, `.ht-slot-bottom`, `.ht-overlay`). Selectors like `.ht-root-wrapper > .ht-grid > .handsontable` will break — target `.ht-grid-content > .handsontable` instead. Also, the `--ht-wrapper-border-radius` CSS var was renamed to `--ht-border-radius`, and `--ht-wrapper-border-width` / `--ht-wrapper-border-color` were removed.
+- **Custom CSS targeting the wrapper**: v18 introduced new wrapper elements (`.ht-grid-content`, `.ht-slot-top`, `.ht-slot-bottom`, `.ht-overlay`). Selectors like `.ht-root-wrapper > .ht-grid > .handsontable` will break — target `.ht-grid-content > .handsontable` instead. Also, the `--ht-wrapper-border-radius` CSS var was renamed to `--ht-border-radius`, and `--ht-wrapper-border-width` / `--ht-wrapper-border-color` were removed. Their defaults were `0px` and the base border color, so v18 renders **no wrapper border by default**. To restore a visible outline, put a `box-shadow` on `.ht-root-wrapper`, scoped to your theme class — `.ht-theme-main .ht-root-wrapper { box-shadow: 0 0 0 1px #a0aec0; }`. Do **not** reach for a plain `border` on `.ht-grid-content`: it ignores `--ht-border-radius` and sits inside the new wrapper DOM rather than around it.
 
 ---
 
@@ -695,7 +715,7 @@ skill's folder.
 - **DOMPurify dropped.** HTML in headers, menus, dialogs, and select editors is no longer auto-sanitized. Pass a `sanitizer: (html) => …` function if you render untrusted HTML.
 - **`saveManualColumnWidths()` / `loadManualColumnWidths()` / `saveManualRowHeights()` / `loadManualRowHeights()` are deprecated no-ops.** These ManualColumnResize / ManualRowResize methods lost their storage when the PersistentState plugin was removed in v17.0; in v18.0 they only log a deprecation warning (`load…` returns `[]`). Note: the v18.0 changelog also re-lists the PersistentState plugin and core `hot.undo()` / `hot.redo()` removals, but both actually shipped in v17.0 (see v17.0 Breaking Changes below).
 - **New layout system.** New `layout` option orders plugin UI elements in the `top` and `bottom` wrapper slots. New DOM elements (`.ht-slot-top`, `.ht-slot-bottom`, `.ht-overlay`, `.ht-grid-content`) — audit custom CSS.
-- **Theme tokens.** `--ht-wrapper-border-radius` renamed to `--ht-border-radius`; `--ht-wrapper-border-width` and `--ht-wrapper-border-color` removed.
+- **Theme tokens.** `--ht-wrapper-border-radius` renamed to `--ht-border-radius`; `--ht-wrapper-border-width` and `--ht-wrapper-border-color` removed (their defaults meant no wrapper border was drawn). Recreate a visible border with a `box-shadow` on `.ht-root-wrapper`.
 - **Angular support broadened.** Angular 16–22 (was 17–19 in v17.1).
 - **New options:** `hashRevealDelay` (password cells), `visibleWhen` (nested headers), `layout`.
 - **React/Vue wrapper fixes:** removing a `<HotColumn>` no longer leaves a phantom column ([#12596](https://github.com/handsontable/handsontable/issues/12596)); `height: '100%'` inside a fixed-height parent no longer hides the wrapped table ([#12445](https://github.com/handsontable/handsontable/issues/12445)). Both wrappers peer-require `handsontable@^18` — keep versions aligned.
