@@ -32,7 +32,7 @@ validation, pagination, and 400+ built-in formulas via HyperFormula.
 - **Latest version:** 18.1.0 (September 2026)
 - **Frameworks:** Vanilla JS/TS, React (`@handsontable/react-wrapper`), Angular (`@handsontable/angular-wrapper`), Vue 3 (`@handsontable/vue3`)
 - **React wrapper requires:** React 18+
-- **License:** Dual — free for non-commercial use (`licenseKey: 'non-commercial-and-evaluation'`), paid for commercial. Per-developer annual license, offline validation (no server connection). **v18.1+: a missing or invalid `licenseKey` blocks the grid** with a modal that cannot be closed (v18.0 and earlier only showed a notice below the grid); an expired key or lapsed subscription never blocks — features keep working with a console error. Entitlement license keys are also supported (v18.1+). Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
+- **License:** Dual — free for non-commercial use (`licenseKey: 'non-commercial-and-evaluation'`), paid for commercial. Per-developer annual license, offline validation (no server connection). **v18.1+: a missing or invalid `licenseKey` blocks the grid** with a modal that cannot be closed (v18.0 showed only a notice below the grid). An expired commercial key (perpetual past its maintenance date, or a lapsed subscription) never blocks — a notice appears below the grid and in the console while every feature keeps working. A **trial** key is different: after its expiration date a message appears, and once the grace period stored in the key also passes, a blocking screen replaces the grid. Entitlement license keys are also supported (v18.1+); validation stays offline for every key kind. Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
 
 Always check `references/docs-map.md` (in this skill folder) for the full organized link directory
 when you need to point the user to specific documentation or need to look up more info.
@@ -99,7 +99,7 @@ export default MyGrid;
 Key points:
 - `registerAllModules()` registers every built-in plugin. To reduce bundle size, import only what
   you need — see [Modules guide](https://handsontable.com/docs/react-data-grid/modules/).
-- `height` is required (or the grid won't render). Use `"auto"`, a pixel number, or a CSS string.
+- Always set `height` explicitly — `"auto"`, a pixel number, or a CSS string. Unsized grids are unpredictable (see Common Pitfalls).
 - All Handsontable configuration options are passed as props on `<HotTable>`.
 - Full installation guide: https://handsontable.com/docs/react-data-grid/installation/
 
@@ -354,9 +354,11 @@ dropdownMenu={true}         // column header menu with filter UI
 > **v18.1 header-click change:** a column-header click sorts on mouse **up**, and only when the
 > click lands on the header label or its sort indicator — pressing elsewhere in the header cell
 > selects the column without sorting (which makes select-and-drag of a sorted column possible in
-> one gesture). `beforeColumnMove` / `afterColumnMove` no longer fire on a plain header click.
-> Automated tests that sort by dispatching `mousedown` on the header cell must click the label
-> element instead.
+> one gesture). `beforeColumnMove` / `afterColumnMove` no longer fire on a plain header click —
+> react to header clicks with `afterColumnSort` or `afterOnCellMouseUp` instead. Automated tests
+> that sorted by dispatching `mousedown` on the header cell must target the label
+> (`.colHeader.sortAction`) and dispatch `mousedown` + `mouseup` without moving the pointer; in
+> real-browser tests, click the label element — the center of the header cell no longer sorts.
 
 ### Frozen rows/columns
 
@@ -702,8 +704,8 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 
 ## Common Pitfalls
 
-- **Missing or invalid `licenseKey` blocks the grid in v18.1+**: the grid is covered by a modal that cannot be closed (v18.0 and earlier only showed a notice below the grid). This typically bites environments where the notice used to be ignored — local dev, CI, end-to-end test suites, Storybook and demo builds. Pass a valid key, or `'non-commercial-and-evaluation'` for non-commercial use, to every instance in every environment. `licenseKey` is read once at initialization — passing a new one through `updateSettings()` does not re-evaluate it; recreate the instance instead. An expired key or lapsed subscription never blocks (console error only), and v18.1 also resumes showing expired-key notices that v18.0 accidentally suppressed.
-- **Forgetting `height`**: The grid won't render without a `height` prop. Use `"auto"`, a pixel value, or a CSS string.
+- **Missing or invalid `licenseKey` blocks the grid in v18.1+**: the grid is covered by a modal that cannot be closed (v18.0 showed only a notice below the grid). This typically bites environments where the notice used to be ignored — local dev, CI, end-to-end test suites, Storybook and demo builds. Pass a valid key, or `'non-commercial-and-evaluation'` for non-commercial use, to every instance in every environment. `licenseKey` is read once at initialization — passing a new one through `updateSettings()` does not re-evaluate it; recreate the instance instead. An expired commercial key or lapsed subscription never blocks (notice + console error, features keep working; only an expired **trial** blocks, once the key's grace period passes). v18.1 also detects expired keys again — in v18.0 that detection silently never ran — so expired-key notices reappear after upgrading.
+- **Not setting `height`**: always set it explicitly — `"auto"`, a pixel value, or a CSS string. Unsized grids historically collapsed or misbehaved; v18.1 fixed one such case (a grid with `width` but no `height` collapsing vertically), but an explicit height keeps sizing predictable across versions.
 - **Not filtering `loadData` in `afterChange`**: The `afterChange` hook fires on initial data load with `source === 'loadData'`. Always check the source to avoid infinite loops when syncing changes back to state.
 - **Using the old wrapper packages**: v17 removed `@handsontable/react` and `@handsontable/angular`. Use `@handsontable/react-wrapper` and `@handsontable/angular-wrapper`.
 - **Using legacy CSS imports**: `handsontable.full.min.css` was removed in v17. Use `handsontable/styles/handsontable.min.css` plus a theme file.
@@ -735,9 +737,11 @@ A minor release: **no public API removals** (only leftover Pikaday styles were d
 behavior change that can block an unconfigured grid, and a large performance batch.
 
 - **License enforcement:** a missing or invalid `licenseKey` now **blocks the grid** with a modal
-  that cannot be closed (18.0 only showed a notice below the grid). An expired key or lapsed
-  subscription never blocks — console error only. Entitlement license keys are supported.
-  Expired-key notices that 18.0 accidentally suppressed reappear. See Common Pitfalls.
+  that cannot be closed (18.0 only showed a notice below the grid). An expired commercial key or
+  lapsed subscription never blocks (notice + console error only), but an expired **trial** blocks
+  once the key's grace period passes. Entitlement license keys are supported. 18.1 also detects
+  expired keys again — 18.0's detection silently never ran, so expired-key notices reappear after
+  upgrading. See Common Pitfalls.
 - **New `intl-datetime` cell type:** combined date-and-time values — ISO 8601 source data,
   `dateTimeFormat` (`Intl.DateTimeFormat` options object), native date-time picker, and sorting /
   filtering / Excel-export support. See Column types above.
@@ -750,10 +754,12 @@ behavior change that can block an unconfigured grid, and a large performance bat
 - **Column-header click sorts on mouse up**, and only on the header label / sort indicator;
   `beforeColumnMove` / `afterColumnMove` no longer fire on a plain header click (they previously
   fired even though no column moved). See the Sorting & filtering note above.
-- **Single-pass rendering:** the grid now predicts scrollbar presence instead of rendering,
-  measuring, and re-rendering. MergeCells keeps the previous path automatically; the new
-  `modifySinglePassLayout` hook forces the old measure-then-render path per table if custom code
-  depends on it (symptom: a wrong scrollbar at load).
+- **Single-pass rendering:** the grid now predicts scrollbar presence from cached row heights and
+  column widths instead of rendering, measuring, and re-rendering. MergeCells opts out
+  automatically. If custom code changes a cell's box after measurement (symptoms: a spurious or
+  missing scrollbar, or a viewport short by a row/column), return `false` from the new
+  `modifySinglePassLayout` hook to restore the previous measure-then-render path for that
+  instance — it is read on every layout pass, so it works through `updateSettings()` too.
 - **Performance batch across large datasets:** faster sorting, filtering, hiding, scrolling,
   bulk alterations, and initial render; cell metadata for scrolled-away rows is released
   (memory), and bulk operations no longer permanently cache settings for every visited cell.
