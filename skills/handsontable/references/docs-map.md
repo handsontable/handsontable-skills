@@ -76,6 +76,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Numeric: https://handsontable.com/docs/react-data-grid/numeric-cell-type/
 - Date (documents both `date` and its v18+ equivalent `intl-date` — same implementation since v18): https://handsontable.com/docs/react-data-grid/date-cell-type/
 - Time (documents both `time` and its v18+ equivalent `intl-time` — same implementation since v18): https://handsontable.com/docs/react-data-grid/time-cell-type/
+- Datetime (`intl-datetime`, v18.1+): https://handsontable.com/docs/react-data-grid/datetime-cell-type/
 - Checkbox: https://handsontable.com/docs/react-data-grid/checkbox-cell-type/
 - Select: https://handsontable.com/docs/react-data-grid/select-cell-type/
 - Dropdown: https://handsontable.com/docs/react-data-grid/dropdown-cell-type/
@@ -203,6 +204,7 @@ definitions directly (version-pinned):
 - Versioning policy: https://handsontable.com/docs/react-data-grid/versioning-policy/
 - Deprecation policy: https://handsontable.com/docs/react-data-grid/deprecation-policy/
 - Long Term Support (LTS): https://handsontable.com/docs/react-data-grid/long-term-support/
+- 18.0 → 18.1 migration: https://handsontable.com/docs/react-data-grid/migration-from-18.0-to-18.1/
 - 17.1 → 18.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-17.1-to-18.0/
 - 16.2 → 17.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-16.2-to-17.0/
 - 16.0 → 16.1 migration: https://handsontable.com/docs/react-data-grid/migration-from-16.0-to-16.1/

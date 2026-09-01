@@ -21,10 +21,10 @@ brings spreadsheet-like UX to web apps: cell editing, copy/paste, sorting, filte
 keyboard navigation, context menus, merged cells, frozen rows/columns, conditional formatting, data
 validation, pagination, and 400+ built-in formulas via HyperFormula.
 
-- **Latest version:** 18.0.0 (June 2026)
+- **Latest version:** 18.1.0 (September 2026)
 - **Frameworks:** Vanilla JS/TS, React (`@handsontable/react-wrapper`), Angular (`@handsontable/angular-wrapper`), Vue 3 (`@handsontable/vue3`)
 - **React wrapper requires:** React 18+
-- **License:** Dual — free for non-commercial use (`licenseKey: 'non-commercial-and-evaluation'`), paid for commercial. Per-developer annual license, offline validation (no server connection). Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
+- **License:** Dual — free for non-commercial use (`licenseKey: 'non-commercial-and-evaluation'`), paid for commercial. Per-developer annual license, offline validation (no server connection). **v18.1+: a missing or invalid `licenseKey` blocks the grid** with a modal that cannot be closed (v18.0 showed only a notice below the grid). An expired commercial key (perpetual past its maintenance date, or a lapsed subscription) never blocks — a notice appears below the grid and in the console while every feature keeps working. A **trial** key is different: after its expiration date a message appears, and once the grace period stored in the key also passes, a blocking screen replaces the grid. Entitlement license keys are also supported (v18.1+); validation stays offline for every key kind. Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
 
 Always check `references/docs-map.md` (in this skill folder) for the full organized link directory
 when you need to point the user to specific documentation or need to look up more info.
@@ -91,7 +91,7 @@ export default MyGrid;
 Key points:
 - `registerAllModules()` registers every built-in plugin. To reduce bundle size, import only what
   you need — see [Modules guide](https://handsontable.com/docs/react-data-grid/modules/).
-- `height` is required (or the grid won't render). Use `"auto"`, a pixel number, or a CSS string.
+- Always set `height` explicitly — `"auto"`, a pixel number, or a CSS string. Unsized grids are unpredictable (see Common Pitfalls).
 - All Handsontable configuration options are passed as props on `<HotTable>`.
 - Full installation guide: https://handsontable.com/docs/react-data-grid/installation/
 
@@ -113,8 +113,8 @@ npm install handsontable
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main.min.css" />
 ```
 
-To pin a specific version, add `@18.0` after `handsontable` in the URL (e.g.,
-`handsontable@18.0/dist/handsontable.full.min.js`).
+To pin a specific version, add `@18.1` after `handsontable` in the URL (e.g.,
+`handsontable@18.1/dist/handsontable.full.min.js`).
 
 ### Minimal working example
 
@@ -283,7 +283,7 @@ Set via the `columns` array or `cells` function. Built-in types:
 
 - `text` (default), `numeric`, `date`, `time`, `checkbox`, `select`, `dropdown`,
   `autocomplete`, `password`, `handsontable` (nested grid), `multiselect` (v17+),
-  `intl-date` (v18+), `intl-time` (v18+)
+  `intl-date` (v18+), `intl-time` (v18+), `intl-datetime` (v18.1+)
 
 > v18 **reimplemented** the `date` and `time` cell types natively — moment.js and Pikaday were
 > removed, but the `date` and `time` type names still work and are interchangeable with the new
@@ -293,6 +293,12 @@ Set via the `columns` array or `cells` function. Built-in types:
 > warning, and `correctFormat` was removed. Date/time cells no longer auto-correct input —
 > normalize or correct entered values with `valueParser` and/or `valueSetter`.
 > `datePickerConfig` has no replacement; the editor is the browser native date input.
+>
+> v18.1 adds **`intl-datetime`** for combined date-and-time values: ISO 8601 date-time
+> strings in source data, display via the `dateTimeFormat` option (an `Intl.DateTimeFormat`
+> options object — a `{ dateStyle, timeStyle }` shortcut or a custom shape), a native
+> date-time picker editor, and column sorting, filtering, and Excel export support.
+> Sorting and filtering operate on the underlying ISO values, not the displayed text.
 
 ```jsx
 columns={[
@@ -314,6 +320,13 @@ columns={[
     locale: 'en-GB',
     dateFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
   },
+  // v18.1+ intl-datetime: combined date & time, ISO 8601 date-time source data.
+  {
+    data: 'updatedAt',
+    type: 'intl-datetime',
+    locale: 'en-GB',
+    dateTimeFormat: { dateStyle: 'medium', timeStyle: 'short' },
+  },
 ]}
 ```
 
@@ -329,6 +342,15 @@ multiColumnSorting={true}   // multi-column sort
 filters={true}              // enable column filters
 dropdownMenu={true}         // column header menu with filter UI
 ```
+
+> **v18.1 header-click change:** a column-header click sorts on mouse **up**, and only when the
+> click lands on the header label or its sort indicator — pressing elsewhere in the header cell
+> selects the column without sorting (which makes select-and-drag of a sorted column possible in
+> one gesture). `beforeColumnMove` / `afterColumnMove` no longer fire on a plain header click —
+> react to header clicks with `afterColumnSort` or `afterOnCellMouseUp` instead. Automated tests
+> that sorted by dispatching `mousedown` on the header cell must target the label
+> (`.colHeader.sortAction`) and dispatch `mousedown` + `mouseup` without moving the pointer; in
+> real-browser tests, click the label element — the center of the header cell no longer sorts.
 
 ### Frozen rows/columns
 
@@ -674,7 +696,8 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 
 ## Common Pitfalls
 
-- **Forgetting `height`**: The grid won't render without a `height` prop. Use `"auto"`, a pixel value, or a CSS string.
+- **Missing or invalid `licenseKey` blocks the grid in v18.1+**: the grid is covered by a modal that cannot be closed (v18.0 showed only a notice below the grid). This typically bites environments where the notice used to be ignored — local dev, CI, end-to-end test suites, Storybook and demo builds. Pass a valid key, or `'non-commercial-and-evaluation'` for non-commercial use, to every instance in every environment. `licenseKey` is read once at initialization — passing a new one through `updateSettings()` does not re-evaluate it; recreate the instance instead. An expired commercial key or lapsed subscription never blocks (notice + console error, features keep working; only an expired **trial** blocks, once the key's grace period passes). v18.1 also detects expired keys again — in v18.0 that detection silently never ran — so expired-key notices reappear after upgrading.
+- **Not setting `height`**: always set it explicitly — `"auto"`, a pixel value, or a CSS string. Unsized grids historically collapsed or misbehaved; v18.1 fixed one such case (a grid with `width` but no `height` collapsing vertically), but an explicit height keeps sizing predictable across versions.
 - **Not filtering `loadData` in `afterChange`**: The `afterChange` hook fires on initial data load with `source === 'loadData'`. Always check the source to avoid infinite loops when syncing changes back to state.
 - **Using the old wrapper packages**: v17 removed `@handsontable/react` and `@handsontable/angular`. Use `@handsontable/react-wrapper` and `@handsontable/angular-wrapper`.
 - **Using legacy CSS imports**: `handsontable.full.min.css` was removed in v17. Use `handsontable/styles/handsontable.min.css` plus a theme file.
@@ -700,7 +723,56 @@ common. Point them to the relevant migration guide if they're upgrading.
 For the full organized directory of documentation links, read `references/docs-map.md` in this
 skill's folder.
 
-### v18.0 Breaking Changes (latest, June 2026)
+### v18.1 changes (latest, September 2026)
+
+A minor release: **no public API removals** (only leftover Pikaday styles were deleted), one
+behavior change that can block an unconfigured grid, and a large performance batch.
+
+- **License enforcement:** a missing or invalid `licenseKey` now **blocks the grid** with a modal
+  that cannot be closed (18.0 only showed a notice below the grid). An expired commercial key or
+  lapsed subscription never blocks (notice + console error only), but an expired **trial** blocks
+  once the key's grace period passes. Entitlement license keys are supported. 18.1 also detects
+  expired keys again — 18.0's detection silently never ran, so expired-key notices reappear after
+  upgrading. See Common Pitfalls.
+- **New `intl-datetime` cell type:** combined date-and-time values — ISO 8601 source data,
+  `dateTimeFormat` (`Intl.DateTimeFormat` options object), native date-time picker, and sorting /
+  filtering / Excel-export support. See Column types above.
+- **New selection interactions:** the `selectionHandles` option shows draggable handles at each
+  edge midpoint of a selected range for resizing the selection, and the `moveCells` option moves a
+  cell selection to a new location by dragging its border. New hooks that ship with them:
+  `afterOnSelectionEdgeMouseDown`, `afterOnSelectionHandleMouseDown`, `beforeMoveCells`,
+  `afterMoveCells`. (NestedRows also gained `beforeRowCollapse` / `afterRowCollapse` /
+  `beforeRowExpand` / `afterRowExpand` hooks.)
+- **Column-header click sorts on mouse up**, and only on the header label / sort indicator;
+  `beforeColumnMove` / `afterColumnMove` no longer fire on a plain header click (they previously
+  fired even though no column moved). See the Sorting & filtering note above.
+- **Single-pass rendering:** the grid now predicts scrollbar presence from cached row heights and
+  column widths instead of rendering, measuring, and re-rendering. MergeCells opts out
+  automatically. If custom code changes a cell's box after measurement (symptoms: a spurious or
+  missing scrollbar, or a viewport short by a row/column), return `false` from the new
+  `modifySinglePassLayout` hook to restore the previous measure-then-render path for that
+  instance — it is read on every layout pass, so it works through `updateSettings()` too.
+- **Performance batch across large datasets:** faster sorting, filtering, hiding, scrolling,
+  bulk alterations, and initial render; cell metadata for scrolled-away rows is released
+  (memory), and bulk operations no longer permanently cache settings for every visited cell.
+  New `getCellMetaTransient()` method reads effective cell configuration without caching it.
+- **Shadow DOM / Salesforce Lightning fixes:** inside Shadow DOM and sandboxed hosts, the cell
+  editor no longer closes when clicked, copy/paste works, focus is released when it leaves the
+  grid, outside clicks clear the selection, and internal z-index values no longer paint above the
+  host page UI.
+- **`preserveNumericLiteral`** option (numeric cells): keeps the exact typed value — trailing
+  decimal zeros and large-number precision survive the editor.
+- **Security hardening:** pasted HTML can no longer run scripts, and the `sanitizer` option is now
+  applied to surfaces that previously skipped it (a sanitizer that branches on its `source`
+  argument sees new values; the new `SanitizerContext` type lists them). The `loading` plugin's
+  `title` / `description` options now render as **text** — use `icon` for markup.
+- **Touch:** on devices reporting both touch and mouse (e.g. iPad), a double-tap opens the cell
+  editor; a single tap on a selected cell no longer opens it as in 18.0. Persian RTL support added.
+
+Migration guide: https://handsontable.com/docs/react-data-grid/migration-from-18.0-to-18.1/
+Release blog post: https://handsontable.com/blog/handsontable-18.1.0-shadow-dom-support-for-salesforce-and-web-components-a-faster-grid-and-a-new-demo-playground
+
+### v18.0 Breaking Changes (June 2026)
 
 - **TypeScript core.** Handsontable's core is now written in TypeScript. Public types re-export from `handsontable` directly; the `handsontable/common` subpath was **removed**. TypeScript 5.1+ is required for consumers.
 - **HyperFormula unbundled.** `handsontable@18.0.0` ships with `dependencies: {}` — install `hyperformula` separately and pass it to the Formulas plugin.
