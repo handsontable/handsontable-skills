@@ -741,8 +741,16 @@ behavior change that can block an unconfigured grid, and a large performance bat
   edge midpoint of a selected range for resizing the selection, and the `moveCells` option moves a
   cell selection to a new location by dragging its border. New hooks that ship with them:
   `afterOnSelectionEdgeMouseDown`, `afterOnSelectionHandleMouseDown`, `beforeMoveCells`,
-  `afterMoveCells`. (NestedRows also gained `beforeRowCollapse` / `afterRowCollapse` /
-  `beforeRowExpand` / `afterRowExpand` hooks.)
+  `afterMoveCells`.
+- **NestedRows gained a public collapse/expand API and two bugfixes:** `collapseAll()`,
+  `expandAll()`, `collapseParent(row)`, `expandParent(row)`, `toggleParent(row)`,
+  `getCollapsedParents()`, `isParentCollapsed(row)`, `isParent(row)`, `getRowLevel(row)`,
+  `getRowParent(row)`, `countChildren(row)`, `expandToRow(row)`, `expandToLevel(level)` — plus
+  `beforeRowCollapse` / `afterRowCollapse` / `beforeRowExpand` / `afterRowExpand` hooks (physical
+  row indexes). Two behavior fixes ship alongside: (1) `updateSettings()` no longer discards
+  collapsed-row state — it now survives, without re-firing the collapse/expand hooks for the
+  replay; (2) looking up the index/parent/level of a row object held from before a `loadData()`,
+  `updateData()`, `addChild()`, or a row move no longer throws — it returns `null` instead.
 - **Column-header click sorts on mouse up**, and only on the header label / sort indicator;
   `beforeColumnMove` / `afterColumnMove` no longer fire on a plain header click (they previously
   fired even though no column moved). See the Sorting & filtering note above.
