@@ -745,9 +745,11 @@ behavior change that can block an unconfigured grid, and a large performance bat
 - **NestedRows gained a public collapse/expand API and two bugfixes:** `collapseAll()`,
   `expandAll()`, `collapseParent(row)`, `expandParent(row)`, `toggleParent(row)`,
   `getCollapsedParents()`, `isParentCollapsed(row)`, `isParent(row)`, `getRowLevel(row)`,
-  `getRowParent(row)`, `countChildren(row)`, `expandToRow(row)`, `expandToLevel(level)` — plus
-  `beforeRowCollapse` / `afterRowCollapse` / `beforeRowExpand` / `afterRowExpand` hooks (physical
-  row indexes). Two behavior fixes ship alongside: (1) `updateSettings()` no longer discards
+  `getRowParent(row)`, `countChildren(row)`, `expandToRow(row)`, `expandToLevel(level)`. These
+  methods take visual row indexes, except `getCollapsedParents()` / `expandToRow()`, which use
+  physical (a collapsed row has no visual index); the
+  `beforeRowCollapse` / `afterRowCollapse` / `beforeRowExpand` / `afterRowExpand` hooks also carry
+  physical row indexes. Two behavior fixes ship alongside: (1) `updateSettings()` no longer discards
   collapsed-row state — it now survives, without re-firing the collapse/expand hooks for the
   replay; (2) looking up the index/parent/level of a row object held from before a `loadData()`,
   `updateData()`, `addChild()`, or a row move no longer throws — it returns `null` instead.
