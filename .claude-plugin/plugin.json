@@ -1,0 +1,22 @@
+{
+  "name": "handsontable-skills",
+  "description": "Claude skills for Handsontable (JavaScript data grid component) and HyperFormula (headless spreadsheet calculation engine)",
+  "version": "1.0.0",
+  "author": {
+    "name": "Handsontable",
+    "email": "support@handsontable.com"
+  },
+  "homepage": "https://handsontable.com",
+  "repository": "https://github.com/handsontable/handsontable-skills",
+  "license": "MIT",
+  "keywords": [
+    "handsontable",
+    "hyperformula",
+    "data-grid",
+    "spreadsheet",
+    "javascript",
+    "react",
+    "angular",
+    "vue"
+  ]
+}
