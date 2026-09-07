@@ -1,0 +1,53 @@
+name: Link Check
+
+# Weekly check that every URL in the skill markdown files still resolves.
+# scripts/check-links.sh exits 1 when any link returns 4xx/5xx; this workflow
+# then opens a tracking issue with the run's output, or comments on the one
+# already open, so links cannot rot silently between releases.
+
+on:
+  schedule:
+    # Mondays at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check links
+        id: check
+        run: |
+          set +e
+          OUTPUT=$(./scripts/check-links.sh 2>&1)
+          STATUS=$?
+          echo "$OUTPUT"
+          {
+            echo 'output<<CHECK_LINKS_EOF'
+            echo "$OUTPUT" | tail -n 60
+            echo 'CHECK_LINKS_EOF'
+          } >> "$GITHUB_OUTPUT"
+          exit $STATUS
+
+      - name: Open or update tracking issue
+        if: failure() && steps.check.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          CHECK_OUTPUT: ${{ steps.check.outputs.output }}
+        run: |
+          TITLE="Weekly link check found broken links"
+          BODY=$(printf 'The scheduled link check failed.\n\nRun: %s\n\n```\n%s\n```\n' "$RUN_URL" "$CHECK_OUTPUT")
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY"
+          fi
