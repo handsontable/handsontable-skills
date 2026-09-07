@@ -216,11 +216,11 @@ definitions directly (version-pinned):
 - Angular: https://handsontable.com/docs/angular-data-grid/installation/
 - Vue 3: https://handsontable.com/docs/vue-data-grid/installation/
 
-## SSR Examples (CodeSandbox)
-- Next.js: https://codesandbox.io/p/sandbox/kwnjph?file=https://handsontable.com/codesandbox-vm?example-dir=next.js&handsontable-version=18.0preview=true
-- Astro: https://codesandbox.io/p/sandbox/gnqcwn?file=https://handsontable.com/codesandbox-vm?example-dir=astro&handsontable-version=18.0preview=true
-- Remix: https://codesandbox.io/p/sandbox/njcjlq?file=https://handsontable.com/codesandbox-vm?example-dir=remix&handsontable-version=18.0preview=true
-- Nuxt: https://codesandbox.io/p/sandbox/r7qsjc?file=https://handsontable.com/codesandbox-vm?example-dir=nuxt&handsontable-version=18.0preview=true
+## SSR Examples (live runners)
+- Next.js: https://handsontable.com/codesandbox-vm?example-dir=next.js&handsontable-version=18.1.0
+- Astro: https://handsontable.com/codesandbox-vm?example-dir=astro&handsontable-version=18.1.0
+- Remix: https://handsontable.com/codesandbox-vm?example-dir=remix&handsontable-version=18.1.0
+- Nuxt: https://handsontable.com/codesandbox-vm?example-dir=nuxt&handsontable-version=18.1.0
 
 ## CDN Links (jsDelivr) — latest
 - JS (full bundle): https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js
