@@ -49,7 +49,7 @@ Upload the package contents (`SKILL.md` + `references/`) to the [Skills API](htt
 
 ### OpenAI Codex
 
-Codex discovers [skills](https://developers.openai.com/codex/skills) as folders containing a `SKILL.md`, under `~/.agents/skills` (available in every repo) or `.agents/skills` in a repo (checked in for your team). Copy the package into one of those locations:
+Codex discovers [skills](https://learn.chatgpt.com/docs/build-skills) as folders containing a `SKILL.md`, under `~/.agents/skills` (available in every repo) or `.agents/skills` in a repo (checked in for your team). Copy the package into one of those locations:
 
 ```bash
 # User scope — available in every repo
