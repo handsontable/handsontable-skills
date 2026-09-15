@@ -30,7 +30,7 @@ UA="Mozilla/5.0 (compatible; link-checker/1.0)"
 
 # Domains / URL patterns that return 403 to automated requests but are not actually broken.
 # Multiple patterns are joined with grep -qE alternation below.
-ALLOWLIST_403='npmjs\.com|handsontable\.com/blog'
+ALLOWLIST_403='npmjs\.com|handsontable\.com/blog|stackoverflow\.com'
 
 # Collect all URLs from markdown files in skill directories
 URLS_FILE=$(mktemp)

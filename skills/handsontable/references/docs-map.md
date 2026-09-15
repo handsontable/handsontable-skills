@@ -59,7 +59,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Merge cells: https://handsontable.com/docs/react-data-grid/merge-cells/
 - Conditional formatting: https://handsontable.com/docs/react-data-grid/conditional-formatting/
 - Text alignment: https://handsontable.com/docs/react-data-grid/text-alignment/
-- Disabled cells: https://handsontable.com/docs/react-data-grid/disabled-cells/
+- Read-only cells: https://handsontable.com/docs/react-data-grid/read-only-cells/
 - Comments: https://handsontable.com/docs/react-data-grid/comments/
 - Autofill values: https://handsontable.com/docs/react-data-grid/autofill-values/
 - Formatting cells: https://handsontable.com/docs/react-data-grid/formatting-cells/
@@ -217,10 +217,10 @@ definitions directly (version-pinned):
 - Vue 3: https://handsontable.com/docs/vue-data-grid/installation/
 
 ## SSR Examples (live runners)
-- Next.js: https://handsontable.com/codesandbox-vm?example-dir=next.js&handsontable-version=18.1.0
-- Astro: https://handsontable.com/codesandbox-vm?example-dir=astro&handsontable-version=18.1.0
-- Remix: https://handsontable.com/codesandbox-vm?example-dir=remix&handsontable-version=18.1.0
-- Nuxt: https://handsontable.com/codesandbox-vm?example-dir=nuxt&handsontable-version=18.1.0
+- Next.js: https://demos.handsontable.com/?example=next.js&v=18.1.0
+- Astro: https://demos.handsontable.com/?example=astro&v=18.1.0
+- Remix: https://demos.handsontable.com/?example=remix&v=18.1.0
+- Nuxt: https://demos.handsontable.com/?example=nuxt&v=18.1.0
 
 ## CDN Links (jsDelivr) — latest
 - JS (full bundle): https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js
