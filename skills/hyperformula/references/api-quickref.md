@@ -112,7 +112,7 @@ See [custom-functions.md](custom-functions.md) — `FunctionPlugin`, argument ty
 
 ## Function metadata (v3.4+)
 
-HyperFormula 3.4.0 added `getAvailableFunctions()` and `getFunctionDetails()`, both instance-only methods (the only static in this area is `getRegisteredFunctionNames(code)`), for retrieving metadata about built-in and registered functions.
+HyperFormula 3.4.0 added `getAvailableFunctions()` and `getFunctionDetails()` for retrieving metadata about built-in and registered functions.
 
 - `getAvailableFunctions(): FunctionListEntry[]` returns entries with `localizedName`, `canonicalName`, `category`, optional `shortDescription` and `aliasOf`. It's a snapshot taken when the engine was built, so plugins registered later are absent.
 - `getFunctionDetails(canonicalName): FunctionDetails | undefined` is case-sensitive and takes only the canonical English id (`'SUMIF'` resolves, `'sumif'` returns `undefined`, a localized name never resolves). Returns `parameters` (with per-parameter `optional`), plus `repeatLastArgs`, `category`, `shortDescription`, `documentationUrl` and `examples`.
