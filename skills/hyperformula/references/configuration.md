@@ -27,7 +27,7 @@ const hf = HyperFormula.buildEmpty({
 
 ### `stringifyCurrency` (v3.4+)
 
-HyperFormula 3.4.0 added a `stringifyCurrency` config option that lets you plug in a custom currency formatter for the `TEXT` function. The release sources don't show its exact shape — check the ConfigParams reference (linked above) before use.
+HyperFormula 3.4.0 added a `stringifyCurrency: (value: number, currencyFormat: string) => string | undefined` config option that lets you plug in a custom currency formatter for the `TEXT` function. It's called with the raw number and the format code, not pre-formatted output.
 
 ## Excel compatibility preset
 
