@@ -32,6 +32,10 @@ UA="Mozilla/5.0 (compatible; link-checker/1.0)"
 # Multiple patterns are joined with grep -qE alternation below.
 ALLOWLIST_403='npmjs\.com|handsontable\.com/blog|stackoverflow\.com'
 
+# POST-only endpoints that return 405 to this script's GET but are not broken
+# (the Docs MCP server speaks streamable-HTTP POST; a GET is documented to 405).
+ALLOWLIST_405='docs-assistant\.handsontable\.com/mcp'
+
 # Collect all URLs from markdown files in skill directories
 URLS_FILE=$(mktemp)
 RESULTS_FILE=$(mktemp)
@@ -40,7 +44,7 @@ trap 'rm -f "$URLS_FILE" "$RESULTS_FILE"' EXIT
 # Extract URLs — use grep -oE for macOS/BSD compatibility (no -P flag)
 grep -rhoE 'https://[^[:space:])"<>]+' \
     skills/handsontable/ skills/hyperformula/ \
-    | sed 's/[.,;:)]*$//' \
+    | sed 's/[.,;:)`]*$//' \
     | sort -u > "$URLS_FILE"
 
 TOTAL=$(wc -l < "$URLS_FILE" | tr -d ' ')
@@ -79,6 +83,8 @@ while IFS='|' read -r initial_status final_status redirect_target url; do
     if [[ "$final_status" == "000" ]]; then
         TIMEOUTS+=("$url")
     elif [[ "$final_status" == "403" ]] && echo "$url" | grep -qE "$ALLOWLIST_403"; then
+        OK=$((OK + 1))
+    elif [[ "$final_status" == "405" ]] && echo "$url" | grep -qE "$ALLOWLIST_405"; then
         OK=$((OK + 1))
     elif [[ "$final_status" =~ ^[45] ]]; then
         printf "  BROKEN  %s  %s\n" "$final_status" "$url"
