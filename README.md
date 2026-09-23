@@ -163,6 +163,12 @@ To check links independently, or auto-fix redirects:
 
 Each skill is versioned and released independently. The flow is the same for both skills; only `hyperformula` additionally publishes to npm.
 
+### How a skill update comes together
+
+A skill is updated once per product release, after the release is fully published: the GitHub release notes, the docs for the new version (including the migration guide, when there is one), and the release blog post. Those are the sources an update is written from, so a draft started before they all exist has to be redone once they land.
+
+The first draft comes from an automated pipeline that reads those sources together with the Handsontable docs knowledge base and opens a draft pull request here. A maintainer then reviews every claim against the published docs, cross-checks hook, option, and method names against the API of the exact version being targeted, fixes what the draft got wrong, and merges. The steps below are the last mile after that merge: rebuild the `dist/` artifacts and push the tag. A tag such as `handsontable/v18.1.0` therefore describes 18.1.0 and nothing newer.
+
 ### Versioning convention
 
 A skill's version matches the underlying product version, so the tag `hyperformula/v3.3.0` is the skill that targets HyperFormula 3.3.0 and `handsontable/v17.0.0` targets Handsontable 17.0.0. Both skills live in one repo (rather than two) because they cross-reference each other constantly — a change in one almost always wants a paired check in the other, and a monorepo keeps that atomic.
