@@ -215,6 +215,15 @@ const theme = registerTheme(mainTheme)
   .setDensityType('comfortable'); // 'compact' | 'default' | 'comfortable'
 ```
 
+To override colors or tokens (brand color, font size), call `params()`. There are no `setPrimaryColor()` or `setFontSize()` methods.
+
+```js
+theme.params({
+  colors: { primary: { 500: '#9333ea' } }, // brand color
+  tokens: { fontSize: '16px' },
+});
+```
+
 Then pass it as a prop:
 
 ```jsx
