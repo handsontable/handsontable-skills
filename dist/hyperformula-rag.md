@@ -43,6 +43,12 @@ Task-oriented references in `references/` (open the one that matches what the us
 - [`error-handling.md`](references/error-handling.md) — inspecting `CellError`, `ErrorType` enum, `getCellValueDetailedType`, common error causes (`#NAME?`, `#CYCLE!`, `#REF!`, …). Open this when a cell returns an error or you need to branch on result type.
 - [`general-pitfalls.md`](references/general-pitfalls.md) — cross-cutting gotchas: `destroy()` lifecycle, forcing literal strings, Excel-parity caveats, hard limits. Open this when results look wrong or memory grows unboundedly.
 
+This skill is a snapshot tagged to a release. For live semantic search over the **current** docs —
+newer releases, or anything not covered here — use the first-party Docs MCP server (public, no
+auth): `claude mcp add --transport http handsontable-docs https://docs-assistant.handsontable.com/mcp`.
+It searches HyperFormula and Handsontable guides, API reference, release notes, and GitHub issues.
+Guide: https://handsontable.com/docs/javascript-data-grid/docs-mcp-server/
+
 Below this section is the **Documentation map** — the canonical directory of links to the official HyperFormula docs. Use it when pointing the user to authoritative material.
 
 ## Documentation map
@@ -260,7 +266,10 @@ See [custom-functions.md](custom-functions.md) — `FunctionPlugin`, argument ty
 
 ## Function metadata (v3.4+)
 
-HyperFormula 3.4.0 added `getAvailableFunctions()` and `getFunctionDetails()` — available as both static and instance methods — for retrieving metadata about built-in and registered functions. The release sources don't document their exact signatures or return shapes; check the HyperFormula class reference (linked in the list at the top of this file) before use.
+HyperFormula 3.4.0 added `getAvailableFunctions()` and `getFunctionDetails()` for retrieving metadata about built-in and registered functions.
+
+- `getAvailableFunctions(): FunctionListEntry[]` returns entries with `localizedName`, `canonicalName`, `category`, optional `shortDescription` and `aliasOf`. It's a snapshot taken when the engine was built, so plugins registered later are absent.
+- `getFunctionDetails(canonicalName): FunctionDetails | undefined` is case-sensitive and takes only the canonical English id (`'SUMIF'` resolves, `'sumif'` returns `undefined`, a localized name never resolves). Returns `parameters` (with per-parameter `optional`), plus `repeatLastArgs`, `category`, `shortDescription`, `documentationUrl` and `examples`.
 
 ## Events
 
@@ -303,9 +312,11 @@ hf.clearClipboard();
 Five new functions (syntax as published in the release announcement):
 
 - `XIRR(values, dates, [guess])` — internal rate of return for cash flows on irregular dates. Complements `IRR` (shipped in 3.2.0), which assumes evenly spaced payments.
-- `SORT(array, [sort_index], [sort_order], [by_col])` — returns a sorted copy of a range, by any row or column (stable, locale-aware ordering).
-- `UNIQUE(array, [by_col], [exactly_once])` — returns the distinct rows or columns of a range; preserves first-occurrence order, and `exactly_once` optionally keeps only values that appear exactly once.
-- `VSTACK(array1, [array2], ...)` / `HSTACK(array1, [array2], ...)` — stack multiple ranges vertically / horizontally into one array; ragged inputs are padded the same way Excel pads them.
+- `SORT(array, [sort_index], [sort_order], [by_col])`: returns a sorted copy of a range, by any row or column (stable, locale-aware ordering). `sort_order` is `1` for ascending, `-1` for descending, not a boolean.
+- `UNIQUE(array, [by_col], [exactly_once])`: returns the distinct rows or columns of a range; preserves first-occurrence order, and `exactly_once` optionally keeps only values that appear exactly once.
+- `VSTACK(array1, [array2], ...)` / `HSTACK(array1, [array2], ...)`: stack multiple ranges vertically / horizontally into one array; ragged inputs are padded the same way Excel pads them.
+
+Also new in 3.4.0: the `idID` Indonesian language pack, and a lookup change where an empty matched cell now returns `0` (a genuinely missing key still returns `#N/A`).
 
 They are designed to compose — merging two lists, removing duplicates, and sorting the result is a single formula:
 
@@ -348,7 +359,7 @@ const hf = HyperFormula.buildEmpty({
 
 ### `stringifyCurrency` (v3.4+)
 
-HyperFormula 3.4.0 added a `stringifyCurrency` config option that lets you plug in a custom currency formatter for the `TEXT` function. The release sources don't show its exact shape — check the ConfigParams reference (linked above) before use.
+HyperFormula 3.4.0 added a `stringifyCurrency: (value: number, currencyFormat: string) => string | undefined` config option that lets you plug in a custom currency formatter for the `TEXT` function. It's called with the raw number and the format code, not pre-formatted output.
 
 ## Excel compatibility preset
 

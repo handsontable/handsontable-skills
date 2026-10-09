@@ -21,7 +21,7 @@ brings spreadsheet-like UX to web apps: cell editing, copy/paste, sorting, filte
 keyboard navigation, context menus, merged cells, frozen rows/columns, conditional formatting, data
 validation, pagination, and 400+ built-in formulas via HyperFormula.
 
-- **Latest version:** 18.1.0 (September 2026)
+- **Latest version:** 18.1.2 (October 2026)
 - **Frameworks:** Vanilla JS/TS, React (`@handsontable/react-wrapper`), Angular (`@handsontable/angular-wrapper`), Vue 3 (`@handsontable/vue3`)
 - **React wrapper requires:** React 18+
 - **License:** Dual — free for non-commercial use (`licenseKey: 'non-commercial-and-evaluation'`), paid for commercial. Per-developer annual license, offline validation (no server connection). **v18.1+: a missing or invalid `licenseKey` blocks the grid** with a modal that cannot be closed (v18.0 showed only a notice below the grid). An expired commercial key (perpetual past its maintenance date, or a lapsed subscription) never blocks — a notice appears below the grid and in the console while every feature keeps working. A **trial** key is different: after its expiration date a message appears, and once the grace period stored in the key also passes, a blocking screen replaces the grid. Entitlement license keys are also supported (v18.1+); validation stays offline for every key kind. Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
@@ -119,8 +119,8 @@ npm install handsontable
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main.min.css" />
 ```
 
-To pin a specific version, add `@18.1` after `handsontable` in the URL (e.g.,
-`handsontable@18.1/dist/handsontable.full.min.js`).
+To pin a specific version, add `@18.1.2` after `handsontable` in the URL (e.g.,
+`handsontable@18.1.2/dist/handsontable.full.min.js`).
 
 ### Minimal working example
 
@@ -738,7 +738,7 @@ common. Point them to the relevant migration guide if they're upgrading.
 For the full organized directory of documentation links, read `references/docs-map.md` in this
 skill's folder.
 
-### v18.1 changes (latest, September 2026)
+### v18.1.x changes (latest patch: 18.1.2, October 2026)
 
 A minor release: **no public API removals** (only leftover Pikaday styles were deleted), one
 behavior change that can block an unconfigured grid, and a large performance batch.
@@ -796,6 +796,8 @@ behavior change that can block an unconfigured grid, and a large performance bat
 
 Migration guide: https://handsontable.com/docs/react-data-grid/migration-from-18.0-to-18.1/
 Release blog post: https://handsontable.com/blog/handsontable-18.1.0-shadow-dom-support-for-salesforce-and-web-components-a-faster-grid-and-a-new-demo-playground
+
+**18.1.2 patch (October 2026):** Changed entitlement license key validation to protect the human-readable text as well as the bracketed block (so the block alone, edited text, or text after the block makes a current key invalid, while a rewrapped, one-line, or `\n`-escaped key still works). Fixed entitlement license keys whose bracketed block was broken across lines (e.g. by an email client) being read as invalid and locking the grid.
 
 ### v18.0 Breaking Changes (June 2026)
 
