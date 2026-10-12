@@ -145,7 +145,7 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 
 ---
 
-> **Last updated: 2026-08-11 · Aligned with HyperFormula 3.4.0.**
+> **Last updated: 2026-10-09 · Aligned with HyperFormula 3.5.0.**
 > If the user is on a newer release, confirm API shape against the latest docs (see the **Release notes** link above) before relying on this file.
 
 ---
@@ -268,8 +268,12 @@ See [custom-functions.md](custom-functions.md) — `FunctionPlugin`, argument ty
 
 HyperFormula 3.4.0 added `getAvailableFunctions()` and `getFunctionDetails()` for retrieving metadata about built-in and registered functions.
 
-- `getAvailableFunctions(): FunctionListEntry[]` returns entries with `localizedName`, `canonicalName`, `category`, optional `shortDescription` and `aliasOf`. It's a snapshot taken when the engine was built, so plugins registered later are absent.
-- `getFunctionDetails(canonicalName): FunctionDetails | undefined` is case-sensitive and takes only the canonical English id (`'SUMIF'` resolves, `'sumif'` returns `undefined`, a localized name never resolves). Returns `parameters` (with per-parameter `optional`), plus `repeatLastArgs`, `category`, `shortDescription`, `documentationUrl` and `examples`.
+- `getAvailableFunctions(): FunctionListEntry[]` returns entries with `localizedName`, `canonicalName`, `category`, optional `shortDescription` and `aliasOf`. It's a snapshot taken when the engine was built, so plugins registered later are absent. In 3.5.0, when a proprietary license key grants only a subset of functions, this method returns only the functions your key includes.
+- `getFunctionDetails(canonicalName): FunctionDetails | undefined` is case-sensitive and takes only the canonical English id (`'SUMIF'` resolves, `'sumif'` returns `undefined`, a localized name never resolves). Returns `parameters` (with per-parameter `optional`), plus `repeatLastArgs`, `category`, `shortDescription`, `documentationUrl` and `examples`. In 3.5.0, it describes only the functions your license key includes.
+
+## Partial-function license keys (v3.5+)
+
+HyperFormula 3.5.0 introduced support for proprietary license keys that grant only a subset of functions. A function your key does not include evaluates to a `#LIC!` error. API methods that edit cells, rows, columns, and sheets, as well as `copy()`, `cut()`, `paste()`, `undo()`, `redo()`, `batch()`, `suspendEvaluation()`, and methods that add, change, or remove named expressions throw a `LicenseCapabilityMissingError` when the key is missing, invalid, expired (classic key), or past its grace period (trial key). Building an engine with named expressions also throws this error. The matching `isItPossibleTo*()` methods, `isThereSomethingToUndo()`, and `isThereSomethingToRedo()` return `false` in those cases.
 
 ## Events
 
@@ -679,6 +683,7 @@ return new CellError(ErrorType.DIV_BY_ZERO);
 | `#DIV/0!` | Division by zero, including empty cells coerced to 0 |
 | `#NUM!` | Out-of-range numeric result (e.g. `SQRT(-1)`) |
 | `#N/A` | Lookup miss (`MATCH`, `VLOOKUP`) or propagated from an upstream `#N/A` |
+| `#LIC!` | Function not included in your proprietary license key (v3.5+) |
 
 ---
 
@@ -732,6 +737,26 @@ Every factory method (`buildFromArray`, `buildFromSheets`, `buildEmpty`) require
 
 Entering a long string of digits containing a non-digit character near the end (e.g. `012...789a` or `012...789 123`) could freeze the page in versions before 3.4.0. If a user reports this symptom, upgrading to ≥ 3.4.0 fixes it.
 
+## `MOD` sign behavior changed in 3.5.0
+
+Before 3.5.0, `MOD` returned a remainder with the sign of the **dividend**, differing from Excel and Google Sheets when the arguments have opposite signs. From 3.5.0 onward, `MOD` returns a remainder with the sign of the **divisor**, matching Excel and Sheets (e.g. `=MOD(-3, 12)` now returns `9` instead of `-3`). If you relied on the old sign behavior, audit any `MOD` formulas with mixed-sign arguments after upgrading.
+
+## `AVERAGEIF` division-by-zero false positive (fixed in 3.5.0)
+
+Before 3.5.0, `AVERAGEIF` incorrectly returned a division-by-zero error when the calculated average was `0`. This is fixed in 3.5.0.
+
+## `MAXPOOL` / `MEDIANPOOL` stride and error handling (changed in 3.5.0)
+
+Before 3.5.0, passing a stride greater than the window size returned `#VALUE!`. From 3.5.0, a stride larger than the window is accepted — the windows skip the rows and columns between them. Additionally, these functions now return `#VALUE!` (instead of throwing an uncaught `TypeError` or `RangeError`) when the window is larger than the range or the range dimensions reduced by the window size are not whole multiples of the stride, and `#NUM!` when the window size or stride is not a positive integer.
+
+## Statistical precision improved in 3.5.0
+
+`VAR`, `STDEV`, `DEVSQ`, `COVARIANCE.P`, `COVARIANCE.S`, `SLOPE`, `STEYX`, `DVAR`, `DSTDEV`, their variants, and the matching `SUBTOTAL` modes previously lost precision on data with a large mean and a small spread, and could return errors or `0` for very large or very small values even when the result was within range. These are fixed in 3.5.0. `SLOPE` and `STEYX` also previously returned `#NUM!` or an arbitrary number instead of `#DIV/0!` when all x values are equal, and `STEYX` returned `#NUM!` or `0` instead of the correct standard error for near-collinear points — both fixed in 3.5.0.
+
+## `VERSION` function output changed in 3.5.0
+
+The `VERSION` function now returns only the HyperFormula version string (e.g. `HyperFormula v3.5.0`) without the license key status appended. Code that parsed the old format must be updated.
+
 ## Known hard limits
 
 - **Single workbook per instance** — no multi-workbook support.
@@ -761,7 +786,7 @@ npm install hyperformula
 ### CDN (jsDelivr, pinned version)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/hyperformula@3.4.0/dist/hyperformula.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hyperformula@3.5.0/dist/hyperformula.full.min.js"></script>
 ```
 
 ### Node.js

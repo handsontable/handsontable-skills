@@ -67,3 +67,4 @@ return new CellError(ErrorType.DIV_BY_ZERO);
 | `#DIV/0!` | Division by zero, including empty cells coerced to 0 |
 | `#NUM!` | Out-of-range numeric result (e.g. `SQRT(-1)`) |
 | `#N/A` | Lookup miss (`MATCH`, `VLOOKUP`) or propagated from an upstream `#N/A` |
+| `#LIC!` | Function not included in your proprietary license key (v3.5+) |
