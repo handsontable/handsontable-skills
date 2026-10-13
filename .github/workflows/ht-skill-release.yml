@@ -11,6 +11,10 @@ on:
   push:
     tags:
       - 'handsontable/v*'
+  # Dispatched on a tag by release-on-merge.yml (a tag pushed with
+  # GITHUB_TOKEN does not trigger the push event above). Also usable by hand:
+  # Run workflow → "Use workflow from" → the tag.
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -21,6 +25,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Require a release tag
+        run: |
+          case "$GITHUB_REF" in
+            refs/tags/handsontable/v*) ;;
+            *) echo "::error::run this workflow on a handsontable/v* tag, not $GITHUB_REF"; exit 1 ;;
+          esac
 
       - name: Parse tag
         id: tag
@@ -35,6 +46,7 @@ jobs:
       - name: Attach release asset
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
           name: handsontable ${{ steps.tag.outputs.version }}
           files: |
             dist/handsontable.zip

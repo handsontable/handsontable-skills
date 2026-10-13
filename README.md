@@ -130,10 +130,14 @@ We ship the skills in several forms because different agents and surfaces accept
 │   └── hyperformula.zip          ← gitignored, built on demand / by CI
 ├── scripts/
 │   ├── build.sh                  ← regenerates dist/*.zip and dist/*-rag.md
-│   └── check-links.sh            ← verifies all skill URLs return 200
+│   ├── check-links.sh            ← verifies all skill URLs return 200
+│   └── release-if-bumped.sh      ← tags + releases a skill whose version marker moved
 └── .github/workflows/
-    ├── ht-skill-release.yml      ← handsontable: build zip on tag push, attach to Release
-    └── hf-skill-release.yml      ← hyperformula: build zip + publish to npm on tag push
+    ├── dist-sync.yml             ← PRs: rebuild dist/*-rag.md, commit it to the PR branch
+    ├── release-on-merge.yml      ← main: tag + release skills whose version marker moved
+    ├── ht-skill-release.yml      ← handsontable: build zip on a tag, attach to Release
+    ├── hf-skill-release.yml      ← hyperformula: build zip + publish to npm on a tag
+    └── link-check.yml            ← weekly link check
 ```
 
 ## Building artifacts
@@ -167,7 +171,7 @@ Each skill is versioned and released independently. The flow is the same for bot
 
 A skill is updated once per product release, after the release is fully published: the GitHub release notes, the docs for the new version (including the migration guide, when there is one), and the release blog post. Those are the sources an update is written from, so a draft started before they all exist has to be redone once they land.
 
-The first draft comes from an automated pipeline that reads those sources together with the Handsontable docs knowledge base and opens a draft pull request here. A maintainer then reviews every claim against the published docs, cross-checks hook, option, and method names against the API of the exact version being targeted, fixes what the draft got wrong, and merges. The steps below are the last mile after that merge: rebuild the `dist/` artifacts and push the tag. A tag such as `handsontable/v18.1.0` therefore describes 18.1.0 and nothing newer.
+The first draft comes from an automated pipeline that reads those sources together with the Handsontable docs knowledge base and opens a draft pull request here. A maintainer then reviews every claim against the published docs, cross-checks hook, option, and method names against the API of the exact version being targeted, fixes what the draft got wrong, and merges. Merging is the release: CI keeps `dist/` in step on the PR and tags the merge commit (see below). A tag such as `handsontable/v18.1.0` therefore describes 18.1.0 and nothing newer.
 
 ### Versioning convention
 
@@ -187,35 +191,20 @@ hyperformula/v3.3.0+skill.1
 
 ### Release steps (both skills)
 
-1. **Edit the skill** under `skills/<name>/`. For `hyperformula` you do **not** bump `skills/hyperformula/package.json` by hand — CI sets the npm version from the tag (keep the committed value at the current product version as a sane default).
-2. **Rebuild the dist artifacts** so the tracked RAG doc matches what will ship:
+1. **Edit the skill** under `skills/<name>/` in a PR, including its version marker: `- **Latest version:** X.Y.Z` in `skills/handsontable/SKILL.md`, or `Aligned with HyperFormula X.Y.Z` at the end of `skills/hyperformula/SKILL.md`. For `hyperformula` you do **not** bump `skills/hyperformula/package.json` by hand — CI sets the npm version from the tag (keep the committed value at the current product version as a sane default).
+2. **`dist/` takes care of itself.** [`dist-sync.yml`](.github/workflows/dist-sync.yml) rebuilds `dist/*-rag.md` on every PR that touches a skill and commits it to the PR branch when it changed (the `.zip` files are gitignored and built by the release). On a PR from a fork it cannot push, so the check fails and asks you to run `./scripts/build.sh --skip-links` and commit `dist/*-rag.md` yourself. The docs assistant's knowledge base ingests the committed `dist/*-rag.md` from `main`, so a stale file means stale answers.
+3. **Merge.** [`release-on-merge.yml`](.github/workflows/release-on-merge.yml) runs [`scripts/release-if-bumped.sh`](scripts/release-if-bumped.sh): when a skill's version marker is newer than its newest `<name>/vX.Y.Z` tag, it tags the merge commit and dispatches that skill's release workflow on the tag. A merge that does not move a marker releases nothing. Preview what it would do with `./scripts/release-if-bumped.sh --dry-run`.
+4. **Skill-only fixes are tagged by hand** (typo, broken link, no product change — the marker does not move):
 
    ```bash
-   ./scripts/build.sh
-   ```
-
-   This checks links, then regenerates `dist/<name>.zip` and `dist/<name>-rag.md`.
-3. **Commit** the source change and the regenerated `dist/*-rag.md` (the `.zip` files are gitignored and rebuilt by CI):
-
-   ```bash
-   git add skills/<name> dist/<name>-rag.md
-   git commit -m "Update <name> skill for <product> <version>"
-   git push
-   ```
-4. **Tag and push** the release tag. Pushing the tag is what triggers the release — there is no manual build/upload step:
-
-   ```bash
-   # Handsontable
-   git tag handsontable/v17.0.0   && git push origin handsontable/v17.0.0
-   # HyperFormula
-   git tag hyperformula/v3.3.0    && git push origin hyperformula/v3.3.0
-   # Skill-only fix (either skill)
    git tag hyperformula/v3.3.0+skill.1 && git push origin hyperformula/v3.3.0+skill.1
    ```
 
-### What happens automatically on each tag push
+   A product-version tag can still be pushed by hand too (`git tag handsontable/v17.0.0 && git push origin handsontable/v17.0.0`); the tag push starts the release exactly as before, and the merge workflow then sees the tag exists and does nothing.
 
-Each skill has its own workflow, so the two release fully independently — tagging one never touches the other.
+### What happens automatically on each tag
+
+Each skill has its own workflow, so the two release fully independently — tagging one never touches the other. A workflow runs on a tag push, or when `release-on-merge.yml` dispatches it on a tag (a tag pushed with the workflow token does not trigger the push event); run by hand on anything but a `<name>/v*` tag, it refuses.
 
 - **`handsontable/v*`** → [`.github/workflows/ht-skill-release.yml`](.github/workflows/ht-skill-release.yml):
   1. Runs `./scripts/build.sh --skip-links` to build `dist/handsontable.zip` and `dist/handsontable-rag.md`.
