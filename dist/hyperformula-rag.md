@@ -630,7 +630,7 @@ import { CellError, ErrorType } from 'hyperformula';
 const value = hf.getCellValue({ sheet: 0, col: 0, row: 0 });
 
 if (value instanceof CellError) {
-  // ErrorType enum: DIV_BY_ZERO, VALUE, REF, NAME, NUM, NA, CYCLE, ERROR
+  // ErrorType enum: DIV_BY_ZERO, VALUE, REF, NAME, NUM, NA, CYCLE, SPILL, LIC, ERROR
   switch (value.type) {
     case ErrorType.CYCLE:
       console.log('Circular reference');
@@ -683,7 +683,7 @@ return new CellError(ErrorType.DIV_BY_ZERO);
 | `#DIV/0!` | Division by zero, including empty cells coerced to 0 |
 | `#NUM!` | Out-of-range numeric result (e.g. `SQRT(-1)`) |
 | `#N/A` | Lookup miss (`MATCH`, `VLOOKUP`) or propagated from an upstream `#N/A` |
-| `#LIC!` | Function not included in your proprietary license key (v3.5+) |
+| `#LIC!` | License: a missing, invalid, or expired key makes every function except `VERSION` and `OFFSET` return it; with a proprietary key that grants only a subset of functions (v3.5+), a function the key does not include returns it |
 
 ---
 
@@ -751,7 +751,11 @@ Before 3.5.0, passing a stride greater than the window size returned `#VALUE!`. 
 
 ## Statistical precision improved in 3.5.0
 
-`VAR`, `STDEV`, `DEVSQ`, `COVARIANCE.P`, `COVARIANCE.S`, `SLOPE`, `STEYX`, `DVAR`, `DSTDEV`, their variants, and the matching `SUBTOTAL` modes previously lost precision on data with a large mean and a small spread, and could return errors or `0` for very large or very small values even when the result was within range. These are fixed in 3.5.0. `SLOPE` and `STEYX` also previously returned `#NUM!` or an arbitrary number instead of `#DIV/0!` when all x values are equal, and `STEYX` returned `#NUM!` or `0` instead of the correct standard error for near-collinear points — both fixed in 3.5.0.
+`VAR`, `STDEV`, `DEVSQ`, `COVARIANCE.P`, `COVARIANCE.S`, `SLOPE`, `STEYX`, `DVAR`, `DSTDEV`, their variants, and the matching `SUBTOTAL` modes previously lost precision on data with a large mean and a small spread. All of them except `DEVSQ` could also return an error or `0` for very large or very small values even when the result was within range; `DEVSQ` returned `0` for very small values. These are fixed in 3.5.0. `SLOPE` and `STEYX` also previously returned `#NUM!` or an arbitrary number instead of `#DIV/0!` when all x values are equal, and `STEYX` returned `#NUM!` or `0` instead of the correct standard error for near-collinear points — both fixed in 3.5.0.
+
+## Localized `VSTACK` / `HSTACK` names corrected in 3.5.0
+
+14 language packs had localized names for `VSTACK` and `HSTACK` that did not match Microsoft Excel; 3.5.0 corrects them. If a formula in a non-English `language` config used the old localized name, it resolves to `#NAME?` after upgrading — switch to the Excel name for that language (or the canonical English `VSTACK` / `HSTACK`).
 
 ## `VERSION` function output changed in 3.5.0
 

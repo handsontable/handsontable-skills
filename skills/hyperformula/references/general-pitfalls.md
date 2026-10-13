@@ -60,7 +60,11 @@ Before 3.5.0, passing a stride greater than the window size returned `#VALUE!`. 
 
 ## Statistical precision improved in 3.5.0
 
-`VAR`, `STDEV`, `DEVSQ`, `COVARIANCE.P`, `COVARIANCE.S`, `SLOPE`, `STEYX`, `DVAR`, `DSTDEV`, their variants, and the matching `SUBTOTAL` modes previously lost precision on data with a large mean and a small spread, and could return errors or `0` for very large or very small values even when the result was within range. These are fixed in 3.5.0. `SLOPE` and `STEYX` also previously returned `#NUM!` or an arbitrary number instead of `#DIV/0!` when all x values are equal, and `STEYX` returned `#NUM!` or `0` instead of the correct standard error for near-collinear points — both fixed in 3.5.0.
+`VAR`, `STDEV`, `DEVSQ`, `COVARIANCE.P`, `COVARIANCE.S`, `SLOPE`, `STEYX`, `DVAR`, `DSTDEV`, their variants, and the matching `SUBTOTAL` modes previously lost precision on data with a large mean and a small spread. All of them except `DEVSQ` could also return an error or `0` for very large or very small values even when the result was within range; `DEVSQ` returned `0` for very small values. These are fixed in 3.5.0. `SLOPE` and `STEYX` also previously returned `#NUM!` or an arbitrary number instead of `#DIV/0!` when all x values are equal, and `STEYX` returned `#NUM!` or `0` instead of the correct standard error for near-collinear points — both fixed in 3.5.0.
+
+## Localized `VSTACK` / `HSTACK` names corrected in 3.5.0
+
+14 language packs had localized names for `VSTACK` and `HSTACK` that did not match Microsoft Excel; 3.5.0 corrects them. If a formula in a non-English `language` config used the old localized name, it resolves to `#NAME?` after upgrading — switch to the Excel name for that language (or the canonical English `VSTACK` / `HSTACK`).
 
 ## `VERSION` function output changed in 3.5.0
 
