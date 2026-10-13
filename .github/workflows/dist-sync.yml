@@ -13,7 +13,12 @@ name: Dist sync
 # says which command to run.
 #
 # A push made with GITHUB_TOKEN does not trigger workflows, so the bot commit
-# does not re-run this check (and cannot loop).
+# does not re-run this check (and cannot loop). It also gets no check runs
+# of its own. That is fine while main requires no status checks (it requires
+# one approving review only, as of 2026-10-13). If a required status check
+# is ever added to main, the bot's head commit would sit at "expected" and
+# block the merge: switch this push to a GitHub App token (its pushes do
+# trigger workflows) or make this job fail instead of committing.
 
 on:
   pull_request:
