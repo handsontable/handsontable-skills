@@ -137,5 +137,5 @@ All links resolve to `hyperformula.handsontable.com` unless noted.
 
 ---
 
-> **Last updated: 2026-08-11 · Aligned with HyperFormula 3.4.0.**
+> **Last updated: 2026-10-09 · Aligned with HyperFormula 3.5.0.**
 > If the user is on a newer release, confirm API shape against the latest docs (see the **Release notes** link above) before relying on this file.

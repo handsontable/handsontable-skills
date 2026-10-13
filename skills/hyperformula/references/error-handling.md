@@ -14,7 +14,7 @@ import { CellError, ErrorType } from 'hyperformula';
 const value = hf.getCellValue({ sheet: 0, col: 0, row: 0 });
 
 if (value instanceof CellError) {
-  // ErrorType enum: DIV_BY_ZERO, VALUE, REF, NAME, NUM, NA, CYCLE, ERROR
+  // ErrorType enum: DIV_BY_ZERO, VALUE, REF, NAME, NUM, NA, CYCLE, SPILL, LIC, ERROR
   switch (value.type) {
     case ErrorType.CYCLE:
       console.log('Circular reference');
@@ -67,3 +67,4 @@ return new CellError(ErrorType.DIV_BY_ZERO);
 | `#DIV/0!` | Division by zero, including empty cells coerced to 0 |
 | `#NUM!` | Out-of-range numeric result (e.g. `SQRT(-1)`) |
 | `#N/A` | Lookup miss (`MATCH`, `VLOOKUP`) or propagated from an upstream `#N/A` |
+| `#LIC!` | License: a missing, invalid, or expired key makes every function except `VERSION` and `OFFSET` return it; with a proprietary key that grants only a subset of functions (v3.5+), a function the key does not include returns it |

@@ -114,8 +114,12 @@ See [custom-functions.md](custom-functions.md) — `FunctionPlugin`, argument ty
 
 HyperFormula 3.4.0 added `getAvailableFunctions()` and `getFunctionDetails()` for retrieving metadata about built-in and registered functions.
 
-- `getAvailableFunctions(): FunctionListEntry[]` returns entries with `localizedName`, `canonicalName`, `category`, optional `shortDescription` and `aliasOf`. It's a snapshot taken when the engine was built, so plugins registered later are absent.
-- `getFunctionDetails(canonicalName): FunctionDetails | undefined` is case-sensitive and takes only the canonical English id (`'SUMIF'` resolves, `'sumif'` returns `undefined`, a localized name never resolves). Returns `parameters` (with per-parameter `optional`), plus `repeatLastArgs`, `category`, `shortDescription`, `documentationUrl` and `examples`.
+- `getAvailableFunctions(): FunctionListEntry[]` returns entries with `localizedName`, `canonicalName`, `category`, optional `shortDescription` and `aliasOf`. It's a snapshot taken when the engine was built, so plugins registered later are absent. In 3.5.0, when a proprietary license key grants only a subset of functions, this method returns only the functions your key includes.
+- `getFunctionDetails(canonicalName): FunctionDetails | undefined` is case-sensitive and takes only the canonical English id (`'SUMIF'` resolves, `'sumif'` returns `undefined`, a localized name never resolves). Returns `parameters` (with per-parameter `optional`), plus `repeatLastArgs`, `category`, `shortDescription`, `documentationUrl` and `examples`. In 3.5.0, it describes only the functions your license key includes.
+
+## Partial-function license keys (v3.5+)
+
+HyperFormula 3.5.0 introduced support for proprietary license keys that grant only a subset of functions. A function your key does not include evaluates to a `#LIC!` error. API methods that edit cells, rows, columns, and sheets, as well as `copy()`, `cut()`, `paste()`, `undo()`, `redo()`, `batch()`, `suspendEvaluation()`, and methods that add, change, or remove named expressions throw a `LicenseCapabilityMissingError` when the key is missing, invalid, expired (classic key), or past its grace period (trial key). Building an engine with named expressions also throws this error. The matching `isItPossibleTo*()` methods, `isThereSomethingToUndo()`, and `isThereSomethingToRedo()` return `false` in those cases.
 
 ## Events
 
