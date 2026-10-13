@@ -21,9 +21,17 @@ on:
     tags:
       - 'hyperformula/v*'
   # Dispatched on a tag by release-on-merge.yml (a tag pushed with
-  # GITHUB_TOKEN does not trigger the push event above). Also usable by hand:
-  # Run workflow → "Use workflow from" → the tag.
+  # GITHUB_TOKEN does not trigger the push event above). Also usable by hand
+  # (Run workflow → "Use workflow from" → the tag), but only for tags created
+  # after this trigger was added: a dispatch runs the workflow file as it is
+  # at the tag.
   workflow_dispatch:
+
+# One release run per tag at a time: a manual dispatch on top of the
+# automatic one (or a retried dispatch) queues instead of racing.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -104,4 +112,17 @@ jobs:
           fi
 
           npm version "$VER" --no-git-tag-version --allow-same-version
-          npm publish --access public --provenance --tag "$NPM_TAG"
+          # Re-running a release (a retried or repeated dispatch on the same
+          # tag) must not fail on a version npm already has.
+          set +e
+          OUT=$(npm publish --access public --provenance --tag "$NPM_TAG" 2>&1)
+          STATUS=$?
+          set -e
+          echo "$OUT"
+          if [ "$STATUS" -ne 0 ]; then
+            if echo "$OUT" | grep -q "cannot publish over the previously published versions"; then
+              echo "::notice::$VER is already on npm — nothing to publish"
+            else
+              exit "$STATUS"
+            fi
+          fi

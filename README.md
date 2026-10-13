@@ -193,7 +193,7 @@ hyperformula/v3.3.0+skill.1
 
 1. **Edit the skill** under `skills/<name>/` in a PR, including its version marker: `- **Latest version:** X.Y.Z` in `skills/handsontable/SKILL.md`, or `Aligned with HyperFormula X.Y.Z` at the end of `skills/hyperformula/SKILL.md`. For `hyperformula` you do **not** bump `skills/hyperformula/package.json` by hand — CI sets the npm version from the tag (keep the committed value at the current product version as a sane default).
 2. **`dist/` takes care of itself.** [`dist-sync.yml`](.github/workflows/dist-sync.yml) rebuilds `dist/*-rag.md` on every PR that touches a skill and commits it to the PR branch when it changed (the `.zip` files are gitignored and built by the release). On a PR from a fork it cannot push, so the check fails and asks you to run `./scripts/build.sh --skip-links` and commit `dist/*-rag.md` yourself. The docs assistant's knowledge base ingests the committed `dist/*-rag.md` from `main`, so a stale file means stale answers.
-3. **Merge.** [`release-on-merge.yml`](.github/workflows/release-on-merge.yml) runs [`scripts/release-if-bumped.sh`](scripts/release-if-bumped.sh): when a skill's version marker is newer than its newest `<name>/vX.Y.Z` tag, it tags the merge commit and dispatches that skill's release workflow on the tag. A merge that does not move a marker releases nothing. Preview what it would do with `./scripts/release-if-bumped.sh --dry-run`.
+3. **Merge.** [`release-on-merge.yml`](.github/workflows/release-on-merge.yml) runs [`scripts/release-if-bumped.sh`](scripts/release-if-bumped.sh): when a skill's version marker is newer than its newest `<name>/vX.Y.Z` tag, it tags the merge commit and dispatches that skill's release workflow on the tag. A merge that does not move a marker releases nothing. If a dispatch or a release run fails, re-run the workflow: a tag that has no GitHub Release yet is dispatched again. Preview what it would do with `./scripts/release-if-bumped.sh --dry-run`.
 4. **Skill-only fixes are tagged by hand** (typo, broken link, no product change — the marker does not move):
 
    ```bash
@@ -204,7 +204,7 @@ hyperformula/v3.3.0+skill.1
 
 ### What happens automatically on each tag
 
-Each skill has its own workflow, so the two release fully independently — tagging one never touches the other. A workflow runs on a tag push, or when `release-on-merge.yml` dispatches it on a tag (a tag pushed with the workflow token does not trigger the push event); run by hand on anything but a `<name>/v*` tag, it refuses.
+Each skill has its own workflow, so the two release fully independently — tagging one never touches the other. A workflow runs on a tag push, or when `release-on-merge.yml` dispatches it on a tag (a tag pushed with the workflow token does not trigger the push event); run by hand on anything but a `<name>/v*` tag, it refuses. A manual run on a tag only works for tags created after the dispatch trigger was added (October 2026), because a dispatch uses the workflow file as it is at the tag; re-push an older tag to re-release it.
 
 - **`handsontable/v*`** → [`.github/workflows/ht-skill-release.yml`](.github/workflows/ht-skill-release.yml):
   1. Runs `./scripts/build.sh --skip-links` to build `dist/handsontable.zip` and `dist/handsontable-rag.md`.

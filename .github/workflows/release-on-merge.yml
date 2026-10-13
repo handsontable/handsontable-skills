@@ -12,10 +12,11 @@ name: Release on merge
 # on the commit) without blocking the release: the release workflows build
 # their artifacts from skills/, not from the committed dist.
 #
-# Idempotent: an existing tag is never re-tagged or re-released. So if the
-# tag was pushed but the dispatch failed (the job says so), re-running this
-# workflow does nothing — run the release workflow by hand on the tag instead
-# (Actions → HT/HF Skill Release → Run workflow → use workflow from the tag).
+# Idempotent: a tag that already has a GitHub Release is left alone, and a
+# tag without one (the dispatch or the release run failed) is dispatched
+# again — so re-running this workflow is the recovery. It only ever runs on
+# main: a manual run from another branch is skipped, and the script also
+# refuses to tag a commit that is not on origin/main.
 
 on:
   push:
@@ -48,6 +49,8 @@ jobs:
           fi
 
   release:
+    # Releases are cut from main only (see the script's own check too).
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
