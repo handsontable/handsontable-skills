@@ -6,6 +6,12 @@ name: Plugin Check
 # manifests"), and a new Claude Code release can start rejecting a manifest
 # that loaded before — hence the weekly run on top of PRs. A failed weekly run
 # opens a tracking issue (or comments on the open one), like link-check.yml.
+#
+# On pushes to main it also checks that a change to skills/ or .claude-plugin/
+# came with a higher plugin version (scripts/plugin-version.sh check).
+# dist-sync.yml bumps it on each PR, but two PRs open at once can both bump to
+# the same version and merge cleanly; the second one's changes would then
+# never reach installs pinned to that version. A failure opens an issue too.
 
 on:
   pull_request:
@@ -26,6 +32,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the version check diffs the push's before..after
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -58,6 +66,40 @@ jobs:
         run: |
           TITLE="Weekly plugin check: Claude Code fails to load the plugin"
           BODY=$(printf 'The scheduled plugin check failed.\n\nRun: %s\n\n```\n%s\n```\n' "$RUN_URL" "$CHECK_OUTPUT")
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: Check the plugin version moved with its content
+        id: version
+        if: ${{ !cancelled() && github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' }}
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: |
+          set +e
+          OUTPUT=$(./scripts/plugin-version.sh check "$BEFORE" "$AFTER" 2>&1)
+          STATUS=$?
+          echo "$OUTPUT"
+          {
+            echo 'output<<PLUGIN_VERSION_EOF'
+            echo "$OUTPUT"
+            echo 'PLUGIN_VERSION_EOF'
+          } >> "$GITHUB_OUTPUT"
+          exit $STATUS
+
+      - name: Open or update the version tracking issue
+        if: ${{ !cancelled() && steps.version.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          CHECK_OUTPUT: ${{ steps.version.outputs.output }}
+        run: |
+          TITLE="Plugin content changed on main without a version bump"
+          BODY=$(printf 'A push to main changed skills/ or .claude-plugin/ without raising the plugin version, so installs pinned to that version will not receive it. Open a PR that bumps "version" in .claude-plugin/plugin.json.\n\nRun: %s\n\n```\n%s\n```\n' "$RUN_URL" "$CHECK_OUTPUT")
           EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')
           if [ -n "$EXISTING" ]; then
             gh issue comment "$EXISTING" --body "$BODY"

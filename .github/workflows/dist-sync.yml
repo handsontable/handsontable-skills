@@ -12,6 +12,14 @@ name: Dist sync
 # it. Fork PRs can't be pushed to with this token: the job fails instead and
 # says which command to run.
 #
+# The same commit bumps the Claude Code plugin version (.claude-plugin/
+# plugin.json) when the PR's version is not already higher than main's:
+# Claude Code only delivers a plugin update when that version changes, and it
+# sat at 1.0.0 through every skill update until 1.0.1. The bump is patch-only;
+# bump minor/major by hand if you want, and the job leaves it alone. Two PRs
+# open at once can both land the same version — plugin-check.yml catches that
+# on main.
+#
 # A push made with GITHUB_TOKEN does not trigger workflows, so the bot commit
 # does not re-run this check (and cannot loop). It also gets no check runs
 # of its own. That is fine while main requires no status checks (it requires
@@ -26,6 +34,7 @@ on:
       - 'skills/**'
       - 'scripts/build.sh'
       - 'dist/*-rag.md'
+      - '.claude-plugin/**'
 
 permissions:
   contents: write
@@ -47,24 +56,33 @@ jobs:
       - name: Rebuild dist
         run: ./scripts/build.sh --skip-links
 
-      - name: Commit the rebuilt dist (or fail on a fork)
+      - name: Bump the plugin version past main's
+        env:
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          # Fetch main from this repo explicitly: for a fork PR, origin is the fork.
+          git fetch -q --depth=1 "https://github.com/$BASE_REPO.git" main
+          ./scripts/plugin-version.sh bump FETCH_HEAD
+
+      - name: Commit the rebuilt dist and version (or fail on a fork)
         env:
           SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
-          if git diff --quiet -- dist/handsontable-rag.md dist/hyperformula-rag.md; then
-            echo "dist/*-rag.md matches skills/ — nothing to do"
+          FILES="dist/handsontable-rag.md dist/hyperformula-rag.md .claude-plugin/plugin.json"
+          if git diff --quiet -- $FILES; then
+            echo "dist/*-rag.md matches skills/ and the plugin version is ahead of main — nothing to do"
             exit 0
           fi
-          git --no-pager diff --stat -- dist/handsontable-rag.md dist/hyperformula-rag.md
+          git --no-pager diff --stat -- $FILES
           if [ "$SAME_REPO" != "true" ]; then
-            echo "::error::dist/*-rag.md is out of date with skills/. Run ./scripts/build.sh --skip-links and commit dist/handsontable-rag.md and dist/hyperformula-rag.md."
+            echo "::error::Generated files are out of date. Run ./scripts/build.sh --skip-links, set \"version\" in .claude-plugin/plugin.json higher than main's, and commit dist/*-rag.md and .claude-plugin/plugin.json."
             exit 1
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dist/handsontable-rag.md dist/hyperformula-rag.md
-          git commit -m "Rebuild dist/*-rag.md from skills/"
+          git add $FILES
+          git commit -m "Update generated files: dist/*-rag.md, plugin version"
           git push origin "HEAD:refs/heads/$HEAD_REF"
-          echo "::notice::committed the rebuilt dist/*-rag.md to $HEAD_REF"
+          echo "::notice::committed generated files (dist/*-rag.md, plugin version) to $HEAD_REF"

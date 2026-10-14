@@ -5,8 +5,7 @@
     "email": "support@handsontable.com"
   },
   "metadata": {
-    "description": "Claude skills for Handsontable and HyperFormula",
-    "version": "1.0.1"
+    "description": "Claude skills for Handsontable and HyperFormula"
   },
   "plugins": [
     {

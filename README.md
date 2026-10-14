@@ -132,14 +132,15 @@ We ship the skills in several forms because different agents and surfaces accept
 │   ├── build.sh                  ← regenerates dist/*.zip and dist/*-rag.md
 │   ├── check-links.sh            ← verifies all skill URLs return 200
 │   ├── check-plugin.sh           ← installs the plugin with Claude Code, fails if it won't load
+│   ├── plugin-version.sh         ← bumps / checks the plugin version (used by CI)
 │   └── release-if-bumped.sh      ← tags + releases a skill whose version marker moved
 └── .github/workflows/
-    ├── dist-sync.yml             ← PRs: rebuild dist/*-rag.md, commit it to the PR branch
+    ├── dist-sync.yml             ← PRs: rebuild dist/*-rag.md + bump the plugin version, commit to the PR branch
     ├── release-on-merge.yml      ← main: tag + release skills whose version marker moved
     ├── ht-skill-release.yml      ← handsontable: build zip on a tag, attach to Release
     ├── hf-skill-release.yml      ← hyperformula: build zip + publish to npm on a tag
     ├── link-check.yml            ← weekly link check
-    └── plugin-check.yml          ← PRs, main, weekly: plugin loads in Claude Code (issue on weekly failure)
+    └── plugin-check.yml          ← PRs, main, weekly: plugin loads in Claude Code; main: version moved with content
 ```
 
 ## Building artifacts
@@ -174,6 +175,10 @@ After touching `.claude-plugin/` (or adding/removing a skill), confirm Claude Co
 ## How to publish a new version of the skills
 
 Each skill is versioned and released independently. The flow is the same for both skills; only `hyperformula` additionally publishes to npm.
+
+### The Claude Code plugin version
+
+The marketplace plugin has its own version, in `.claude-plugin/plugin.json`, separate from the skill tags. Claude Code only gives users a new copy of the plugin when that version changes, so it has to move with every change to `skills/` or `.claude-plugin/`. You don't bump it by hand: Dist sync raises the patch on each such PR when the PR's version isn't already higher than `main`'s. Bump minor or major yourself if you want to; the workflow leaves a higher version alone. Never lower it. If two PRs land the same version, Plugin Check fails on `main` and opens an issue; fix it with a PR that bumps the version.
 
 ### How a skill update comes together
 
