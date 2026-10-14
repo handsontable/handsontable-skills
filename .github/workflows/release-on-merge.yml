@@ -1,0 +1,65 @@
+name: Release on merge
+
+# After a merge to main, release any skill whose SKILL.md version marker moved
+# past its newest release tag: scripts/release-if-bumped.sh tags the merge
+# commit `<skill>/v<version>` and dispatches that skill's release workflow
+# (ht-skill-release.yml / hf-skill-release.yml) on the tag. The reviewed,
+# approved PR is the gate; there is no separate tagging step.
+#
+# Also re-checks that dist/*-rag.md matches skills/ on main — Dist sync keeps
+# PRs in step, but an admin push can bypass it, and the docs assistant's
+# knowledge base ingests dist from main. A mismatch fails that job (visible
+# on the commit) without blocking the release: the release workflows build
+# their artifacts from skills/, not from the committed dist.
+#
+# Idempotent: a tag that already has a GitHub Release is left alone, and a
+# tag without one (the dispatch or the release run failed) is dispatched
+# again — so re-running this workflow is the recovery. It only ever runs on
+# main: a manual run from another branch is skipped, and the script also
+# refuses to tag a commit that is not on origin/main.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write # push the release tag
+  actions: write # dispatch the release workflow
+
+concurrency:
+  group: release-on-merge
+  cancel-in-progress: false
+
+jobs:
+  dist-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: dist/*-rag.md matches skills/
+        run: |
+          ./scripts/build.sh --skip-links
+          if ! git diff --exit-code --stat -- dist/handsontable-rag.md dist/hyperformula-rag.md; then
+            echo "::error::dist/*-rag.md on main does not match skills/. Open a PR that runs ./scripts/build.sh --skip-links and commits dist/*-rag.md — the docs assistant ingests the committed file."
+            exit 1
+          fi
+
+  release:
+    # Releases are cut from main only (see the script's own check too).
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # all tags, for the newest-tag comparison
+      - name: Tag and release skills whose version marker moved
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          ./scripts/release-if-bumped.sh
