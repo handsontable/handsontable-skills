@@ -20,6 +20,18 @@ on:
   push:
     tags:
       - 'hyperformula/v*'
+  # Dispatched on a tag by release-on-merge.yml (a tag pushed with
+  # GITHUB_TOKEN does not trigger the push event above). Also usable by hand
+  # (Run workflow → "Use workflow from" → the tag), but only for tags created
+  # after this trigger was added: a dispatch runs the workflow file as it is
+  # at the tag.
+  workflow_dispatch:
+
+# One release run per tag at a time: a manual dispatch on top of the
+# automatic one (or a retried dispatch) queues instead of racing.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -31,6 +43,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Require a release tag
+        run: |
+          case "$GITHUB_REF" in
+            refs/tags/hyperformula/v*) ;;
+            *) echo "::error::run this workflow on a hyperformula/v* tag, not $GITHUB_REF"; exit 1 ;;
+          esac
 
       - name: Parse tag
         id: tag
@@ -45,6 +64,7 @@ jobs:
       - name: Attach release asset
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
           name: hyperformula ${{ steps.tag.outputs.version }}
           files: |
             dist/hyperformula.zip
@@ -92,4 +112,17 @@ jobs:
           fi
 
           npm version "$VER" --no-git-tag-version --allow-same-version
-          npm publish --access public --provenance --tag "$NPM_TAG"
+          # Re-running a release (a retried or repeated dispatch on the same
+          # tag) must not fail on a version npm already has.
+          set +e
+          OUT=$(npm publish --access public --provenance --tag "$NPM_TAG" 2>&1)
+          STATUS=$?
+          set -e
+          echo "$OUT"
+          if [ "$STATUS" -ne 0 ]; then
+            if echo "$OUT" | grep -q "cannot publish over the previously published versions"; then
+              echo "::notice::$VER is already on npm — nothing to publish"
+            else
+              exit "$STATUS"
+            fi
+          fi
