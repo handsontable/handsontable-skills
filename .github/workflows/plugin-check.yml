@@ -1,0 +1,66 @@
+name: Plugin Check
+
+# Installs the Claude Code plugin from this repo's marketplace with the latest
+# Claude Code and fails if it does not load with every skill in skills/.
+# `claude plugin validate` alone misses loader-only errors (e.g. "conflicting
+# manifests"), and a new Claude Code release can start rejecting a manifest
+# that loaded before — hence the weekly run on top of PRs. A failed weekly run
+# opens a tracking issue (or comments on the open one), like link-check.yml.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Mondays at 06:30 UTC
+    - cron: '30 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  plugin-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@latest
+
+      - name: Check plugin loads
+        id: check
+        run: |
+          set +e
+          OUTPUT=$(./scripts/check-plugin.sh 2>&1)
+          STATUS=$?
+          echo "$OUTPUT"
+          {
+            echo 'output<<CHECK_PLUGIN_EOF'
+            echo "$OUTPUT" | tail -n 60
+            echo 'CHECK_PLUGIN_EOF'
+          } >> "$GITHUB_OUTPUT"
+          exit $STATUS
+
+      - name: Open or update tracking issue
+        if: failure() && steps.check.outcome == 'failure' && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          CHECK_OUTPUT: ${{ steps.check.outputs.output }}
+        run: |
+          TITLE="Weekly plugin check: Claude Code fails to load the plugin"
+          BODY=$(printf 'The scheduled plugin check failed.\n\nRun: %s\n\n```\n%s\n```\n' "$RUN_URL" "$CHECK_OUTPUT")
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY"
+          fi

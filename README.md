@@ -131,13 +131,15 @@ We ship the skills in several forms because different agents and surfaces accept
 ├── scripts/
 │   ├── build.sh                  ← regenerates dist/*.zip and dist/*-rag.md
 │   ├── check-links.sh            ← verifies all skill URLs return 200
+│   ├── check-plugin.sh           ← installs the plugin with Claude Code, fails if it won't load
 │   └── release-if-bumped.sh      ← tags + releases a skill whose version marker moved
 └── .github/workflows/
     ├── dist-sync.yml             ← PRs: rebuild dist/*-rag.md, commit it to the PR branch
     ├── release-on-merge.yml      ← main: tag + release skills whose version marker moved
     ├── ht-skill-release.yml      ← handsontable: build zip on a tag, attach to Release
     ├── hf-skill-release.yml      ← hyperformula: build zip + publish to npm on a tag
-    └── link-check.yml            ← weekly link check
+    ├── link-check.yml            ← weekly link check
+    └── plugin-check.yml          ← PRs, main, weekly: plugin loads in Claude Code (issue on weekly failure)
 ```
 
 ## Building artifacts
@@ -161,6 +163,12 @@ To check links independently, or auto-fix redirects:
 ```bash
 ./scripts/check-links.sh
 ./scripts/check-links.sh --fix-redirects
+```
+
+After touching `.claude-plugin/` (or adding/removing a skill), confirm Claude Code still loads the plugin. `claude plugin validate` misses some loader errors, so this installs it for real in a throwaway home directory (needs the `claude` CLI and Node.js on PATH; no login required):
+
+```bash
+./scripts/check-plugin.sh
 ```
 
 ## How to publish a new version of the skills
