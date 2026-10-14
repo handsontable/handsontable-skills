@@ -130,8 +130,10 @@ We ship the skills in several forms because different agents and surfaces accept
 │   └── hyperformula.zip          ← gitignored, built on demand / by CI
 ├── scripts/
 │   ├── build.sh                  ← regenerates dist/*.zip and dist/*-rag.md
-│   └── check-links.sh            ← verifies all skill URLs return 200
+│   ├── check-links.sh            ← verifies all skill URLs return 200
+│   └── check-plugin.sh           ← installs the plugin with Claude Code, fails if it won't load
 └── .github/workflows/
+    ├── plugin-check.yml          ← runs check-plugin.sh on PRs, main, and weekly
     ├── ht-skill-release.yml      ← handsontable: build zip on tag push, attach to Release
     └── hf-skill-release.yml      ← hyperformula: build zip + publish to npm on tag push
 ```
@@ -157,6 +159,12 @@ To check links independently, or auto-fix redirects:
 ```bash
 ./scripts/check-links.sh
 ./scripts/check-links.sh --fix-redirects
+```
+
+After touching `.claude-plugin/` (or adding/removing a skill), confirm Claude Code still loads the plugin. `claude plugin validate` misses some loader errors, so this installs it for real in a throwaway home directory (needs the `claude` CLI on PATH; no login required):
+
+```bash
+./scripts/check-plugin.sh
 ```
 
 ## How to publish a new version of the skills
