@@ -20,9 +20,11 @@ name: Dist sync
 # open at once can both land the same version — plugin-check.yml catches that
 # on main.
 #
-# A push made with GITHUB_TOKEN does not trigger workflows, so the bot commit
-# does not re-run this check (and cannot loop). It also gets no check runs
-# of its own. That is fine while main requires no status checks (it requires
+# A push made with GITHUB_TOKEN does not run workflows on its own: GitHub
+# creates the bot commit's pull_request runs (this one and Plugin Check) but
+# holds them as "action_required" until someone approves them (seen on #31,
+# 2026-10-14). Approving is harmless: this job then finds nothing to do, so it
+# cannot loop. Until then the bot commit has no completed check runs. That is fine while main requires no status checks (it requires
 # one approving review only, as of 2026-10-13). If a required status check
 # is ever added to main, the bot's head commit would sit at "expected" and
 # block the merge: switch this push to a GitHub App token (its pushes do
