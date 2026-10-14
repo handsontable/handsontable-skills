@@ -11,7 +11,8 @@
 #     `skills` list next to a plugin.json — "conflicting manifests").
 #   - Runs against a throwaway HOME, so it never touches your own Claude Code
 #     settings and needs no login.
-#   - Requires the `claude` CLI on PATH (CI installs @anthropic-ai/claude-code).
+#   - Requires the `claude` CLI and Node.js on PATH (CI installs
+#     @anthropic-ai/claude-code).
 
 set -euo pipefail
 
