@@ -1,6 +1,19 @@
+<div align="center">
+  <br><br>
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/handsontable/handsontable/develop/resources/handsontable-logo-black.svg"/>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/handsontable/handsontable/develop/resources/handsontable-logo-white.svg"/>
+    <img width="360" alt="Logo of Handsontable DataGrid" src="https://raw.githubusercontent.com/handsontable/handsontable/develop/resources/handsontable-logo-black.svg"/>
+  </picture>
+  <br><br>
+  <h3>Agent skills for Handsontable DataGrid and HyperFormula, for Claude Code, Codex, and other coding agents.</h3>
+
+  <a href="https://handsontable.com">Website</a> &nbsp;&nbsp;—&nbsp;&nbsp; <a href="https://handsontable.com/docs">Documentation</a> &nbsp;&nbsp;—&nbsp;&nbsp; <a href="https://hyperformula.handsontable.com/docs/">HyperFormula docs</a> &nbsp;&nbsp;—&nbsp;&nbsp; <a href="https://forum.handsontable.com/">Community</a>
+</div>
+
 # Handsontable Agent Skills
 
-Agent skills for [Handsontable](https://handsontable.com) (data grid component) and [HyperFormula](https://hyperformula.handsontable.com) (headless spreadsheet calculation engine) to use in Claude Code, Codex, and other coding agents. These skills give your agent deep knowledge of both products so it can help you build, configure, and debug faster.
+Agent skills for [Handsontable DataGrid](https://handsontable.com) (data grid component) and [HyperFormula](https://hyperformula.handsontable.com) (headless spreadsheet calculation engine) to use in Claude Code, Codex, and other coding agents. These skills give your agent deep knowledge of both products so it can help you build, configure, and debug faster.
 
 ## Skills included
 
@@ -186,16 +199,16 @@ When two PRs are open at once, each one bumps from the same `main`, so after one
 
 A skill is updated once per product release, after the release is fully published: the GitHub release notes, the docs for the new version (including the migration guide, when there is one), and the release blog post. Those are the sources an update is written from, so a draft started before they all exist has to be redone once they land.
 
-The first draft comes from an automated pipeline that reads those sources together with the Handsontable docs knowledge base and opens a draft pull request here. A maintainer then reviews every claim against the published docs, cross-checks hook, option, and method names against the API of the exact version being targeted, fixes what the draft got wrong, and merges. Merging is the release: CI keeps `dist/` in step on the PR and tags the merge commit (see below). A tag such as `handsontable/v18.1.0` therefore describes 18.1.0 and nothing newer.
+The first draft comes from an automated pipeline that reads those sources together with the Handsontable DataGrid docs knowledge base and opens a draft pull request here. A maintainer then reviews every claim against the published docs, cross-checks hook, option, and method names against the API of the exact version being targeted, fixes what the draft got wrong, and merges. Merging is the release: CI keeps `dist/` in step on the PR and tags the merge commit (see below). A tag such as `handsontable/v18.1.0` therefore describes 18.1.0 and nothing newer.
 
 ### Versioning convention
 
-A skill's version matches the underlying product version, so the tag `hyperformula/v3.3.0` is the skill that targets HyperFormula 3.3.0 and `handsontable/v17.0.0` targets Handsontable 17.0.0. Both skills live in one repo (rather than two) because they cross-reference each other constantly — a change in one almost always wants a paired check in the other, and a monorepo keeps that atomic.
+A skill's version matches the underlying product version, so the tag `hyperformula/v3.3.0` is the skill that targets HyperFormula 3.3.0 and `handsontable/v17.0.0` targets Handsontable DataGrid 17.0.0. Both skills live in one repo (rather than two) because they cross-reference each other constantly — a change in one almost always wants a paired check in the other, and a monorepo keeps that atomic.
 
 Tag formats:
 
 ```bash
-# Skill matches a Handsontable / HyperFormula product release
+# Skill matches a Handsontable DataGrid / HyperFormula product release
 handsontable/v17.0.0
 hyperformula/v3.3.0
 
