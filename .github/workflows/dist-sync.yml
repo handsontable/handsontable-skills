@@ -17,8 +17,11 @@ name: Dist sync
 # Claude Code only delivers a plugin update when that version changes, and it
 # sat at 1.0.0 through every skill update until 1.0.1. The bump is patch-only;
 # bump minor/major by hand if you want, and the job leaves it alone. Two PRs
-# open at once can both land the same version — plugin-check.yml catches that
-# on main.
+# open at once bump from the same main: after one merges, the other usually
+# conflicts on the version line (resolve by keeping main's value; the next
+# run of this job raises it again — README, "The Claude Code plugin
+# version"), or, if they merge without a conflict, land the same version,
+# which plugin-check.yml catches on main.
 #
 # A push made with GITHUB_TOKEN does not run workflows on its own: GitHub
 # creates the bot commit's pull_request runs (this one and Plugin Check) but
