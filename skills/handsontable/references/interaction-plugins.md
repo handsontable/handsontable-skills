@@ -1,8 +1,8 @@
 # Interaction & Plugin APIs (Menus, Filters, Search, Shortcuts, UI States)
 
-> Last verified: July 2026 · against Handsontable 18.0 docs (handsontable/handsontable@develop docs source)
+> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source)
 
-How to drive Handsontable's interactive plugins from code: custom context menus, the Filters and Search plugin APIs, the ShortcutManager, ColumnSummary, layout persistence, and the UI-state plugins (EmptyDataState, Loading, Dialog). All API access goes through the Handsontable instance — in React, get it via a `HotTable` ref: `hotTableRef.current?.hotInstance`.
+How to drive Handsontable DataGrid's interactive plugins from code: custom context menus, the Filters and Search plugin APIs, the ShortcutManager, ColumnSummary, layout persistence, and the UI-state plugins (EmptyDataState, Loading, Dialog). All API access goes through the Handsontable DataGrid instance — in React, get it via a `HotTable` ref: `hotTableRef.current?.hotInstance`.
 
 ## Custom context menu items
 

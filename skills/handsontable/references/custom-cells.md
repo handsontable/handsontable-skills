@@ -1,6 +1,6 @@
 # Custom Cells (Renderers, Editors, Validators)
 
-> Last verified: July 2026 · against Handsontable 18.0 docs (handsontable/handsontable@develop docs source)
+> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source)
 
 A **renderer** controls how a cell looks in the DOM, an **editor** controls how values are
 entered, and a **validator** checks a value when editing finishes. Reach for a renderer for
@@ -98,7 +98,7 @@ standard (e.g. ₿, ‰) that `numericFormat` cannot produce.
 
 ### Conditional formatting: call the base renderer, then style
 
-When extending a built-in renderer, Handsontable does **not** call the base renderer for you — call
+When extending a built-in renderer, Handsontable DataGrid does **not** call the base renderer for you — call
 `textRenderer` (plain text) or `htmlRenderer` (trusted HTML) yourself, then mutate the TD (React
 example; vanilla is identical apart from JSX):
 
@@ -209,7 +209,7 @@ the value.
 
 Works in React and vanilla alike. Extend a built-in editor and pass the class to the `editor`
 option. **The `data-hot-input` attribute is required** on the input element — without it,
-Handsontable treats clicks on the editor as outside clicks and closes it immediately:
+Handsontable DataGrid treats clicks on the editor as outside clicks and closes it immediately:
 
 ```tsx
 import { HotTable } from '@handsontable/react-wrapper';
@@ -331,7 +331,7 @@ registerCellType('myCellType', cellDefinition);
 container, assign the element to `editor.preventCloseElement` in `init`/`afterInit` so clicks on
 it don't close the editor.
 
-Editor `shortcuts` config (callback returns `false` to block Handsontable's default key action):
+Editor `shortcuts` config (callback returns `false` to block Handsontable DataGrid's default key action):
 
 ```ts
 shortcuts: [
@@ -350,7 +350,7 @@ shortcuts: [
 ### Worked recipe: radio-button cell type (vanilla, condensed)
 
 A renderer-driven cell type — all interaction lives in the renderer; the editor is a stub that
-keeps Handsontable's editing pipeline happy. Per-column options come from `cellProperties`:
+keeps Handsontable DataGrid's editing pipeline happy. Per-column options come from `cellProperties`:
 
 ```ts
 import { rendererFactory } from 'handsontable/renderers';
@@ -420,7 +420,7 @@ https://handsontable.com/docs/javascript-data-grid/recipes/cell-types/radio/
   the equivalent for external popovers is `editor.preventCloseElement`.
 - **Never attach event listeners directly to the TD in a renderer** — renderers run many times per
   cell and TD nodes are recycled during scrolling, so you get duplicate or misplaced listeners.
-  Prefer Handsontable events; otherwise wrap content in a `<div>` and listen on the wrapper.
+  Prefer Handsontable DataGrid events; otherwise wrap content in a `<div>` and listen on the wrapper.
 - **Register before use, and prefix aliases** — `registerRenderer` / `registerEditor` /
   `registerValidator` / `registerCellType` must run before the table initializes, and registering
   under an existing alias (e.g. `"text"`, `"date"`) silently overwrites the built-in.

@@ -5,12 +5,12 @@
     "email": "support@handsontable.com"
   },
   "metadata": {
-    "description": "Claude skills for Handsontable and HyperFormula"
+    "description": "Claude skills for Handsontable DataGrid and HyperFormula"
   },
   "plugins": [
     {
       "name": "handsontable-skills",
-      "description": "Claude skills for Handsontable (JavaScript data grid component) and HyperFormula (headless spreadsheet calculation engine)",
+      "description": "Claude skills for Handsontable DataGrid (JavaScript data grid component) and HyperFormula (headless spreadsheet calculation engine)",
       "source": "./"
     }
   ]

@@ -1,6 +1,6 @@
 # Repository rules for Claude
 
-This repo publishes **production skills** consumed by Anthropic customers via Claude Code, Cowork, and the Claude API. Every code example, API signature, configuration option, and URL in `skills/` is read by Claude when answering customer questions about Handsontable or HyperFormula.
+This repo publishes **production skills** consumed by Anthropic customers via Claude Code, Cowork, and the Claude API. Every code example, API signature, configuration option, and URL in `skills/` is read by Claude when answering customer questions about Handsontable DataGrid or HyperFormula.
 
 **A wrong example is worse than no example.** Customers copy snippets into their own code; fabricated API shapes cause runtime failures and erode trust in both the products and Claude.
 
@@ -22,13 +22,13 @@ If you do not have a verified source for a fact you are about to write, **stop a
 In order of preference:
 
 1. **TypeScript definitions** in the upstream source. Both products are open source:
-   - Handsontable: https://github.com/handsontable/handsontable (look in `handsontable/src/plugins/*/` and `handsontable/types/`)
+   - Handsontable DataGrid: https://github.com/handsontable/handsontable (look in `handsontable/src/plugins/*/` and `handsontable/types/`)
    - HyperFormula: https://github.com/handsontable/hyperformula
 2. **Official documentation** at the canonical URLs:
-   - Handsontable: https://handsontable.com/docs/
+   - Handsontable DataGrid: https://handsontable.com/docs/
    - HyperFormula: https://hyperformula.handsontable.com/docs/
 3. **Release notes / changelogs** for newly added features:
-   - Handsontable: https://handsontable.com/docs/react-data-grid/release-notes/
+   - Handsontable DataGrid: https://handsontable.com/docs/react-data-grid/release-notes/
    - HyperFormula: https://hyperformula.handsontable.com/docs/guide/release-notes.html
 4. **Cloned local copies** of either repo on disk (faster + works offline).
 
