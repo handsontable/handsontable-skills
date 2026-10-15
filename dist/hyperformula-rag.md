@@ -19,7 +19,7 @@ description: >
   custom spreadsheet functions or named expressions outside of a UI context. Do
   NOT use this skill for: general Excel questions unrelated to HF; general
   Google Sheets questions; generic spreadsheet formula-syntax questions outside
-  an HF context; formulas used inside Handsontable (use the "handsontable"
+  an HF context; formulas used inside Handsontable DataGrid (use the "handsontable"
   skill instead).
 ---
 
@@ -46,7 +46,7 @@ Task-oriented references in `references/` (open the one that matches what the us
 This skill is a snapshot tagged to a release. For live semantic search over the **current** docs —
 newer releases, or anything not covered here — use the first-party Docs MCP server (public, no
 auth): `claude mcp add --transport http handsontable-docs https://docs-assistant.handsontable.com/mcp`.
-It searches HyperFormula and Handsontable guides, API reference, release notes, and GitHub issues.
+It searches HyperFormula and Handsontable DataGrid guides, API reference, release notes, and GitHub issues.
 Guide: https://handsontable.com/docs/javascript-data-grid/docs-mcp-server/
 
 Below this section is the **Documentation map** — the canonical directory of links to the official HyperFormula docs. Use it when pointing the user to authoritative material.

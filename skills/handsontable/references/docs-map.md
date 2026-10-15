@@ -1,8 +1,8 @@
-# Handsontable Documentation Map
+# Handsontable DataGrid Documentation Map
 
-> Last verified: June 2026 · Aligned with Handsontable 18.0.0
+> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0
 
-Organized link directory for all Handsontable and HyperFormula (in-grid) documentation. Use these
+Organized link directory for all Handsontable DataGrid and HyperFormula (in-grid) documentation. Use these
 to point users to the right page. Links default to the React docs; replace `react-data-grid` with
 `javascript-data-grid`, `angular-data-grid`, or prefix with `vue3-` for other frameworks.
 
@@ -85,7 +85,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Password: https://handsontable.com/docs/react-data-grid/password-cell-type/
 - Handsontable (nested grid): https://handsontable.com/docs/react-data-grid/handsontable-cell-type/
 
-## Formulas (HyperFormula in Handsontable)
+## Formulas (HyperFormula in Handsontable DataGrid)
 - Formula calculation guide: https://handsontable.com/docs/react-data-grid/formula-calculation/
 - Formulas plugin API: https://handsontable.com/docs/react-data-grid/api/formulas/
 - HyperFormula built-in functions list: https://hyperformula.handsontable.com/docs/guide/built-in-functions.html

@@ -1,9 +1,9 @@
-# Handsontable TypeScript Type Definitions
+# Handsontable DataGrid TypeScript Type Definitions
 
 > Last verified: July 2026 · signatures copied verbatim from the `handsontable@17.1.0` and
 > `handsontable@18.0.0` npm packages (and `@handsontable/react-wrapper@17.1.0` / `@18.0.0`).
 
-Curated subset of the public type surface — enough to write correctly-typed Handsontable code
+Curated subset of the public type surface — enough to write correctly-typed Handsontable DataGrid code
 without reading the shipped `.d.ts` files. Type names and import idioms are the **same in v17 and
 v18**; version-specific differences are tagged inline.
 
@@ -392,4 +392,4 @@ accurate for that version):
 - v17 equivalents: https://cdn.jsdelivr.net/npm/handsontable@17.1.0/settings.d.ts and https://cdn.jsdelivr.net/npm/handsontable@17.1.0/common.d.ts
 - v18 TypeScript source (types generated from here): https://github.com/handsontable/handsontable/blob/develop/handsontable/src/core/settings.ts
 
-Or locally: `node_modules/handsontable/*.d.ts` in any project with Handsontable installed.
+Or locally: `node_modules/handsontable/*.d.ts` in any project with Handsontable DataGrid installed.

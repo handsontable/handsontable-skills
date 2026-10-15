@@ -1,7 +1,7 @@
 {
   "name": "handsontable-skills",
-  "description": "Claude skills for Handsontable (JavaScript data grid component) and HyperFormula (headless spreadsheet calculation engine)",
-  "version": "1.0.2",
+  "description": "Claude skills for Handsontable DataGrid (JavaScript data grid component) and HyperFormula (headless spreadsheet calculation engine)",
+  "version": "1.0.3",
   "author": {
     "name": "Handsontable",
     "email": "support@handsontable.com"

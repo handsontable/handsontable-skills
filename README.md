@@ -268,7 +268,7 @@ Two requirements the workflow satisfies on purpose, worth knowing before editing
 
 - [Handsontable docs](https://handsontable.com/docs/)
 - [HyperFormula docs](https://hyperformula.handsontable.com/)
-- [Handsontable GitHub](https://github.com/handsontable/handsontable)
+- [Handsontable DataGrid GitHub](https://github.com/handsontable/handsontable)
 - [HyperFormula GitHub](https://github.com/handsontable/hyperformula)
 - [Community forum](https://forum.handsontable.com/)
 

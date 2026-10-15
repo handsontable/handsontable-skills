@@ -1,22 +1,22 @@
 ---
 name: handsontable
 description: >
-  Use this skill whenever the user asks about Handsontable — a JavaScript data grid component with
+  Use this skill whenever the user asks about Handsontable DataGrid — a JavaScript data grid component with
   spreadsheet-like UX. Triggers include: mentions of "handsontable", "HotTable", "data grid",
   "@handsontable/react-wrapper", spreadsheet component in React/Angular/Vue, HyperFormula formulas
   inside a grid, cell types (dropdown, checkbox, date, numeric) in a grid context, or questions
   about Handsontable theming, plugins, hooks, configuration options, or column/row features. Also
   trigger when the user wants to add an editable spreadsheet-like table to a web app, or asks about
   copy/paste, sorting, filtering, frozen rows/columns, merged cells, or context menus in a grid.
-  This skill covers Handsontable used with any framework (React, Angular, Vue 3, vanilla JS) and
-  HyperFormula as the Formulas plugin engine inside Handsontable. Do NOT use this skill for
-  headless/standalone HyperFormula usage without Handsontable — that is covered by the separate
+  This skill covers Handsontable DataGrid used with any framework (React, Angular, Vue 3, vanilla JS) and
+  HyperFormula as the Formulas plugin engine inside Handsontable DataGrid. Do NOT use this skill for
+  headless/standalone HyperFormula usage without Handsontable DataGrid — that is covered by the separate
   "hyperformula" skill.
 ---
 
-# Handsontable
+# Handsontable DataGrid
 
-Handsontable is a JavaScript **data grid component** (not a full spreadsheet application) that
+Handsontable DataGrid is a JavaScript **data grid component** (not a full spreadsheet application) that
 brings spreadsheet-like UX to web apps: cell editing, copy/paste, sorting, filtering, formulas,
 keyboard navigation, context menus, merged cells, frozen rows/columns, conditional formatting, data
 validation, pagination, and 400+ built-in formulas via HyperFormula.
@@ -32,7 +32,7 @@ when you need to point the user to specific documentation or need to look up mor
 This skill is a snapshot tagged to a release. For live semantic search over the **current** docs —
 newer releases, or anything not covered here — use the first-party Docs MCP server (public, no
 auth): `claude mcp add --transport http handsontable-docs https://docs-assistant.handsontable.com/mcp`.
-It searches Handsontable and HyperFormula guides, API reference, release notes, and GitHub issues.
+It searches Handsontable DataGrid and HyperFormula guides, API reference, release notes, and GitHub issues.
 Guide: https://handsontable.com/docs/javascript-data-grid/docs-mcp-server/
 
 This skill folder also ships topic references with verified, copy-pasteable patterns — read the
@@ -51,7 +51,7 @@ relevant one before writing code in its area:
 
 - **Standalone HyperFormula** (headless formula engine without a grid UI) — use the "hyperformula" skill instead.
 - **Other data grid libraries** (AG Grid, TanStack Table, etc.).
-- **Full spreadsheet applications** — Handsontable is a component you embed, not a standalone app like Google Sheets.
+- **Full spreadsheet applications** — Handsontable DataGrid is a component you embed, not a standalone app like Google Sheets.
 
 ---
 
@@ -98,7 +98,7 @@ Key points:
 - `registerAllModules()` registers every built-in plugin. To reduce bundle size, import only what
   you need — see [Modules guide](https://handsontable.com/docs/react-data-grid/modules/).
 - Always set `height` explicitly — `"auto"`, a pixel number, or a CSS string. Unsized grids are unpredictable (see Common Pitfalls).
-- All Handsontable configuration options are passed as props on `<HotTable>`.
+- All Handsontable DataGrid configuration options are passed as props on `<HotTable>`.
 - Full installation guide: https://handsontable.com/docs/react-data-grid/installation/
 
 ---
@@ -160,7 +160,7 @@ Full JS docs: https://handsontable.com/docs/javascript-data-grid/installation/
 npm install handsontable @handsontable/angular-wrapper
 ```
 
-The Angular wrapper supports Angular 16–22 as of Handsontable v18. If you're on an older Angular version, upgrade Angular first.
+The Angular wrapper supports Angular 16–22 as of Handsontable DataGrid v18. If you're on an older Angular version, upgrade Angular first.
 
 Docs: https://handsontable.com/docs/angular-data-grid/installation/
 
@@ -180,7 +180,7 @@ framework's component syntax. Note: Vue 2 (`@handsontable/vue`) is deprecated �
 
 ## Theming: Light / Dark / Auto
 
-Handsontable v15+ includes a built-in theme system. Three themes ship out of the box: **main**
+Handsontable DataGrid v15+ includes a built-in theme system. Three themes ship out of the box: **main**
 (default, spreadsheet-like), **horizon** (clean, analytics-focused), **classic** (legacy
 replacement).
 
@@ -405,8 +405,8 @@ Docs: https://handsontable.com/docs/react-data-grid/hot-column/
 
 ## HyperFormula Integration (Formulas Plugin)
 
-HyperFormula powers Handsontable's Formulas plugin, providing 400+ spreadsheet functions (SUM,
-AVERAGE, IF, VLOOKUP, etc.). This section covers using HyperFormula **inside** Handsontable only.
+HyperFormula powers Handsontable DataGrid's Formulas plugin, providing 400+ spreadsheet functions (SUM,
+AVERAGE, IF, VLOOKUP, etc.). This section covers using HyperFormula **inside** Handsontable DataGrid only.
 
 ### Install
 
@@ -414,7 +414,7 @@ AVERAGE, IF, VLOOKUP, etc.). This section covers using HyperFormula **inside** H
 npm install hyperformula
 ```
 
-> **v18 change:** HyperFormula is no longer bundled with Handsontable — it must be installed
+> **v18 change:** HyperFormula is no longer bundled with Handsontable DataGrid — it must be installed
 > separately (verified in the `handsontable@18.0.0` npm package: `dependencies: {}`) and passed
 > to the Formulas plugin as shown below.
 
@@ -426,7 +426,7 @@ npm install hyperformula
 
 ### Simple setup (auto-created instance)
 
-Pass the `HyperFormula` class directly — Handsontable creates an instance automatically:
+Pass the `HyperFormula` class directly — Handsontable DataGrid creates an instance automatically:
 
 ```jsx
 import { HyperFormula } from 'hyperformula';
@@ -605,7 +605,7 @@ The **Notification plugin** (new in v17.1) shows non-blocking toast notification
 
 ## Events & Hooks
 
-Handsontable hooks are passed as props on `<HotTable>`:
+Handsontable DataGrid hooks are passed as props on `<HotTable>`:
 
 ```jsx
 <HotTable
@@ -631,7 +631,7 @@ Guide: https://handsontable.com/docs/react-data-grid/events-and-hooks/
 
 ## Accessing the Instance (Ref)
 
-Use a ref to call Handsontable's core methods:
+Use a ref to call Handsontable DataGrid's core methods:
 
 ```jsx
 import { useRef } from 'react';
@@ -684,7 +684,7 @@ registry unions, React wrapper types, and v17↔v18 differences — read
 
 ## Performance & Large Datasets
 
-Handsontable virtualizes rendering automatically — only visible rows and columns are in the DOM, so
+Handsontable DataGrid virtualizes rendering automatically — only visible rows and columns are in the DOM, so
 grids with 10k–100k+ rows perform well out of the box. For bulk programmatic updates, wrap mutations
 in `batch()` to defer re-rendering until all changes are applied:
 
@@ -703,7 +703,7 @@ For further tuning (disabling auto-size, reducing plugin overhead), see:
 
 ## Recipes (v17+)
 
-Handsontable v17 introduced a Recipes section in the docs — ready-made patterns for common use cases
+Handsontable DataGrid v17 introduced a Recipes section in the docs — ready-made patterns for common use cases
 (data validation workflows, dynamic column generation, etc.). Check the recipes index before building
 something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 
@@ -729,7 +729,7 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 
 ## Version Awareness
 
-Handsontable docs are versioned. The latest docs live at `/docs/react-data-grid/` (which redirects
+Handsontable DataGrid docs are versioned. The latest docs live at `/docs/react-data-grid/` (which redirects
 to the current version). To link to a specific version, use `/docs/17.0/react-data-grid/`.
 
 When helping a user, check which version they are on — breaking changes between major versions are
@@ -801,7 +801,7 @@ Release blog post: https://handsontable.com/blog/handsontable-18.1.0-shadow-dom-
 
 ### v18.0 Breaking Changes (June 2026)
 
-- **TypeScript core.** Handsontable's core is now written in TypeScript. Public types re-export from `handsontable` directly; the `handsontable/common` subpath was **removed**. TypeScript 5.1+ is required for consumers.
+- **TypeScript core.** Handsontable DataGrid's core is now written in TypeScript. Public types re-export from `handsontable` directly; the `handsontable/common` subpath was **removed**. TypeScript 5.1+ is required for consumers.
 - **HyperFormula unbundled.** `handsontable@18.0.0` ships with `dependencies: {}` — install `hyperformula` separately and pass it to the Formulas plugin.
 - **Date/time cell types reimplemented natively.** moment.js and Pikaday were removed, but the `date` and `time` type names remain and are interchangeable with the new `intl-date` / `intl-time` names (same implementation). Formats are `Intl.DateTimeFormat`-shaped option objects, source data must be ISO 8601, and the editor is a native date/time input. String `dateFormat`/`timeFormat` and `datePickerConfig` are ignored with a console warning; `correctFormat` is removed. Use `valueParser` / `valueSetter` for date/time value correction; `datePickerConfig` has no replacement.
 - **Legacy numeric formatting removed.** `numericFormat.pattern` and `numericFormat.culture` (numbro syntax) are gone. Use `Intl.NumberFormat` options + `locale`.

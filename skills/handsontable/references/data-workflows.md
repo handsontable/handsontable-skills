@@ -1,6 +1,6 @@
 # Data Workflows (Save, Sync, Validate, Import/Export)
 
-> Last verified: July 2026 · against Handsontable 18.0 docs (handsontable/handsontable@develop docs source)
+> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source)
 
 End-to-end data patterns: persisting edits, syncing grids, dependent dropdowns, bulk validation,
 import/export, and undo/redo. Framework is labeled per snippet (React uses
@@ -282,7 +282,7 @@ hot.updateSettings({ colHeaders: headers, columns });
 hot.loadData(rows);
 ```
 
-`updateSettings` must run before `loadData` so Handsontable knows which keys to read from the row
+`updateSettings` must run before `loadData` so Handsontable DataGrid knows which keys to read from the row
 objects. Normalize empty cells to `null` so the grid shows blanks instead of `"undefined"`.
 
 Docs: https://handsontable.com/docs/react-data-grid/recipes/import-export/import-csv-excel/
