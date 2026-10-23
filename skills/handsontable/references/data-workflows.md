@@ -328,7 +328,7 @@ import ExcelJS from 'exceljs';
 
 const exportPlugin = hotRef.current?.hotInstance?.getPlugin('exportFile');
 await exportPlugin?.downloadFileAsync('xlsx', { filename: 'my-report' });
-// or: const blob = await exportPlugin.exportAsBlob('xlsx', { filename: 'my-report' });
+// or: const blob = await exportPlugin.exportAsBlobAsync('xlsx', { filename: 'my-report' });
 ```
 
 XLSX export preserves what CSV can't: cell types (`numeric`, `date`, `time`, `checkbox`) as

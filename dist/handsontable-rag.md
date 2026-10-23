@@ -322,6 +322,11 @@ Set via the `columns` array or `cells` function. Built-in types:
 > options object — a `{ dateStyle, timeStyle }` shortcut or a custom shape), a native
 > date-time picker editor, and column sorting, filtering, and Excel export support.
 > Sorting and filtering operate on the underlying ISO values, not the displayed text.
+>
+> `multiselect` (v17+) keeps an array in the source data: an array of values, or an array of
+> `{ key, value }` objects. A plain string cell value is shown as one item, not split at commas.
+> With the Formulas plugin the source data stays an array; only the copy passed to HyperFormula is
+> a comma-separated string.
 
 ```jsx
 columns={[
@@ -1619,7 +1624,7 @@ import ExcelJS from 'exceljs';
 
 const exportPlugin = hotRef.current?.hotInstance?.getPlugin('exportFile');
 await exportPlugin?.downloadFileAsync('xlsx', { filename: 'my-report' });
-// or: const blob = await exportPlugin.exportAsBlob('xlsx', { filename: 'my-report' });
+// or: const blob = await exportPlugin.exportAsBlobAsync('xlsx', { filename: 'my-report' });
 ```
 
 XLSX export preserves what CSV can't: cell types (`numeric`, `date`, `time`, `checkbox`) as
