@@ -160,6 +160,9 @@ run(async () => {
   };
 
   if (canClassify) {
+    // No releaseDate argument on purpose: the published build inlines its release date as the
+    // fallback (`releaseDate ?? "<dd/mm/yyyy>"` in helpers/mixed.js), and core passes that same
+    // inlined value (utils/licenseBranding/index.ts), so omitting it reproduces the runtime verdict.
     const { lifecycle } = mixed._getLicenseState(key);
     const blocking = Array.isArray(mixed._BLOCKING_MODAL_STATES) ? mixed._BLOCKING_MODAL_STATES : [];
 

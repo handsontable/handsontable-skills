@@ -267,10 +267,12 @@ function checkPackageJson(dir, out) {
   }
 
   const deps = { ...pkg.dependencies, ...pkg.devDependencies, ...pkg.peerDependencies };
+  // First number in the range: "^17.1.0", "~17.1", "^17", "17", ">=17 <19" all give 17. Tags such as
+  // "latest" or "workspace:*" give null and are skipped.
   const major = range => {
-    const m = String(range).match(/(\d+)\./);
+    const m = String(range).match(/\d+/);
 
-    return m ? Number(m[1]) : null;
+    return m ? Number(m[0]) : null;
   };
   const add = (rule, message, url = GUIDE_18) => out.manual.push({ rule, file, line: null, text: '', message, url });
 
