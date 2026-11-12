@@ -1,0 +1,1 @@
+{ "name": "fixture", "private": true, "dependencies": { "handsontable": "^17.1.0" } }

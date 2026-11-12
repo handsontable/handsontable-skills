@@ -714,6 +714,24 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 
 ---
 
+## Helper Scripts (run these instead of reasoning)
+
+Three zero-dependency Node.js scripts ship in this skill's folder, under `scripts/`. Call them by their
+full path (`node <this skill's folder>/scripts/<name>.mjs`) with the user's project root as the working
+directory, or pass `--project <dir>`. They read option names, hook names, cell types and license states
+from the **installed** `handsontable` package, so their answers match the user's exact version. Prefer
+them over judging from memory, and quote their output.
+
+| Script and arguments | Use it when | Exit code |
+| --- | --- | --- |
+| `validate-settings.mjs <settings file>` (`.json`, or an `.mjs` that exports the object) | Checking a settings object: typos with did-you-mean (`notifications` → `notification`), removed options and hooks, hooks set per column, unknown cell types, Numbro `numericFormat`, string `dateFormat`/`timeFormat` on 18.x, missing `licenseKey` | 1 on errors |
+| `license-doctor.mjs --key-file <file>` (or the `HANDSONTABLE_LICENSE_KEY` env var, or `--stdin`) | "Will this key block the grid?" — prints the state the installed version assigns (`missing`, `invalid`, `trial_hard_stop`, `release_expired`, …) and whether it blocks; flags pasted whitespace, quotes, typographic dashes, HyperFormula keys. Needs 18.1+ installed; to preview an upgrade, `npm i --prefix /tmp/ht-next handsontable@latest` and pass `--ht-dir /tmp/ht-next/node_modules/handsontable` | 1 if it blocks |
+| `migrate-v18.mjs [path]` | Upgrading to 18.x: lists every file:line to change with the migration-guide link. `--write` applies the mechanical fixes (`handsontable/common` imports, `--ht-wrapper-border-radius`, `wrapperBorderRadius`, `correctFormat` lines) | 1 if manual items remain |
+
+All three accept `--json`. Pass a real license key through `--key-file` or the env var (e.g. from the
+user's `.env`), not `--key`, so it stays out of the command line and the transcript; `--key` is fine for
+`non-commercial-and-evaluation`. The license doctor never prints the full key.
+
 ## Common Pitfalls
 
 - **Missing or invalid `licenseKey` blocks the grid in v18.1+**: the grid is covered by a modal that cannot be closed (v18.0 showed only a notice below the grid). This typically bites environments where the notice used to be ignored — local dev, CI, end-to-end test suites, Storybook and demo builds. Pass a valid key, or `'non-commercial-and-evaluation'` for non-commercial use, to every instance in every environment. `licenseKey` is read once at initialization — passing a new one through `updateSettings()` does not re-evaluate it; recreate the instance instead. An expired commercial key or lapsed subscription never blocks (notice + console error, features keep working; only an expired **trial** blocks, once the key's grace period passes). v18.1 also detects expired keys again — in v18.0 that detection silently never ran — so expired-key notices reappear after upgrading.

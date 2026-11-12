@@ -1,0 +1,73 @@
+name: Skill Scripts
+
+# Tests the helper scripts in skills/handsontable/scripts/ against a real
+# installed handsontable package. The scripts read internals of that package
+# (the option schema, hook constants and the license classifier), so they can
+# break on a Handsontable release without any change here. Hence the weekly run
+# against `latest` on top of PRs; a failed weekly run opens a tracking issue (or
+# comments on the open one), like link-check.yml.
+#
+# 18.1.0 is the oldest version the license doctor can classify keys for, so it
+# stays in the matrix as the compatibility floor.
+
+on:
+  pull_request:
+    paths:
+      - 'skills/handsontable/scripts/**'
+      - 'tests/skill-scripts/**'
+      - '.github/workflows/skill-scripts.yml'
+  schedule:
+    # Mondays at 07:00 UTC
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        handsontable: ['latest', '18.1.0']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run skill script tests
+        id: check
+        run: |
+          set +e
+          OUTPUT=$(./tests/skill-scripts/run.sh "${{ matrix.handsontable }}" 2>&1)
+          STATUS=$?
+          echo "$OUTPUT"
+          {
+            echo 'output<<SKILL_SCRIPTS_EOF'
+            echo "$OUTPUT" | tail -n 60
+            echo 'SKILL_SCRIPTS_EOF'
+          } >> "$GITHUB_OUTPUT"
+          exit $STATUS
+
+      - name: Open or update tracking issue
+        if: failure() && steps.check.outcome == 'failure' && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          CHECK_OUTPUT: ${{ steps.check.outputs.output }}
+          HT_VERSION: ${{ matrix.handsontable }}
+        run: |
+          TITLE="Weekly skill script check failed"
+          BODY=$(printf 'The scheduled skill script check failed against handsontable@%s.\n\nRun: %s\n\n```\n%s\n```\n' "$HT_VERSION" "$RUN_URL" "$CHECK_OUTPUT")
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY"
+          fi
