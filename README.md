@@ -130,7 +130,8 @@ We ship the skills in several forms because different agents and surfaces accept
 ├── skills/                       ← source of truth
 │   ├── handsontable/
 │   │   ├── SKILL.md
-│   │   └── references/
+│   │   ├── references/
+│   │   └── scripts/              ← helper scripts the agent runs (see below)
 │   └── hyperformula/
 │       ├── SKILL.md
 │       ├── references/
@@ -147,14 +148,37 @@ We ship the skills in several forms because different agents and surfaces accept
 │   ├── check-plugin.sh           ← installs the plugin with Claude Code, fails if it won't load
 │   ├── plugin-version.sh         ← bumps / checks the plugin version (used by CI)
 │   └── release-if-bumped.sh      ← tags + releases a skill whose version marker moved
+├── tests/skill-scripts/          ← fixtures + run.sh for the handsontable helper scripts
 └── .github/workflows/
     ├── dist-sync.yml             ← PRs: rebuild dist/*-rag.md + bump the plugin version, commit to the PR branch
     ├── release-on-merge.yml      ← main: tag + release skills whose version marker moved
     ├── ht-skill-release.yml      ← handsontable: build zip on a tag, attach to Release
     ├── hf-skill-release.yml      ← hyperformula: build zip + publish to npm on a tag
     ├── link-check.yml            ← weekly link check
-    └── plugin-check.yml          ← PRs, main, weekly: plugin loads in Claude Code; main: version moved with content
+    ├── plugin-check.yml          ← PRs, main, weekly: plugin loads in Claude Code; main: version moved with content
+    └── skill-scripts.yml         ← PRs, weekly: helper scripts still work against handsontable@latest and 18.1.0
 ```
+
+### Helper scripts in the handsontable skill
+
+`skills/handsontable/scripts/` holds three zero-dependency Node.js scripts. They ship inside the skill, and
+`SKILL.md` tells the agent to run them rather than reason through the same checks in prose. Each one reads
+what it checks against (option names, hooks, cell types, license states) from the `handsontable` package
+installed in the user's project, so the answers match that exact version.
+
+| Script | What it does |
+| --- | --- |
+| `validate-settings.mjs` | Checks a settings object (JSON or an ES module) for unknown options with did-you-mean suggestions, removed options and hooks, misplaced hooks, unknown cell types, and 18.x format changes. |
+| `license-doctor.mjs` | Classifies a license key with the installed version's own classifier (18.1+) and says whether it blocks the grid. |
+| `migrate-v18.mjs` | Lists every change needed to move to 18.x with file:line and guide links; `--write` applies the mechanical ones. |
+
+Because the scripts read package internals (`dataMap/metaManager/metaSchema.js`, `core/hooks/constants.js`,
+`helpers/mixed.js`), `skill-scripts.yml` runs `tests/skill-scripts/run.sh` weekly against `handsontable@latest`
+and opens an issue if a release moves them. Run it locally with `./tests/skill-scripts/run.sh [version]`.
+
+When a release changes license behavior, also update the per-state explanations (`STATE_INFO`) in
+`license-doctor.mjs`. Whether a state blocks is read live from the package, but that wording is copied from
+the 18.1.2 source and nothing checks it automatically.
 
 ## Building artifacts
 
