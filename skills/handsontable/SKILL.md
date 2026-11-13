@@ -29,9 +29,12 @@ validation, pagination, and 400+ built-in formulas via HyperFormula.
 Always check `references/docs-map.md` (in this skill folder) for the full organized link directory
 when you need to point the user to specific documentation or need to look up more info.
 
-This skill is a snapshot tagged to a release. For live semantic search over the **current** docs —
-newer releases, or anything not covered here — use the first-party Docs MCP server (public, no
-auth): `claude mcp add --transport http handsontable-docs https://docs-assistant.handsontable.com/mcp`.
+This skill is a snapshot tagged to a release. If the user wants live semantic search over the
+**current** docs — newer releases, or anything not covered here — they can add the first-party Docs
+MCP server themselves (public, no auth):
+`claude mcp add --transport http handsontable-docs https://docs-assistant.handsontable.com/mcp`.
+Mention it only when the user asks about newer or missing content, and do not install it for them.
+If the server is already connected, you can use it.
 It searches Handsontable DataGrid and HyperFormula guides, API reference, release notes, and GitHub issues.
 Guide: https://handsontable.com/docs/javascript-data-grid/docs-mcp-server/
 
