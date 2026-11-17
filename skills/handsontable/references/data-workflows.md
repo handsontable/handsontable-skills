@@ -241,9 +241,38 @@ async per-edit validation instead of on-Submit, use cell validators.
 
 Docs: https://handsontable.com/docs/react-data-grid/recipes/editing-validation/row-validation-error-summary/
 
+## Import: Excel with `ImportFile` (v19.0+)
+
+Since v19.0 the `ImportFile` plugin loads an `.xlsx` workbook into the grid with a built-in engine, so
+SheetJS and ExcelJS are not needed. The plugin is part of `registerAllModules()` and is on unless you set
+`importFile: false`. It reads `.xlsx` only; for CSV use PapaParse in the next section. In v18.x and earlier
+there is no `ImportFile` plugin.
+
+```javascript
+const hot = new Handsontable(container, {
+  importFile: true,
+  // licenseKey: 'your-license-key', // get a key at https://handsontable.com/pricing/
+});
+
+// file = a File from <input type="file"> (a Blob also works)
+const result = await hot.getPlugin('importFile').importFromBlob('xlsx', file, {
+  colHeaders: 'firstRow', // promote the first row to column headers
+});
+// result.dropped lists what the file carried and the grid did not take
+```
+
+- **Methods:** `importFromBlob(format, blob, options)` takes a `Blob` or a `File`, `importFromArrayBuffer(format, buffer, options)` takes an `ArrayBuffer` or a view over one, and `supportsImportFormat(format)` says whether the format can be read. The format is `'xlsx'`. Both import methods return a `Promise` of the result.
+- **Options** (third argument), among others: `sheet` (name or index, default `0`), `colHeaders: 'firstRow'`, `headerRows`, `range`, `importFormulas` (default `true`), `importStyles` (default `false`, so styling is only reported as `cellStyles` in `result.dropped`), and `apply: false` (a preview: returns the result and changes nothing).
+- **Dropped features:** what the file carries and the grid does not take is listed in `result.dropped` and in one console warning per import.
+- **ExcelJS still works:** pass `engines: { xlsx: ExcelJS }` in the `importFile` settings, or `engine: ExcelJS` for one call. Use the built-in engine unless you need an ExcelJS-only feature. ExcelJS is not safe for files from untrusted sources.
+- **License:** every key issued before 19.0 includes all of Excel import. A key can leave out parts of it. The import then skips that part, prints one console warning, and lists it as `license:xlsx:<id>` in `result.dropped`. If the key does not include Excel import at all, the import methods throw and `supportsImportFormat('xlsx')` returns `false`, so check it before you offer an upload.
+
+Docs: https://handsontable.com/docs/react-data-grid/import-from-excel/ and https://handsontable.com/docs/react-data-grid/xlsx-engine/
+
 ## Import: CSV (PapaParse) and Excel (SheetJS)
 
-Parse in the browser, then rebuild the grid's column shape from the detected header row.
+For CSV in every version, and for `.xlsx` in v18.x and earlier (v19.0+ has `ImportFile`, above), parse in the browser,
+then rebuild the grid's column shape from the detected header row.
 
 ```javascript
 // CSV via PapaParse — header row becomes object keys, types inferred
@@ -315,13 +344,14 @@ a `RegExp` escapes matching values, a function replaces them with its return val
 
 Docs: https://handsontable.com/docs/react-data-grid/export-to-csv/
 
-### XLSX (v17.1+) — `downloadFileAsync` + ExcelJS peer dep
+### XLSX (v17.1+) — `downloadFileAsync`; ExcelJS up to v18.x
 
-Install ExcelJS (`^4.4.0`), register it as the engine, then use the async methods
-(`downloadFile` does not support XLSX):
+**v18.x and earlier:** install ExcelJS (`^4.4.0`) and register it as the engine. **v19.0+:** a built-in engine
+writes XLSX with no library, so set `exportFile: true` and skip the `engines` entry; `engines: { xlsx: ExcelJS }`
+still selects ExcelJS. Use the async methods either way (`downloadFile` does not support XLSX):
 
 ```jsx
-// React
+// React (v18.x; in v19.0+ `exportFile={true}` is enough, no ExcelJS)
 import ExcelJS from 'exceljs';
 
 <HotTable exportFile={{ engines: { xlsx: ExcelJS } }} />
@@ -335,10 +365,22 @@ XLSX export preserves what CSV can't: cell types (`numeric`, `date`, `time`, `ch
 native Excel types, DOM-derived styling (font, fill, alignment, `CustomBorders`), column/nested
 headers, merged cells, frozen panes, and — with `exportFormulas: true` — HyperFormula and
 ColumnSummary cells as live Excel formulas. `sheets: [{ instance, name, ... }]` exports multiple
-grids into one workbook; the context menu gains an **Export to Excel** item once an ExcelJS
-engine is configured.
+grids into one workbook; the context menu gains an **Export to Excel** item once an XLSX engine is
+available (v18.x: configure ExcelJS; v19.0+: the built-in engine counts, so no setup).
 
-Docs: https://handsontable.com/docs/react-data-grid/export-to-excel/
+v19.0+ adds the `protection` option. By default an export protects a sheet that has a read-only cell, with no
+password, and locks only those cells. `protection: { password: 'q4-budget' }` sets a password (at most 255
+characters), and `protection: null` protects no sheet, so read-only cells export unlocked. It guards against
+accidental edits and is not encryption.
+
+**License (v19.0+):** every key issued before 19.0 includes all of Excel export. A key can leave out parts of it.
+The export then writes the rest and prints one console warning that names what it skipped (without number
+formats, for example, a date exports as the text the grid shows). If the key does not include Excel export at
+all, the export methods throw, `supportsExportFormat('xlsx')` returns `false`, and the **To Excel** menu item
+is hidden.
+
+Docs: https://handsontable.com/docs/react-data-grid/export-to-excel/ and
+https://handsontable.com/docs/react-data-grid/xlsx-engine/
 
 ### PDF — `getData()` + jsPDF AutoTable
 
