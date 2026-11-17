@@ -1,0 +1,2 @@
+.ht-theme-main { --ht-wrapper-border-radius: 8px; }
+.ht-root-wrapper > .ht-grid > .handsontable { border: 1px solid red; }
