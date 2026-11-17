@@ -8,18 +8,24 @@
 //   https://handsontable.com/docs/javascript-data-grid/migration-from-16.2-to-17.0/
 //
 // Usage:
-//   node migrate-v18.mjs [paths...] [options]     (default path: .)
+//   node migrate-v18.mjs [paths...] [options]     (default path: the project directory)
 //
 // Options:
+//   --project <dir>  Project root (default: cwd). Paths are resolved from it, its package.json is
+//                    checked, and the installed handsontable version is read from it.
+//   --ht-dir <dir>   Explicit handsontable package directory, instead of resolving it from --project.
 //   --write          Apply the automatic fixes. Without it nothing is changed (dry run).
 //   --base           Rewrite `handsontable/common` to `handsontable/base` instead of `handsontable`.
 //   --json           Machine-readable output.
+// Any other flag is a usage error, so a typo such as `--writ` cannot turn into a silent dry run.
 //
 // Automatic fixes (with --write):
 //   - `handsontable/common` imports  -> `handsontable` (or `handsontable/base`)
 //   - `--ht-wrapper-border-radius`   -> `--ht-border-radius`
 //   - `wrapperBorderRadius` token    -> `borderRadius` (only in files that use the theme API)
-//   - a `correctFormat: true|false,` line is deleted (the option is ignored in 18.0+)
+//   - a `correctFormat: true|false,` line is deleted (the option is ignored in 18.0+). Only in files
+//     that mention Handsontable, and only once 18.x is installed: in 17.x the option still reformats
+//     dates, so before the upgrade it is reported instead.
 // Everything else is reported with file:line for a human to change, because the
 // right replacement depends on the data or the intent.
 //
@@ -27,7 +33,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseArgs, run, UsageError } from './lib/handsontable-package.mjs';
+import { locateHandsontable, parseArgs, run, UsageError } from './lib/handsontable-package.mjs';
 
 const GUIDE_18 = 'https://handsontable.com/docs/javascript-data-grid/migration-from-17.1-to-18.0/';
 const GUIDE_17 = 'https://handsontable.com/docs/javascript-data-grid/migration-from-16.2-to-17.0/';
@@ -35,8 +41,13 @@ const GUIDE_17 = 'https://handsontable.com/docs/javascript-data-grid/migration-f
 const CODE_EXT = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.mts', '.cts', '.vue', '.svelte']);
 const STYLE_EXT = new Set(['.css', '.scss', '.sass', '.less']);
 const MARKUP_EXT = new Set(['.html', '.htm']);
-const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.nuxt',
-  '.svelte-kit', '.angular', '.cache', 'vendor', '.turbo']);
+// Skipped at any depth. Hidden directories (except .storybook) are skipped at any depth as well.
+const ALWAYS_SKIP_DIRS = new Set(['node_modules', '.git']);
+// Build output and vendored code, skipped only directly under a scan target, so a real source
+// folder such as `src/vendor/` or `app/out/` is still scanned. Skips are listed in the summary.
+const ROOT_SKIP_DIRS = new Set(['dist', 'build', 'out', 'coverage', 'vendor']);
+const KNOWN_FLAGS = new Set(['project', 'ht-dir', 'write', 'base', 'json']);
+const MENTIONS_HANDSONTABLE = /handsontable|\bHot(Table|Column)\b|<hot-(table|column)\b/i;
 const MAX_BYTES = 1024 * 1024;
 
 /**
@@ -80,6 +91,8 @@ const LINE_RULES = [
     id: 'correct-format',
     when: 'code',
     test: /\bcorrectFormat\b\s*[:=]/,
+    fixIf: text => MENTIONS_HANDSONTABLE.test(text),
+    needs18: true,
     fix: line => (/^\s*correctFormat\s*:\s*(true|false)\s*,?\s*$/.test(line) ? null : undefined),
     message: '`correctFormat` was removed in 18.0 and is ignored. Date/time cells take ISO 8601 and do not reformat ' +
       'input; use `valueParser` / `valueSetter` to correct entered values.',
@@ -157,7 +170,7 @@ function kindOf(file) {
   return null;
 }
 
-function* walk(target) {
+function* walk(target, skipped, isRoot = true) {
   const stat = fs.statSync(target);
 
   if (stat.isFile()) {
@@ -166,15 +179,19 @@ function* walk(target) {
   }
 
   for (const entry of fs.readdirSync(target, { withFileTypes: true })) {
-    if (entry.name.startsWith('.') && entry.isDirectory() && entry.name !== '.storybook') {
-      continue;
-    }
+    const full = path.join(target, entry.name);
+
     if (entry.isDirectory()) {
-      if (!SKIP_DIRS.has(entry.name)) {
-        yield* walk(path.join(target, entry.name));
+      if (ALWAYS_SKIP_DIRS.has(entry.name) || (entry.name.startsWith('.') && entry.name !== '.storybook')) {
+        continue;
       }
+      if (isRoot && ROOT_SKIP_DIRS.has(entry.name)) {
+        skipped.add(full);
+        continue;
+      }
+      yield* walk(full, skipped, false);
     } else if (entry.isFile()) {
-      yield path.join(target, entry.name);
+      yield full;
     }
   }
 }
@@ -204,7 +221,7 @@ function scanFile(file, opts, out) {
       if (!rule.test.test(line)) continue;
       if (rule.exclude && rule.exclude.test(line)) continue;
 
-      const canFix = rule.fix && (!rule.fixIf || rule.fixIf(original));
+      const canFix = rule.fix && (!rule.fixIf || rule.fixIf(original)) && (!rule.needs18 || opts.on18);
       const fixed = canFix ? rule.fix(line, opts) : undefined;
 
       if (fixed === undefined) {
@@ -354,6 +371,14 @@ function printReport(out, opts) {
     console.log(`Note: ${note}\n`);
   }
 
+  if (out.skipped.size) {
+    console.log('Not scanned (build output or vendored code; pass the folder as a path to scan it):');
+    for (const dir of out.skipped) {
+      console.log(`    ${rel(dir)}/`);
+    }
+    console.log('');
+  }
+
   console.log(`${out.filesScanned} file(s) scanned · ${out.auto.length} automatic fix(es)` +
     `${opts.write ? ` applied in ${out.written.size} file(s)` : ' available'} · ${out.manual.length} manual item(s).`);
 
@@ -362,33 +387,99 @@ function printReport(out, opts) {
   }
 }
 
+/**
+ * Major version of handsontable the project runs: the installed package if it can be found,
+ * otherwise the first number of the range declared in package.json. Tries each directory in
+ * order (the project root, then the directories passed as paths). Null when none tells.
+ */
+function projectMajor(dirs, htDir) {
+  if (htDir) {
+    return Number(locateHandsontable({ htDir }).version.split('.')[0]);
+  }
+
+  for (const dir of dirs) {
+    try {
+      return Number(locateHandsontable({ project: dir }).version.split('.')[0]);
+    } catch {
+      // not installed from here; fall back to the declared range below
+    }
+
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'));
+      const range = { ...pkg.dependencies, ...pkg.devDependencies, ...pkg.peerDependencies }.handsontable;
+      const m = String(range ?? '').match(/\d+/);
+
+      if (m) {
+        return Number(m[0]);
+      }
+    } catch {
+      // no readable package.json here
+    }
+  }
+
+  return null;
+}
+
 run(async () => {
-  const { flags, positionals } = parseArgs(process.argv.slice(2));
-  const targets = positionals.length ? positionals : ['.'];
-  const opts = { write: flags.write === true, base: flags.base === true };
-  const out = { auto: [], manual: [], notes: [], written: new Set(), filesScanned: 0, usesFormulas: false, hasSanitizer: false };
+  const { flags, positionals } = parseArgs(process.argv.slice(2), ['project', 'ht-dir']);
+  const unknown = Object.keys(flags).filter(name => !KNOWN_FLAGS.has(name));
+
+  if (unknown.length) {
+    throw new UsageError(`Unknown option ${unknown.map(n => `--${n}`).join(', ')}. ` +
+      `Valid options: ${[...KNOWN_FLAGS].map(n => `--${n}`).join(', ')}.`);
+  }
+  for (const name of ['project', 'ht-dir']) {
+    if (name in flags && typeof flags[name] !== 'string') {
+      throw new UsageError(`--${name} needs a value.`);
+    }
+  }
+
+  const project = path.resolve(flags.project || '.');
+
+  if (!fs.existsSync(project) || !fs.statSync(project).isDirectory()) {
+    throw new UsageError(`Project directory not found: ${project}`);
+  }
+
+  const targets = positionals.length ? positionals.map(p => path.resolve(project, p)) : [project];
 
   for (const target of targets) {
     if (!fs.existsSync(target)) {
       throw new UsageError(`Path not found: ${target}`);
     }
+  }
 
-    for (const file of walk(path.resolve(target))) {
+  const dirTargets = targets.filter(t => fs.statSync(t).isDirectory());
+  const major = projectMajor([project, ...dirTargets], flags['ht-dir']);
+  const opts = { write: flags.write === true, base: flags.base === true, on18: major !== null && major >= 18 };
+  const out = {
+    auto: [], manual: [], notes: [], written: new Set(), skipped: new Set(), filesScanned: 0,
+    usesFormulas: false, hasSanitizer: false,
+  };
+
+  for (const target of targets) {
+    for (const file of walk(target, out.skipped)) {
       if (kindOf(file)) {
         out.filesScanned++;
         scanFile(file, opts, out);
       }
     }
+  }
 
-    if (fs.statSync(target).isDirectory()) {
-      checkPackageJson(path.resolve(target), out);
-    }
+  // package.json of the project root and of every directory passed as a path.
+  for (const dir of new Set([project, ...dirTargets])) {
+    checkPackageJson(dir, out);
+  }
+
+  if (!opts.on18 && out.manual.some(item => item.rule === 'correct-format')) {
+    out.notes.push('`correctFormat` lines are reported, not deleted, because ' +
+      (major === null ? 'the installed handsontable version could not be determined' : `the project is on handsontable ${major}.x`) +
+      ': before 18.0 the option still reformats dates. Upgrade to 18.x and run again with --write to remove them.');
   }
 
   finish(out);
 
   if (flags.json) {
-    console.log(JSON.stringify({ ...out, written: [...out.written] }, null, 2));
+    console.log(JSON.stringify({ ...out, written: [...out.written], skipped: [...out.skipped] }, null, 2));
   } else {
     printReport(out, opts);
   }

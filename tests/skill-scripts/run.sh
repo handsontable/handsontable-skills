@@ -66,7 +66,7 @@ expect "license: whitespace noted" 'leading/trailing whitespace'
 check "license: key from env, json" 0 env HANDSONTABLE_LICENSE_KEY=non-commercial-and-evaluation node "$SCRIPTS/license-doctor.mjs" --json --ht-dir "$HT_DIR"
 expect "license: json blocks=false" '"blocks": false'
 
-# migrate-v18 (runs on a copy so --write does not touch the fixture)
+# migrate-v18 (runs on copies so --write does not touch the fixture)
 cp -R "$FIXTURES/project" "$WORK/project"
 check "migrate: dry run reports" 1 node "$SCRIPTS/migrate-v18.mjs" "$WORK/project"
 expect "migrate: common subpath" "handsontable/common"
@@ -75,12 +75,22 @@ expect "migrate: string dateFormat" "dateFormat: 'DD/MM/YYYY'"
 expect "migrate: positional selector" '\.ht-root-wrapper >'
 expect "migrate: hyperformula unbundled" 'hyperformula. is not a dependency'
 expect "migrate: version bump" 'Bump it to \^18'
+expect "migrate: build dir skipped and listed" 'project/build/$'
+expect "migrate: nested vendor dir scanned" 'src/vendor/legacy\.ts'
 grep -q "handsontable/common" "$WORK/project/src/grid.ts" || { echo "FAIL  migrate: dry run changed a file"; FAIL=1; }
-check "migrate: --write" 1 node "$SCRIPTS/migrate-v18.mjs" "$WORK/project" --write
+check "migrate: unknown flag is a usage error" 2 node "$SCRIPTS/migrate-v18.mjs" "$WORK/project" --writ
+grep -q "handsontable/common" "$WORK/project/src/grid.ts" || { echo "FAIL  migrate: unknown flag wrote"; FAIL=1; }
+# Fixture declares handsontable ^17 and has none installed: correctFormat must be reported, not deleted.
+check "migrate: --write on 17.x (--project=)" 1 sh -c "cd '$WORK' && node '$SCRIPTS/migrate-v18.mjs' --project='$WORK/project' --write"
 grep -q "from 'handsontable';" "$WORK/project/src/grid.ts" && echo "ok    migrate: import rewritten" || { echo "FAIL  migrate: import not rewritten"; FAIL=1; }
-grep -q "correctFormat" "$WORK/project/src/grid.ts" && { echo "FAIL  migrate: correctFormat line kept"; FAIL=1; } || echo "ok    migrate: correctFormat line deleted"
+grep -q "correctFormat" "$WORK/project/src/grid.ts" && echo "ok    migrate: correctFormat kept on 17.x" || { echo "FAIL  migrate: correctFormat deleted on 17.x"; FAIL=1; }
 grep -q -- "--ht-border-radius" "$WORK/project/src/grid.css" && echo "ok    migrate: CSS variable renamed" || { echo "FAIL  migrate: CSS variable not renamed"; FAIL=1; }
-check "migrate: second --write is a no-op" 1 node "$SCRIPTS/migrate-v18.mjs" "$WORK/project" --write
+grep -q "handsontable/common" "$WORK/project/build/out.js" && echo "ok    migrate: build dir untouched" || { echo "FAIL  migrate: build dir rewritten"; FAIL=1; }
+# With 18.x installed the line is deleted, but only in files that mention Handsontable.
+check "migrate: --write on 18.x" 1 node "$SCRIPTS/migrate-v18.mjs" --project "$WORK/project" --ht-dir "$HT_DIR" --write
+grep -q "correctFormat" "$WORK/project/src/grid.ts" && { echo "FAIL  migrate: correctFormat line kept on 18.x"; FAIL=1; } || echo "ok    migrate: correctFormat line deleted on 18.x"
+grep -q "correctFormat" "$WORK/project/src/other-datepicker.ts" && echo "ok    migrate: non-Handsontable file untouched" || { echo "FAIL  migrate: non-Handsontable correctFormat deleted"; FAIL=1; }
+check "migrate: second --write is a no-op" 1 node "$SCRIPTS/migrate-v18.mjs" --project "$WORK/project" --ht-dir "$HT_DIR" --write
 expect "migrate: nothing left to auto-fix" '0 automatic fix'
 
 if [ "$FAIL" = 0 ]; then echo; echo "All skill script checks passed."; else echo; echo "Some checks failed."; exit 1; fi
