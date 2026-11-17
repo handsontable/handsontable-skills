@@ -63,9 +63,13 @@ jobs:
           CHECK_OUTPUT: ${{ steps.check.outputs.output }}
           HT_VERSION: ${{ matrix.handsontable }}
         run: |
-          TITLE="Weekly skill script check failed"
+          # One issue per matrix leg: both legs run this step at once, so a shared title could
+          # let both miss the other's issue in the search below and open duplicates.
+          TITLE="Weekly skill script check failed (handsontable@$HT_VERSION)"
           BODY=$(printf 'The scheduled skill script check failed against handsontable@%s.\n\nRun: %s\n\n```\n%s\n```\n' "$HT_VERSION" "$RUN_URL" "$CHECK_OUTPUT")
-          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')
+          # Search is fuzzy, so keep only an exact title match (the other leg's issue would match too).
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number,title \
+            --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n 1)
           if [ -n "$EXISTING" ]; then
             gh issue comment "$EXISTING" --body "$BODY"
           else
