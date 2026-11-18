@@ -106,6 +106,31 @@ npx skills add handsontable/handsontable-skills \
   ```
 Replace codex with another supported agent id from the skills CLI [agent list](https://github.com/vercel-labs/skills#supported-agents). Omit --global for project-scoped installation.
 
+## Troubleshooting and support
+
+### Claude does not seem to use the skills
+
+- **Plugin install:** restart Claude Code or run `/reload-plugins` after installing. Then open `/plugin` and check that `handsontable-skills` is installed.
+- **Manual install:** each skill folder must sit directly inside your skills directory, so that `SKILL.md` is at `~/.claude/skills/handsontable/SKILL.md` (user scope) or `.claude/skills/handsontable/SKILL.md` (project scope). The same applies to `hyperformula`.
+- **Name the product:** Claude picks a skill based on what you ask, so mention Handsontable or HyperFormula in your prompt.
+
+### Answers look outdated
+
+Each skill is a snapshot of one product release. The version it targets is the `Latest version` line near the top of `skills/handsontable/SKILL.md`, and the `Aligned with HyperFormula` line at the end of `skills/hyperformula/SKILL.md`. If that version is older than the one you use, update the plugin, or `git pull` and copy the skill folders again for a manual install.
+
+For releases newer than the skill, you can add the optional Docs MCP server yourself. See the [Docs MCP server guide](https://handsontable.com/docs/javascript-data-grid/docs-mcp-server/).
+
+### A generated example fails
+
+- Check that your installed Handsontable or HyperFormula version matches the version the skill targets.
+- A grid covered by a modal that cannot be closed (Handsontable 18.1 and later) usually means the `licenseKey` is missing or invalid. See "Common Pitfalls" in `skills/handsontable/SKILL.md`.
+
+### Get help
+
+- **Problem with a skill** (wrong example, broken link, skill not loading): [open an issue](https://github.com/handsontable/handsontable-skills/issues) in this repository.
+- **Question about the products:** ask on the [community forum](https://forum.handsontable.com/).
+- **Anything else:** [support@handsontable.com](mailto:support@handsontable.com).
+
 ## Distribution formats
 
 We ship the skills in several forms because different agents and surfaces accept different inputs. Use whichever matches the platform you're installing into.
