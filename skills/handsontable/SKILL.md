@@ -24,7 +24,8 @@ validation, pagination, and 400+ built-in formulas via HyperFormula.
 - **Latest version:** 18.1.2 (October 2026)
 - **Frameworks:** Vanilla JS/TS, React (`@handsontable/react-wrapper`), Angular (`@handsontable/angular-wrapper`), Vue 3 (`@handsontable/vue3`)
 - **React wrapper requires:** React 18+
-- **License:** Dual — free for non-commercial use (`licenseKey: 'non-commercial-and-evaluation'`), paid for commercial. Per-developer annual license, offline validation (no server connection). **v18.1+: a missing or invalid `licenseKey` blocks the grid** with a modal that cannot be closed (v18.0 showed only a notice below the grid). An expired commercial key (perpetual past its maintenance date, or a lapsed subscription) never blocks — a notice appears below the grid and in the console while every feature keeps working. A **trial** key is different: after its expiration date a message appears, and once the grace period stored in the key also passes, a blocking screen replaces the grid. Entitlement license keys are also supported (v18.1+); validation stays offline for every key kind. Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
+- **License:** a free trial for evaluation, paid for commercial use, and a free license that qualifying non-commercial projects (such as teaching or academic research) apply for through Handsontable sales. **v19.0+: the `non-commercial-and-evaluation` key (and its second form) is removed and counts as an invalid key**; v18.x and earlier still accept it. Per-developer annual license, offline validation (no server connection). **v18.1+: a missing or invalid `licenseKey` blocks the grid** with a modal that cannot be closed (v18.0 showed only a notice below the grid). An expired commercial key (perpetual past its maintenance date, or a lapsed subscription) never blocks — a notice appears below the grid and in the console while every feature keeps working. A **trial** key is different: after its expiration date a message appears, and once the grace period stored in the key also passes, a blocking screen replaces the grid. **v19.0+:** a trial key, and a key whose license terms ask for it, also show a "Powered by Handsontable DataGrid" bar below the grid; no option turns it off. Entitlement license keys are also supported (v18.1+); validation stays offline for every key kind. Tiers: Hobby (free, non-commercial), Trial (free 45 days), Standard (from $999/yr), Priority (from $1,299/yr), Enterprise (custom). See [Pricing](https://handsontable.com/pricing).
+- **License key in snippets:** the snippets in this skill carry the key as a commented-out line (`// licenseKey: 'your-license-key'`), as the official docs do. Uncomment it and use your own key; without a key the grid shows a blocking screen.
 
 Always check `references/docs-map.md` (in this skill folder) for the full organized link directory
 when you need to point the user to specific documentation or need to look up more info.
@@ -87,7 +88,7 @@ const MyGrid = () => (
     height="auto"
     autoWrapRow={true}
     autoWrapCol={true}
-    licenseKey="non-commercial-and-evaluation"
+    // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
   />
 );
 
@@ -144,7 +145,7 @@ new Handsontable(container, {
   themeName: 'ht-theme-main',
   autoWrapRow: true,
   autoWrapCol: true,
-  licenseKey: 'non-commercial-and-evaluation',
+  // licenseKey: 'your-license-key', // get a key at https://handsontable.com/pricing/
 });
 ```
 
@@ -396,7 +397,10 @@ stretchH="all"                  // stretch columns to fill width: 'none' | 'last
 ```jsx
 import { HotTable, HotColumn } from '@handsontable/react-wrapper';
 
-<HotTable data={data} licenseKey="non-commercial-and-evaluation">
+<HotTable
+  data={data}
+  // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
+>
   <HotColumn title="Name" data="name" />
   <HotColumn title="Active" data="active" type="checkbox" />
 </HotTable>
@@ -443,7 +447,7 @@ import { HyperFormula } from 'hyperformula';
   ]}
   formulas={{ engine: HyperFormula }}
   colHeaders={true}
-  licenseKey="non-commercial-and-evaluation"
+  // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
 />
 ```
 
@@ -462,14 +466,14 @@ const hfInstance = HyperFormula.buildEmpty({
 <HotTable
   data={data1}
   formulas={{ engine: hfInstance, sheetName: 'Sheet1' }}
-  licenseKey="non-commercial-and-evaluation"
+  // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
 />
 
 // Sheet 2 — shares the same engine, enabling cross-sheet references
 <HotTable
   data={data2}
   formulas={{ engine: hfInstance, sheetName: 'Sheet2' }}
-  licenseKey="non-commercial-and-evaluation"
+  // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
 />
 ```
 
@@ -524,7 +528,7 @@ The `dataProvider` option is an object with five required keys: a row-id resolve
   columnSorting={true}
   emptyDataState={true}
   height={360}
-  licenseKey="non-commercial-and-evaluation"
+  // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
   dataProvider={{
     // Required: how to extract a stable id from each row
     rowId: 'id',
@@ -588,7 +592,7 @@ v18 introduced a new layout system that renders plugin UI elements into orderabl
     // renders after them in the default weight order.
     bottom: ['pagination', 'summary'],
   }}
-  licenseKey="non-commercial-and-evaluation"
+  // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
 />
 ```
 
@@ -734,7 +738,8 @@ user's `.env`), not `--key`, so it stays out of the command line and the transcr
 
 ## Common Pitfalls
 
-- **Missing or invalid `licenseKey` blocks the grid in v18.1+**: the grid is covered by a modal that cannot be closed (v18.0 showed only a notice below the grid). This typically bites environments where the notice used to be ignored — local dev, CI, end-to-end test suites, Storybook and demo builds. Pass a valid key, or `'non-commercial-and-evaluation'` for non-commercial use, to every instance in every environment. `licenseKey` is read once at initialization — passing a new one through `updateSettings()` does not re-evaluate it; recreate the instance instead. An expired commercial key or lapsed subscription never blocks (notice + console error, features keep working; only an expired **trial** blocks, once the key's grace period passes). v18.1 also detects expired keys again — in v18.0 that detection silently never ran — so expired-key notices reappear after upgrading.
+- **Missing or invalid `licenseKey` blocks the grid in v18.1+**: the grid is covered by a modal that cannot be closed (v18.0 showed only a notice below the grid). This typically bites environments where the notice used to be ignored — local dev, CI, end-to-end test suites, Storybook and demo builds. Pass a valid key to every instance in every environment: a trial key for evaluation, a commercial key, or the free license for non-commercial projects. In v19.0+ the `non-commercial-and-evaluation` key no longer counts as valid (v18.x accepts it). `licenseKey` is read once at initialization — passing a new one through `updateSettings()` does not re-evaluate it; recreate the instance instead. An expired commercial key or lapsed subscription never blocks (notice + console error, features keep working; only an expired **trial** blocks, once the key's grace period passes). v18.1 also detects expired keys again — in v18.0 that detection silently never ran — so expired-key notices reappear after upgrading.
+- **`NON_COMMERCIAL_LICENSE` (Angular) holds the removed key**: from v19.0 the `@handsontable/angular-wrapper` constant `NON_COMMERCIAL_LICENSE` is deprecated, because it holds the `non-commercial-and-evaluation` key, and it will be removed in v20.0. Pass your own key through `licenseKey` in `GridSettings`, or through the `license` field of `HOT_GLOBAL_CONFIG`.
 - **Not setting `height`**: always set it explicitly — `"auto"`, a pixel value, or a CSS string. Unsized grids historically collapsed or misbehaved; v18.1 fixed one such case (a grid with `width` but no `height` collapsing vertically), but an explicit height keeps sizing predictable across versions.
 - **Not filtering `loadData` in `afterChange`**: The `afterChange` hook fires on initial data load with `source === 'loadData'`. Always check the source to avoid infinite loops when syncing changes back to state.
 - **Using the old wrapper packages**: v17 removed `@handsontable/react` and `@handsontable/angular`. Use `@handsontable/react-wrapper` and `@handsontable/angular-wrapper`.

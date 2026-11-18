@@ -40,7 +40,7 @@ import Handsontable from 'handsontable';
 import type { GridSettings, ColumnSettings, CellProperties, CellChange, ChangeSource } from 'handsontable';
 
 // Namespace style (equivalent; common in older codebases)
-const settings: Handsontable.GridSettings = { licenseKey: 'non-commercial-and-evaluation' };
+const settings: Handsontable.GridSettings = { licenseKey: 'your-license-key' };
 ```
 
 The `handsontable/settings` subpath also resolves these types in both versions, **but in v17 it is
@@ -376,7 +376,7 @@ const MyGrid = () => {
       data={[['A1', 'B1']]}
       afterChange={onAfterChange}
       height="auto"
-      licenseKey="non-commercial-and-evaluation"
+      // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
     />
   );
 };
