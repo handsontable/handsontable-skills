@@ -41,8 +41,10 @@ URLS_FILE=$(mktemp)
 RESULTS_FILE=$(mktemp)
 trap 'rm -f "$URLS_FILE" "$RESULTS_FILE"' EXIT
 
-# Extract URLs — use grep -oE for macOS/BSD compatibility (no -P flag)
-grep -rhoE 'https://[^[:space:])"<>]+' \
+# Extract URLs — use grep -oE for macOS/BSD compatibility (no -P flag).
+# A single quote ends a URL too: the helper scripts under skills/*/scripts/
+# hold URLs in JS string literals, and a stray quote would also break xargs.
+grep -rhoE "https://[^[:space:])\"'<>]+" \
     skills/handsontable/ skills/hyperformula/ \
     | sed 's/[.,;:)`]*$//' \
     | sort -u > "$URLS_FILE"
