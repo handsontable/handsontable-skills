@@ -1,6 +1,6 @@
 # Handsontable DataGrid Documentation Map
 
-> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0
+> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0. The three Excel import and export links are 19.0 pages that go live with the release.
 
 Organized link directory for all Handsontable DataGrid and HyperFormula (in-grid) documentation. Use these
 to point users to the right page. Links default to the React docs; replace `react-data-grid` with
@@ -109,6 +109,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Icon pack: https://handsontable.com/docs/react-data-grid/icon-pack/
 - Export to CSV: https://handsontable.com/docs/react-data-grid/export-to-csv/
 - Export to Excel/XLSX (v17.1+): https://handsontable.com/docs/react-data-grid/export-to-excel/
+- Import from Excel (v19.0+): https://handsontable.com/docs/react-data-grid/import-from-excel/
+- XLSX engines (v19.0+): https://handsontable.com/docs/react-data-grid/xlsx-engine/
 - Notification (v17.1+): https://handsontable.com/docs/react-data-grid/notification/
 - Empty data state: https://handsontable.com/docs/react-data-grid/empty-data-state/
 
@@ -174,6 +176,7 @@ definitions directly (version-pinned):
 - DropdownMenu: https://handsontable.com/docs/react-data-grid/api/dropdown-menu/
 - EmptyDataState: https://handsontable.com/docs/react-data-grid/api/empty-data-state/
 - ExportFile: https://handsontable.com/docs/react-data-grid/api/export-file/
+- ImportFile (v19.0+): https://handsontable.com/docs/react-data-grid/api/import-file/
 - Filters: https://handsontable.com/docs/react-data-grid/api/filters/
 - Formulas: https://handsontable.com/docs/react-data-grid/api/formulas/
 - HiddenColumns: https://handsontable.com/docs/react-data-grid/api/hidden-columns/
