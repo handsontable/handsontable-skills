@@ -114,19 +114,39 @@ expect "migrate19: browser targets" 'below the 19\.0 minimum: chrome >= 110\.'
 expect "migrate19: review height auto" "grid\.ts:12  height: 'auto'"
 expect "migrate19: review beforeInit in settings" 'grid\.ts:24  beforeInit\(\)'
 expect "migrate19: review dropdown strict false" "grid\.ts:19  type: 'dropdown'"
-expect "migrate19: counts" '1 automatic fix\(es\) available · 11 manual item\(s\) · 6 to review'
-if grep -qE "unrelated\.ts|my-card|addHook\('beforeInit'" <<<"$LAST"; then echo "FAIL  migrate19: reported a line it should skip"; FAIL=1; else echo "ok    migrate19: unrelated lines skipped"; fi
+expect "migrate19: Angular NON_COMMERCIAL_LICENSE" 'grid\.ts:37  import \{ NON_COMMERCIAL_LICENSE \}'
+expect "migrate19: removed DataProviderOptions" 'grid\.ts:38  import type \{ DataProviderOptions \}'
+expect "migrate19: deprecated iconsMap" 'grid\.ts:39  import \{ iconsMap \}'
+expect "migrate19: deprecated srSP dictionary" 'grid\.ts:45  registerLanguageDictionary\(srSP\)'
+expect "migrate19: multi-line Settings import" 'grid\.ts:41  import type \{ Settings as ExportSettings, \}'
+expect "migrate19: removed helper.sanitize" 'grid\.ts:46  Handsontable\.helper\.sanitize'
+expect "migrate19: review getCopyableData" 'grid\.ts:47  hot\.getCopyableData'
+expect "migrate19: deprecated Formulas shortcuts" 'grid\.ts:48  .*registerShortcuts\(\)'
+expect "migrate19: deprecated MergedCellsCollection method" 'grid\.ts:49  .*getTopMostRowIndex\(\)'
+expect "migrate19: other sr-SP to review" "grid\.ts:50  const dateFormat = new Intl\.DateTimeFormat\('sr-SP'\)"
+expect "migrate19: review custom editor" 'grid\.ts:51  class StatusEditor extends'
+expect "migrate19: wrapper major mismatch" '@handsontable/vue3 is "\^19\.0\.0" but handsontable is "\^18\.1\.0"'
+expect "migrate19: beforeInit note" 'it can stop the grid from building'
+expect "migrate19: HTML limit note" '1 HTML file\(s\) were scanned only for the checks'
+expect "migrate19: counts" '2 automatic fix\(es\) available · 21 manual item\(s\) · 9 to review'
+if grep -qE "unrelated\.ts|index\.html|my-card|addHook\('beforeInit'" <<<"$LAST"; then echo "FAIL  migrate19: reported a line it should skip"; FAIL=1; else echo "ok    migrate19: unrelated lines skipped"; fi
 grep -q "columnHeaders: true, filename" "$WORK/project19/src/grid.ts" || { echo "FAIL  migrate19: dry run changed a file"; FAIL=1; }
 check "migrate19: unknown flag is a usage error" 2 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19" --base
 check "migrate19: --write on 18.x" 1 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19" --write
 grep -q "{ colHeaders: true, filename" "$WORK/project19/src/grid.ts" && echo "ok    migrate19: export option renamed" || { echo "FAIL  migrate19: export option not renamed"; FAIL=1; }
 grep -q "^  columnHeaders: true," "$WORK/project19/src/grid.ts" && echo "ok    migrate19: columnHeaders outside an export call kept" || { echo "FAIL  migrate19: columnHeaders outside an export call rewritten"; FAIL=1; }
+grep -q "{ colHeaders: true }" "$WORK/project19/src/export-helper.js" && echo "ok    migrate19: exportFile helper renamed" || { echo "FAIL  migrate19: exportFile helper not renamed"; FAIL=1; }
+grep -q "{ columnHeaders: true }" "$WORK/project19/src/unrelated.ts" && echo "ok    migrate19: export call in a non-Handsontable file kept" || { echo "FAIL  migrate19: export call in a non-Handsontable file rewritten"; FAIL=1; }
 grep -q "language: 'sr-SP'" "$WORK/project19/src/grid.ts" && echo "ok    migrate19: sr-SP kept on 18.x" || { echo "FAIL  migrate19: sr-SP rewritten on 18.x"; FAIL=1; }
 grep -q "non-commercial" "$WORK/project19/build/out.js" && echo "ok    migrate19: build dir untouched" || { echo "FAIL  migrate19: build dir rewritten"; FAIL=1; }
 if [ "$HT_MAJOR" -ge 19 ]; then
   check "migrate19: --write on 19.x" 1 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19" --ht-dir "$HT_DIR" --write
   grep -q "language: 'sr-Latn-RS'" "$WORK/project19/src/grid.ts" && grep -q "languages/sr-Latn-RS.js" "$WORK/project19/src/grid.ts" \
     && echo "ok    migrate19: sr-SP rewritten on 19.x" || { echo "FAIL  migrate19: sr-SP not rewritten on 19.x"; FAIL=1; }
+  grep -q "registerLanguageDictionary, srLatnRS }" "$WORK/project19/src/grid.ts" && grep -q "registerLanguageDictionary(srLatnRS)" "$WORK/project19/src/grid.ts" \
+    && echo "ok    migrate19: srSP renamed with its import" || { echo "FAIL  migrate19: srSP not renamed with its import"; FAIL=1; }
+  grep -q "DateTimeFormat('sr-SP')" "$WORK/project19/src/grid.ts" && echo "ok    migrate19: other sr-SP kept on 19.x" || { echo "FAIL  migrate19: other sr-SP rewritten on 19.x"; FAIL=1; }
+  expect "migrate19: other sr-SP still reported" "grid\.ts:50  const dateFormat = new Intl\.DateTimeFormat\('sr-SP'\)"
   [ -f "$HT_DIR/languages/sr-Latn-RS.js" ] && echo "ok    migrate19: sr-Latn-RS ships in the package" || { echo "FAIL  migrate19: no languages/sr-Latn-RS.js in the package"; FAIL=1; }
   check "migrate19: second --write is a no-op" 1 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19" --ht-dir "$HT_DIR" --write
   expect "migrate19: nothing left to auto-fix" '0 automatic fix'

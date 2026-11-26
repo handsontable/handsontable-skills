@@ -34,3 +34,18 @@ const exportOptions = {
 };
 const prop = hot.colToProp(3);
 hot.spliceCol(1, 1, 1);
+import { NON_COMMERCIAL_LICENSE } from '@handsontable/angular-wrapper';
+import type { DataProviderOptions } from 'handsontable/plugins/dataProvider';
+import { iconsMap } from 'handsontable/themes/static/variables/helpers/iconsMap';
+import { registerLanguageDictionary, srSP } from 'handsontable/i18n';
+import type {
+  Settings as ExportSettings,
+} from 'handsontable/plugins/exportFile';
+
+registerLanguageDictionary(srSP);
+Handsontable.helper.sanitize('<b>x</b>');
+hot.getCopyableData(0, 0);
+hot.getPlugin('formulas').registerShortcuts();
+hot.getPlugin('mergeCells').mergedCellsCollection.getTopMostRowIndex();
+const dateFormat = new Intl.DateTimeFormat('sr-SP');
+class StatusEditor extends Handsontable.editors.TextEditor {}

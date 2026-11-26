@@ -304,10 +304,15 @@ export function runCodemod(config) {
       ...config.state,
     };
 
+    let markupFiles = 0;
+
     for (const target of targets) {
       for (const file of walk(target, out.skipped)) {
-        if (kindOf(file)) {
+        const kind = kindOf(file);
+
+        if (kind) {
           out.filesScanned++;
+          markupFiles += kind === 'markup' ? 1 : 0;
           scanFile(file, config, opts, out);
         }
       }
@@ -322,6 +327,13 @@ export function runCodemod(config) {
     }
 
     config.finish?.(out, opts);
+
+    // Rules for JavaScript skip HTML files, so code in an inline <script> is not checked.
+    if (markupFiles && (config.lineRules || []).some(rule => rule.when === 'code')) {
+      out.notes.push(`${markupFiles} HTML file(s) were scanned only for the checks that apply to every file type ` +
+        '(CSS selectors, for example). Code inside inline `<script>` elements was not checked: move it to a ' +
+        '.js file and run again, or review it against the migration guide yourself.');
+    }
 
     if (flags.json) {
       console.log(JSON.stringify({ ...out, written: [...out.written], skipped: [...out.skipped] }, null, 2));

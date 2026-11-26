@@ -20,8 +20,10 @@
 // Automatic fixes (with --write):
 //   - `columnHeaders` -> `colHeaders` in the options of an ExportFile call on the same line
 //     (`downloadFile(...)`, `exportAsString(...)`, `exportAsBlob(...)` and their async forms).
-//   - the `sr-SP` language -> `sr-Latn-RS` (`'sr-SP'`, `sr-SP.js` / `sr-SP.mjs`, `srSP`). Only in files
-//     that mention Handsontable, and only once 19.x is installed: 18.x has no `sr-Latn-RS`.
+//   - the `sr-SP` language -> `sr-Latn-RS`: the `language` option (`language: 'sr-SP'`, `language="sr-SP"`), and
+//     `languages/sr-SP` paths (`.js` / `.mjs`). The `srSP` dictionary -> `srLatnRS`, in files that import it from
+//     `handsontable/i18n`. Only in files that mention Handsontable, and only once 19.x is installed: 18.x has no
+//     `sr-Latn-RS`. Any other `sr-SP` (another library's locale, for example) is listed under Review.
 //
 // The report has three parts:
 //   - "Needs a manual change": code that stops working in 19.0 or is deprecated. Sets exit code 1.
@@ -39,6 +41,10 @@ import { MENTIONS_HANDSONTABLE, WRAPPERS, lineOf, rangeMajor, runCodemod } from 
 const GUIDE = 'https://handsontable.com/docs/javascript-data-grid/migration-from-18.1-to-19.0/';
 const usesHandsontable = text => MENTIONS_HANDSONTABLE.test(text);
 const EXPORT_CALL = /\b(downloadFile|exportAsString|exportAsBlob)(Async)?\s*\(/;
+// The forms --write rewrites: the `language` option and `languages/sr-SP` paths.
+const SR_SP_FIXABLE = /\blanguage\s*[:=]\s*\{?\s*(['"`])sr-SP\1|\blanguages\/sr-SP\b/;
+const SR_SP_OTHER = /(['"`])sr-SP\1|\bsr-SP\.m?js\b/;
+const IMPORTS_SR_SP = /\{[^}]*\bsrSP\b[^}]*\}\s*(from\s*|=\s*require\s*\(\s*)(['"])handsontable(\/[\w/-]*)?\2/;
 // Minimum browser versions of 19.0, keyed by the names Browserslist uses.
 const MIN_BROWSERS = { chrome: 130, edge: 130, firefox: 132, safari: 18.2, ios_saf: 18.2, ios: 18.2 };
 
@@ -82,18 +88,12 @@ const LINE_RULES = [
     id: 'export-column-headers',
     when: 'code',
     test: /\bcolumnHeaders\s*:/,
-    fileIf: text => EXPORT_CALL.test(text) || /\bexportFile\b/.test(text),
+    // A file that names the exportFile plugin, or mentions Handsontable and calls an export method.
+    fileIf: text => /\bexportFile\b/.test(text) || (usesHandsontable(text) && EXPORT_CALL.test(text)),
     fix: line => (EXPORT_CALL.test(line) ? line.replace(/\bcolumnHeaders(\s*:)/g, 'colHeaders$1') : undefined),
     message: 'The `columnHeaders` export option of the ExportFile plugin was removed in 19.0: it is ignored with a console ' +
       'warning and the export has no header row. Rename it to `colHeaders` (same value). Check that the line belongs ' +
       'to an export call before renaming.',
-    url: GUIDE,
-  },
-  {
-    id: 'removed-export-settings-type',
-    when: 'code',
-    test: /\bSettings\b[^;]*(['"])handsontable\/plugins\/exportFile\1/,
-    message: 'The `Settings` type of `handsontable/plugins/exportFile` was removed in 19.0. Import `ExportFileSettings`.',
     url: GUIDE,
   },
   {
@@ -227,19 +227,52 @@ const LINE_RULES = [
   {
     id: 'sr-sp-language',
     when: 'code',
-    test: /(['"`])sr-SP\1|\bsr-SP\.m?js\b|\bsrSP\b/,
+    test: SR_SP_FIXABLE,
     fileIf: usesHandsontable,
     fixWhen: opts => opts.on19,
-    fix: line => line.replace(/(['"`])sr-SP\1/g, '$1sr-Latn-RS$1').replace(/\bsr-SP(\.m?js)\b/g, 'sr-Latn-RS$1')
-      .replace(/\bsrSP\b/g, 'srLatnRS'),
-    message: 'The `sr-SP` language code (the `sr-SP.js` file and the `srSP` dictionary) is deprecated in 19.0 and removed ' +
-      'in 20.0. Use `sr-Latn-RS` (`sr-Latn-RS.js`, `srLatnRS`), which has the same phrases.',
+    fix: line => line.replace(/(\blanguage\s*[:=]\s*\{?\s*)(['"`])sr-SP\2/g, '$1$2sr-Latn-RS$2')
+      .replace(/\blanguages\/sr-SP(\.m?js)?(?![\w.-])/g, 'languages/sr-Latn-RS$1'),
+    message: 'The `sr-SP` language code (the `sr-SP.js` file) is deprecated in 19.0 and removed in 20.0. Use `sr-Latn-RS` ' +
+      '(`sr-Latn-RS.js`), which has the same phrases.',
+    url: GUIDE,
+  },
+  {
+    // Runs after `sr-sp-language`, so on 19.x it sees the line that rule rewrote.
+    id: 'sr-sp-other',
+    when: 'code',
+    test: SR_SP_OTHER,
+    exclude: SR_SP_FIXABLE,
+    fileIf: usesHandsontable,
+    review: true,
+    message: 'An `sr-SP` string outside the `language` option, which `--write` leaves as it is. If it is a Handsontable ' +
+      'language code, change it to `sr-Latn-RS` (deprecated in 19.0, removed in 20.0). If it belongs to another ' +
+      'library, such as `Intl` or Angular `registerLocaleData()`, leave it.',
+    url: GUIDE,
+  },
+  {
+    id: 'sr-sp-dictionary',
+    when: 'code',
+    test: /\bsrSP\b/,
+    fileIf: usesHandsontable,
+    fixWhen: opts => opts.on19,
+    // Renamed only in a file that imports `srSP` from handsontable, so the import and its uses change together.
+    fixIf: text => IMPORTS_SR_SP.test(text),
+    fix: line => line.replace(/\bsrSP\b/g, 'srLatnRS'),
+    message: 'The `srSP` dictionary is deprecated in 19.0 and removed in 20.0. Use `srLatnRS`, which has the same phrases. ' +
+      '`--write` renames it only in files that import `srSP` from `handsontable/i18n`.',
     url: GUIDE,
   },
 ];
 
 /** Multi-line patterns that line rules cannot see. */
 const BLOCK_RULES = [
+  {
+    id: 'removed-export-settings-type',
+    when: 'code',
+    test: /\b(import|export)\s+(type\s+)?\{[^}]*\bSettings\b[^}]*\}\s*from\s*(['"])handsontable\/plugins\/exportFile\3/g,
+    message: 'The `Settings` type of `handsontable/plugins/exportFile` was removed in 19.0. Import `ExportFileSettings`.',
+    url: GUIDE,
+  },
   {
     id: 'dropdown-strict-false',
     when: 'code',
@@ -335,10 +368,16 @@ function finish(out, opts) {
     });
   }
 
-  if (!opts.on19 && out.manual.some(item => item.rule === 'sr-sp-language')) {
+  if (!opts.on19 && out.manual.some(item => item.rule === 'sr-sp-language' || item.rule === 'sr-sp-dictionary')) {
     out.notes.push('`sr-SP` is reported, not rewritten, because ' +
       (opts.major === null ? 'the installed handsontable version could not be determined' : `the project is on handsontable ${opts.major}.x`) +
       ', which has no `sr-Latn-RS`. Upgrade to 19.x and run again with --write.');
+  }
+
+  if (out.review.some(item => item.rule === 'before-init-in-settings')) {
+    out.notes.push('A `beforeInit` callback in the settings object is listed under Review, so it does not set the exit ' +
+      'code, but it can stop the grid from building: in 19.0 a callback that calls `countRows()`, `getData()` or a ' +
+      '`hot.view` method throws. Check each one before you upgrade.');
   }
 
   out.notes.push('19.0 runs on Chrome and Edge 130, Firefox 132, and Safari 18.2 (macOS and iOS); 18.1 ran on Chrome 110, ' +

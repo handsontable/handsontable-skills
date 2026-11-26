@@ -740,7 +740,7 @@ them over judging from memory, and quote their output.
 | `validate-settings.mjs <settings file>` (`.json`, or an `.mjs` that exports the object) | Checking a settings object: typos with did-you-mean (`notifications` → `notification`), removed options and hooks, hooks set per column, unknown cell types, Numbro `numericFormat`, string `dateFormat`/`timeFormat` on 18.x, missing `licenseKey` | 1 on errors |
 | `license-doctor.mjs --key-file <file>` (or the `HANDSONTABLE_LICENSE_KEY` env var, or `--stdin`) | "Will this key block the grid?" — prints the state the installed version assigns (`missing`, `invalid`, `trial_hard_stop`, `release_expired`, …) and whether it blocks; flags pasted whitespace, quotes, typographic dashes, HyperFormula keys, and the `non-commercial-and-evaluation` key that v19.0 removed. Needs 18.1+ installed; to preview an upgrade, `npm i --prefix /tmp/ht-next handsontable@latest` and pass `--ht-dir /tmp/ht-next/node_modules/handsontable` | 1 if it blocks |
 | `migrate-v18.mjs [path] --project <dir>` | Upgrading to 18.x: lists every file:line to change with the migration-guide link. `--write` applies the mechanical fixes (`handsontable/common` imports, `--ht-wrapper-border-radius`, `wrapperBorderRadius`; `correctFormat` lines only once 18.x is installed). Top-level `build/`, `dist/`, `out/`, `coverage/`, `vendor/` are skipped and listed; unknown flags are rejected | 1 if manual items remain |
-| `migrate-v19.mjs [path] --project <dir>` | Upgrading from 18.1 to 19.0: lists every file:line with the migration-guide link, in two groups. "Needs a manual change" is code that stops working or is deprecated (the removed `non-commercial-and-evaluation` key, removed methods and types, `registerPlugin(Loading)` without `Dialog`, icon `::before` / `::after` selectors, `spliceCol()` / `spliceRow()`, the package versions, Browserslist targets below the 19.0 minimum). "Review" is behavior to check (`height: 'auto'`, `rowHeights`, array or function `colWidths`, a `beforeInit` in settings, `colToProp()` / `propToCol()`, custom editors, `dropdown` with `strict: false`) and does not set the exit code. `--write` renames `columnHeaders` to `colHeaders` in an export call and, once 19.x is installed, `sr-SP` to `sr-Latn-RS` | 1 if manual items remain |
+| `migrate-v19.mjs [path] --project <dir>` | Upgrading from 18.1 to 19.0: lists every file:line with the migration-guide link, in two groups. "Needs a manual change" is code that stops working or is deprecated (the removed `non-commercial-and-evaluation` key, removed methods and types, `registerPlugin(Loading)` without `Dialog`, icon `::before` / `::after` selectors, `spliceCol()` / `spliceRow()`, the package versions, Browserslist targets below the 19.0 minimum). "Review" is behavior to check (`height: 'auto'`, `rowHeights`, array or function `colWidths`, a `beforeInit` in settings, `colToProp()` / `propToCol()`, custom editors, `dropdown` with `strict: false`, an `sr-SP` string outside the `language` option) and does not set the exit code. `--write` renames `columnHeaders` to `colHeaders` in an export call and, once 19.x is installed, `sr-SP` to `sr-Latn-RS` in the `language` option and `languages/sr-SP` paths, and `srSP` to `srLatnRS` where it is imported from `handsontable/i18n` | 1 if manual items remain |
 
 All four accept `--json`. Pass a real license key through `--key-file` or the env var (e.g. from the
 user's `.env`), not `--key`, so it stays out of the command line and the transcript. The license doctor
@@ -748,7 +748,9 @@ never prints the full key.
 
 `migrate-v19.mjs` finds code patterns only. Many 19.0 changes show at run time (undo and redo, editors,
 wrapper re-renders), so after it runs, also work through "v19.0 Breaking Changes" below and the migration
-guide. A project older than 18.x runs `migrate-v18.mjs` first. v19.0+ also ships its own runtime check,
+guide. It does not check code in inline `<script>` elements of `.html` files (for example a CDN page), so
+review those by hand. A `beforeInit` in settings is listed under Review, which does not set the exit code,
+but if it reads the grid it throws in 19.0 and the grid never finishes building. A project older than 18.x runs `migrate-v18.mjs` first. v19.0+ also ships its own runtime check,
 `validateSettings()` from `handsontable/settingsSchema`, which returns `{ valid, problems }` for a settings
 object without applying it (guide: https://handsontable.com/docs/react-data-grid/validate-settings/).
 
@@ -822,7 +824,7 @@ before you upgrade.
 - **TypeScript:** more options and the `filters` object are type-checked, the Vue 3 wrapper type-checks its props, and React `HotColumn` no longer types hook props (pass hooks to `HotTable`).
 - **Wrappers** peer-require `handsontable@^19.0.0`; React 18+ and Angular 16–22 are unchanged.
 
-**Deprecated, removed in 20.0:** `spliceCol()` and `spliceRow()` (use `populateFromArray()` or `alter()`), writing past the last column of an object data source, and the `sr-SP` language code (use `sr-Latn-RS`).
+**Deprecated, removed in 20.0:** `spliceCol()` and `spliceRow()` (use `populateFromArray()` or `alter()`), writing past the last column of an object data source, the `sr-SP` language code (use `sr-Latn-RS`), the Formulas plugin's `registerShortcuts()` and `unregisterShortcuts()` (no-ops since 19.0; remove the calls, nothing replaces them), four `MergedCellsCollection` methods, `getStartMostColumnIndex()`, `getEndMostColumnIndex()`, `getTopMostRowIndex()` and `getBottomMostRowIndex()` (remove the calls; there is no replacement), the `iconsMap` theme helper (use `iconStyles()`), and the Angular `NON_COMMERCIAL_LICENSE` constant.
 
 **New in 19.0** (no migration needed): a built-in XLSX engine and the `ImportFile` plugin (see `references/data-workflows.md`), the `FormulaBuilder`, `SheetsBar`, `ViewState` and `AsyncValues` plugins, row selection checkboxes (`rowSelection`), row ids (`rowId`), `fixedColumnsEnd`, `autoLink`, `maxLength`, `emptyValue`, `renderMode`, and `validateSettings()` from `handsontable/settingsSchema`. Guides are listed in `references/docs-map.md`.
 
@@ -2329,12 +2331,14 @@ Docs: https://handsontable.com/docs/react-data-grid/column-summary/ · recipe: h
 
 ## Persist column layout (widths + order)
 
-Requires `manualColumnResize: true` and `manualColumnMove`. Save on user changes, restore at init (from the recipe):
+Requires `manualColumnResize: true` and `manualColumnMove`. Save on user changes, restore at init (from the 19.0 recipe). In v19.0+ an array `colWidths` is addressed by **physical** column index, so save widths in physical order; each width then stays with its column after a move. In 18.x an array `colWidths` was visual: there, save `hot.getColWidth(visualIndex)` for each visual index instead.
 
 ```javascript
 // Save — widths after resize, order after move
 afterColumnResize() {
-  const widths = hot.getColHeader().map((_, visualIndex) => hot.getColWidth(visualIndex));
+  const widths = hot.getColHeader().map((_, physicalIndex) =>
+    hot.getColWidth(hot.toVisualColumn(physicalIndex))
+  );
   saveLayout(widths, getCurrentOrder());
 },
 afterColumnMove(_movedColumns, _finalIndex, _dropIndex, _movePossible, movePerformed) {
@@ -2349,6 +2353,15 @@ function getCurrentOrder() {
     order.push(hot.toPhysicalColumn(visualIndex));
   }
   return order;
+}
+
+// Widths in physical order, the order colWidths reads them in (v19.0+)
+function getCurrentWidths() {
+  const widths = [];
+  for (let physicalIndex = 0; physicalIndex < hot.countCols(); physicalIndex++) {
+    widths.push(hot.getColWidth(hot.toVisualColumn(physicalIndex)));
+  }
+  return widths;
 }
 ```
 
@@ -2366,7 +2379,7 @@ DEFAULT_COL_WIDTHS.forEach((width, visualIndex) => {
 hot.render();
 ```
 
-Don't use `updateSettings({ colWidths, manualColumnMove })` for the reset: `manualColumnMove` reapplies as `moveColumns(array, 0)` on the already-reordered state, and `colWidths` doesn't clear the ManualColumnResize plugin's internal width map. Validate anything read back from `localStorage` before use, and version your storage key (`ht-column-layout-v1`) so schema changes fall back to defaults.
+Don't use `updateSettings({ colWidths, manualColumnMove })` for the reset: `manualColumnMove` reapplies as `moveColumns(array, 0)` on the already-reordered state, and `colWidths` doesn't clear the ManualColumnResize plugin's internal width map. Validate anything read back from `localStorage` before use, and version your storage key so schema changes fall back to defaults. The 19.0 recipe uses `-v2` because it saves widths in physical order where `-v1` saved them in visual order; bump the suffix the same way when you move a saved layout from 18.x to 19.0.
 
 Recipe: https://handsontable.com/docs/react-data-grid/recipes/performance/persist-column-layout/
 
@@ -2415,7 +2428,7 @@ Docs: https://handsontable.com/docs/react-data-grid/empty-data-state/
 
 ### Loading (v16.1+)
 
-Loading overlay built on the Dialog plugin — it requires the Dialog plugin to be enabled to function properly. Enable with `loading: true` or a config object (`icon` — SVG string, `title`, `description`). Control it via the plugin:
+Loading overlay built on the Dialog plugin, so register `Dialog` next to `Loading` when you register modules one by one (the full `handsontable` package and `registerAllModules()` register both). In v19.0+ `new Handsontable()` throws "The Loading plugin requires the following modules: Dialog (plugin)" when `Dialog` is missing; in 18.x `show()` silently did nothing. Enable with `loading: true` or a config object (`icon` — SVG string, `title`, `description`). Control it via the plugin:
 
 ```js
 const loadingPlugin = hotInstance.getPlugin('loading');

@@ -3,7 +3,8 @@
   "private": true,
   "dependencies": {
     "handsontable": "^18.1.0",
-    "@handsontable/react-wrapper": "^18.1.0"
+    "@handsontable/react-wrapper": "^18.1.0",
+    "@handsontable/vue3": "^19.0.0"
   },
   "browserslist": [
     "chrome >= 110",
