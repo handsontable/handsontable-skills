@@ -19,6 +19,7 @@ echo "Installing handsontable@$VERSION..."
 npm install --prefix "$WORK/ht" --no-audit --no-fund --silent "handsontable@$VERSION" >/dev/null
 HT_DIR="$WORK/ht/node_modules/handsontable"
 echo "Installed $(node -p "require('$HT_DIR/package.json').version")"
+HT_MAJOR="$(node -p "parseInt(require('$HT_DIR/package.json').version, 10)")"
 
 FAIL=0
 check() { # check <name> <expected-exit> <command...>
@@ -53,18 +54,24 @@ check "validate: stdin + json" 0 sh -c "node '$SCRIPTS/validate-settings.mjs' --
 check "validate: no handsontable is a usage error" 2 node "$SCRIPTS/validate-settings.mjs" "$FIXTURES/settings-good.json" --project "$WORK"
 
 # license-doctor
-check "license: non-commercial runs" 0 node "$SCRIPTS/license-doctor.mjs" --key non-commercial-and-evaluation --ht-dir "$HT_DIR"
-expect "license: non-commercial state" 'State: +non_commercial'
+# 19.0.0 removed the non-commercial key: 18.x reads it as `non_commercial`, 19.0+ as `invalid`.
+if [ "$HT_MAJOR" -ge 19 ]; then FREE_EXIT=1; FREE_STATE='invalid'; FREE_BLOCKS='true'; FREE_NOTE='free key that Handsontable 19\.0 removed'
+else FREE_EXIT=0; FREE_STATE='non_commercial'; FREE_BLOCKS='false'; FREE_NOTE='Before you upgrade'; fi
+check "license: non-commercial runs" "$FREE_EXIT" node "$SCRIPTS/license-doctor.mjs" --key non-commercial-and-evaluation --ht-dir "$HT_DIR"
+expect "license: non-commercial state" "State: +$FREE_STATE"
+expect "license: non-commercial removal note" "$FREE_NOTE"
+check "license: second form of the non-commercial key" "$FREE_EXIT" node "$SCRIPTS/license-doctor.mjs" --key ht68e-1f2b7-47158-70b05-0842f --ht-dir "$HT_DIR"
+expect "license: second form state" "State: +$FREE_STATE"
 check "license: missing blocks" 1 env -u HANDSONTABLE_LICENSE_KEY node "$SCRIPTS/license-doctor.mjs" --ht-dir "$HT_DIR"
 expect "license: missing state" 'State: +missing'
 check "license: garbage blocks" 1 node "$SCRIPTS/license-doctor.mjs" --key 'not-a-key' --ht-dir "$HT_DIR"
 expect "license: invalid state" 'State: +invalid'
 check "license: HyperFormula key flagged" 1 node "$SCRIPTS/license-doctor.mjs" --key gpl-v3 --ht-dir "$HT_DIR"
 expect "license: HyperFormula hint" 'HyperFormula license key'
-check "license: whitespace trimmed" 0 node "$SCRIPTS/license-doctor.mjs" --key ' non-commercial-and-evaluation ' --ht-dir "$HT_DIR"
+check "license: whitespace trimmed" "$FREE_EXIT" node "$SCRIPTS/license-doctor.mjs" --key ' non-commercial-and-evaluation ' --ht-dir "$HT_DIR"
 expect "license: whitespace noted" 'leading/trailing whitespace'
-check "license: key from env, json" 0 env HANDSONTABLE_LICENSE_KEY=non-commercial-and-evaluation node "$SCRIPTS/license-doctor.mjs" --json --ht-dir "$HT_DIR"
-expect "license: json blocks=false" '"blocks": false'
+check "license: key from env, json" "$FREE_EXIT" env HANDSONTABLE_LICENSE_KEY=non-commercial-and-evaluation node "$SCRIPTS/license-doctor.mjs" --json --ht-dir "$HT_DIR"
+expect "license: json blocks" "\"blocks\": $FREE_BLOCKS"
 
 # migrate-v18 (runs on copies so --write does not touch the fixture)
 cp -R "$FIXTURES/project" "$WORK/project"

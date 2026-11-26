@@ -29,13 +29,16 @@ import {
   locateHandsontable, loadInternal, compareVersions, parseArgs, run, UsageError,
 } from './lib/handsontable-package.mjs';
 
-// What each state means for the user. Transcribed from handsontable 18.1.2:
+// What each state means for the user. Transcribed from handsontable 18.1.2
+// (19.0.0 keeps these states; it only stops returning `non_commercial`, see
+// REMOVED_KEYS below):
 // helpers/mixed.ts (console/bottom-bar tables, legacy classifier) and
 // utils/licenseBranding/content.ts (badge and lock screen). Whether a state
 // BLOCKS is not taken from this table: it is read from the installed
 // package's `_BLOCKING_MODAL_STATES`.
 const STATE_INFO = {
-  non_commercial: 'The non-commercial key. Allowed for non-commercial use and evaluation only. No notice.',
+  non_commercial: 'The non-commercial key. 18.x accepts it for non-commercial use and evaluation, with no notice. ' +
+    '19.0 removed it and reads it as invalid.',
   legacy_valid: 'A valid 25-character key that covers this build. No notice.',
   legacy_expired: 'A 25-character key whose maintenance period ended before this build was released. ' +
     'The grid keeps working; a notice appears below it and an error is logged. ' +
@@ -61,6 +64,13 @@ const STATE_INFO = {
 // HyperFormula's keys. Handsontable DataGrid does not accept them
 // (detectFormat.ts notes that `gpl-v3` is rejected like any unknown string).
 const HYPERFORMULA_KEYS = ['gpl-v3', 'internal-use-in-handsontable'];
+
+// The free key and its second form. 19.0.0 removed both: the classifier returns
+// `invalid` for them, where 18.x returned `non_commercial` (19.0 migration guide,
+// "The non-commercial-and-evaluation license key no longer works").
+const REMOVED_KEYS = ['non-commercial-and-evaluation', 'ht68e-1f2b7-47158-70b05-0842f'];
+const REPLACEMENT_KEYS = 'a trial key from https://handsontable.com/pricing/ for evaluation, a commercial key, or ' +
+  'the free license that qualifying non-commercial projects apply for through Handsontable sales';
 
 function readKey(flags) {
   if (typeof flags.key === 'string') {
@@ -90,7 +100,7 @@ function mask(key) {
 
   const k = key.trim();
 
-  if (k.toLowerCase() === 'non-commercial-and-evaluation' || HYPERFORMULA_KEYS.includes(k.toLowerCase())) {
+  if (REMOVED_KEYS.includes(k.toLowerCase()) || HYPERFORMULA_KEYS.includes(k.toLowerCase())) {
     return k;
   }
   if (k.length <= 10) {
@@ -127,7 +137,7 @@ function hygiene(raw) {
   }
   if (HYPERFORMULA_KEYS.includes(trimmed.toLowerCase())) {
     notes.push(`"${trimmed}" is a HyperFormula license key. Handsontable DataGrid's own \`licenseKey\` needs a ` +
-      'Handsontable key or "non-commercial-and-evaluation". The HyperFormula key goes in the HyperFormula config.');
+      `Handsontable key: ${REPLACEMENT_KEYS}. The HyperFormula key goes in the HyperFormula config.`);
   }
 
   const blockStart = trimmed.lastIndexOf('[');
@@ -173,6 +183,14 @@ run(async () => {
     report.licensedUntil = lifecycle.licensedUntil;
     report.details = STATE_INFO[lifecycle.state] ||
       'This state is newer than this script. Check the release notes for the installed version.';
+
+    // Keyed on the state the installed version returned, not on its version number,
+    // so a prerelease of 19.0 gets the right note too.
+    if (typeof key === 'string' && REMOVED_KEYS.includes(key.trim().toLowerCase())) {
+      notes.push(lifecycle.state === 'non_commercial'
+        ? `Handsontable 19.0 removed this key and reads it as invalid, which blocks the grid. Before you upgrade, get ${REPLACEMENT_KEYS}.`
+        : `This is the free key that Handsontable 19.0 removed. It no longer unlocks the grid (18.x and earlier accept it). Use ${REPLACEMENT_KEYS}.`);
+    }
   } else {
     report.details = compareVersions(ht.version, '18.1.0') < 0
       ? `handsontable ${ht.version} has no built-in license classifier (added in 18.1.0), and it never blocks the grid ` +
@@ -207,8 +225,8 @@ run(async () => {
     }
 
     if (report.state) {
-      console.log('\nReminders: `licenseKey` is read once, when the grid is created - changing it with ' +
-        'updateSettings() has no effect, so recreate the instance. Every environment that renders the grid ' +
+      console.log('\nReminders: the license status is checked once, when the grid is created - a key passed through ' +
+        'updateSettings() does not change it, so recreate the instance. Every environment that renders the grid ' +
         '(dev, CI, end-to-end tests, Storybook, demos) needs the key.');
     }
   }
