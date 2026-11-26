@@ -1,6 +1,6 @@
 # Data Workflows (Save, Sync, Validate, Import/Export)
 
-> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source)
+> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source). The v19.0+ Excel import and export parts: November 2026, against the 19.0 docs (19.0.0-rc10).
 
 End-to-end data patterns: persisting edits, syncing grids, dependent dropdowns, bulk validation,
 import/export, and undo/redo. Framework is labeled per snippet (React uses

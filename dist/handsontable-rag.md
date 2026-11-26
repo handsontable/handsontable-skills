@@ -1314,7 +1314,7 @@ https://handsontable.com/docs/javascript-data-grid/recipes/cell-types/radio/
 
 # Data Workflows (Save, Sync, Validate, Import/Export)
 
-> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source)
+> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source). The v19.0+ Excel import and export parts: November 2026, against the 19.0 docs (19.0.0-rc10).
 
 End-to-end data patterns: persisting edits, syncing grids, dependent dropdowns, bulk validation,
 import/export, and undo/redo. Framework is labeled per snippet (React uses
@@ -1764,7 +1764,7 @@ Docs index: https://handsontable.com/docs/react-data-grid/recipes/
 
 # Handsontable DataGrid Documentation Map
 
-> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0
+> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0. The three Excel import and export links are 19.0 pages that go live with the release.
 
 Organized link directory for all Handsontable DataGrid and HyperFormula (in-grid) documentation. Use these
 to point users to the right page. Links default to the React docs; replace `react-data-grid` with

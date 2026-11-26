@@ -1,6 +1,6 @@
 # Handsontable DataGrid Documentation Map
 
-> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0
+> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0. The three Excel import and export links are 19.0 pages that go live with the release.
 
 Organized link directory for all Handsontable DataGrid and HyperFormula (in-grid) documentation. Use these
 to point users to the right page. Links default to the React docs; replace `react-data-grid` with
