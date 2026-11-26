@@ -35,9 +35,12 @@ Task-oriented references in `references/` (open the one that matches what the us
 - [`error-handling.md`](references/error-handling.md) — inspecting `CellError`, `ErrorType` enum, `getCellValueDetailedType`, common error causes (`#NAME?`, `#CYCLE!`, `#REF!`, …). Open this when a cell returns an error or you need to branch on result type.
 - [`general-pitfalls.md`](references/general-pitfalls.md) — cross-cutting gotchas: `destroy()` lifecycle, forcing literal strings, Excel-parity caveats, hard limits. Open this when results look wrong or memory grows unboundedly.
 
-This skill is a snapshot tagged to a release. For live semantic search over the **current** docs —
-newer releases, or anything not covered here — use the first-party Docs MCP server (public, no
-auth): `claude mcp add --transport http handsontable-docs https://docs-assistant.handsontable.com/mcp`.
+This skill is a snapshot tagged to a release. If the user wants live semantic search over the
+**current** docs — newer releases, or anything not covered here — they can add the first-party Docs
+MCP server themselves (public, no auth):
+`claude mcp add --transport http handsontable-docs https://docs-assistant.handsontable.com/mcp`.
+Mention it only when the user asks about newer or missing content, and do not install it for them.
+If the server is already connected, you can use it.
 It searches HyperFormula and Handsontable DataGrid guides, API reference, release notes, and GitHub issues.
 Guide: https://handsontable.com/docs/javascript-data-grid/docs-mcp-server/
 
