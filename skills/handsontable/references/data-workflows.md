@@ -265,7 +265,7 @@ const result = await hot.getPlugin('importFile').importFromBlob('xlsx', file, {
 - **Options** (third argument), among others: `sheet` (name or index, default `0`), `colHeaders: 'firstRow'`, `headerRows`, `range`, `importFormulas` (default `true`), `importStyles` (default `false`, so styling is only reported as `cellStyles` in `result.dropped`), and `apply: false` (a preview: returns the result and changes nothing).
 - **Dropped features:** what the file carries and the grid does not take is listed in `result.dropped` and in one console warning per import.
 - **ExcelJS still works:** pass `engines: { xlsx: ExcelJS }` in the `importFile` settings, or `engine: ExcelJS` for one call. Use the built-in engine unless you need an ExcelJS-only feature. ExcelJS is not safe for files from untrusted sources.
-- **License:** every key issued before 19.0 includes all of Excel import. A key can leave out parts of it. The import then skips that part, prints one console warning, and lists it as `license:xlsx:<id>` in `result.dropped`. If the key does not include Excel import at all, the import methods throw and `supportsImportFormat('xlsx')` returns `false`, so check it before you offer an upload.
+- **License:** Handsontable has one tier, Professional, and it includes all of Excel import. Every key issued before 19.0 and every key that names no tier turns all of it on. A key that names only a tier your version does not know unlocks none of it: the import methods throw and `supportsImportFormat('xlsx')` returns `false`, so check it before you offer an upload. A key that names only the removed tier `standard` unlocks nothing in any version; reissue it with `tier:professional`. A part of the file that the key does not unlock is skipped and listed as `license:xlsx:<id>` in `result.dropped`.
 
 Docs: https://handsontable.com/docs/react-data-grid/import-from-excel/ and https://handsontable.com/docs/react-data-grid/xlsx-engine/
 
@@ -365,19 +365,22 @@ XLSX export preserves what CSV can't: cell types (`numeric`, `date`, `time`, `ch
 native Excel types, DOM-derived styling (font, fill, alignment, `CustomBorders`), column/nested
 headers, merged cells, frozen panes, and — with `exportFormulas: true` — HyperFormula and
 ColumnSummary cells as live Excel formulas. `sheets: [{ instance, name, ... }]` exports multiple
-grids into one workbook; the context menu gains an **Export to Excel** item once an XLSX engine is
+grids into one workbook; the context menu gains an **Export > To Excel** item once an XLSX engine is
 available (v18.x: configure ExcelJS; v19.0+: the built-in engine counts, so no setup).
 
 v19.0+ adds the `protection` option. By default an export protects a sheet that has a read-only cell, with no
-password, and locks only those cells. `protection: { password: 'q4-budget' }` sets a password (at most 255
-characters), and `protection: null` protects no sheet, so read-only cells export unlocked. It guards against
-accidental edits and is not encryption.
+password, and locks only those cells. A sheet with no read-only cell is not protected, and neither is a sheet
+with a `columnSummary` destination cell. `protection: { password: 'q4-budget' }` sets a password (a string of
+at most 255 characters; an empty string sets none), and `protection: null` protects no sheet, so read-only
+cells export unlocked. Hashing the password needs `crypto.subtle`, so on a plain `http://` page a protected
+export with a password rejects; use https or localhost. It guards against accidental edits and is not
+encryption.
 
-**License (v19.0+):** every key issued before 19.0 includes all of Excel export. A key can leave out parts of it.
-The export then writes the rest and prints one console warning that names what it skipped (without number
-formats, for example, a date exports as the text the grid shows). If the key does not include Excel export at
-all, the export methods throw, `supportsExportFormat('xlsx')` returns `false`, and the **To Excel** menu item
-is hidden.
+**License (v19.0+):** Handsontable has one tier, Professional, and it includes all of Excel export. Every key
+issued before 19.0 and every key that names no tier turns all of it on. A key that names only a tier your
+version does not know unlocks none of it: the export methods throw, `supportsExportFormat('xlsx')` returns
+`false`, and the **To Excel** menu item is hidden. A key that names only the removed tier `standard` unlocks
+nothing in any version; reissue it with `tier:professional`.
 
 Docs: https://handsontable.com/docs/react-data-grid/export-to-excel/ and
 https://handsontable.com/docs/react-data-grid/xlsx-engine/
