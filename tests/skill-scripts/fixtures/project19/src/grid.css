@@ -1,0 +1,2 @@
+.changeType::before { background-color: blue; }
+.my-card::before { content: ''; }

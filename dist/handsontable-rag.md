@@ -740,13 +740,15 @@ them over judging from memory, and quote their output.
 | `validate-settings.mjs <settings file>` (`.json`, or an `.mjs` that exports the object) | Checking a settings object: typos with did-you-mean (`notifications` → `notification`), removed options and hooks, hooks set per column, unknown cell types, Numbro `numericFormat`, string `dateFormat`/`timeFormat` on 18.x, missing `licenseKey` | 1 on errors |
 | `license-doctor.mjs --key-file <file>` (or the `HANDSONTABLE_LICENSE_KEY` env var, or `--stdin`) | "Will this key block the grid?" — prints the state the installed version assigns (`missing`, `invalid`, `trial_hard_stop`, `release_expired`, …) and whether it blocks; flags pasted whitespace, quotes, typographic dashes, HyperFormula keys, and the `non-commercial-and-evaluation` key that v19.0 removed. Needs 18.1+ installed; to preview an upgrade, `npm i --prefix /tmp/ht-next handsontable@latest` and pass `--ht-dir /tmp/ht-next/node_modules/handsontable` | 1 if it blocks |
 | `migrate-v18.mjs [path] --project <dir>` | Upgrading to 18.x: lists every file:line to change with the migration-guide link. `--write` applies the mechanical fixes (`handsontable/common` imports, `--ht-wrapper-border-radius`, `wrapperBorderRadius`; `correctFormat` lines only once 18.x is installed). Top-level `build/`, `dist/`, `out/`, `coverage/`, `vendor/` are skipped and listed; unknown flags are rejected | 1 if manual items remain |
+| `migrate-v19.mjs [path] --project <dir>` | Upgrading from 18.1 to 19.0: lists every file:line with the migration-guide link, in two groups. "Needs a manual change" is code that stops working or is deprecated (the removed `non-commercial-and-evaluation` key, removed methods and types, `registerPlugin(Loading)` without `Dialog`, icon `::before` / `::after` selectors, `spliceCol()` / `spliceRow()`, the package versions, Browserslist targets below the 19.0 minimum). "Review" is behavior to check (`height: 'auto'`, `rowHeights`, array or function `colWidths`, a `beforeInit` in settings, `colToProp()` / `propToCol()`, custom editors, `dropdown` with `strict: false`) and does not set the exit code. `--write` renames `columnHeaders` to `colHeaders` in an export call and, once 19.x is installed, `sr-SP` to `sr-Latn-RS` | 1 if manual items remain |
 
-All three accept `--json`. Pass a real license key through `--key-file` or the env var (e.g. from the
+All four accept `--json`. Pass a real license key through `--key-file` or the env var (e.g. from the
 user's `.env`), not `--key`, so it stays out of the command line and the transcript. The license doctor
 never prints the full key.
 
-There is no codemod for 19.0: `migrate-v18.mjs` covers the 18.x upgrade only, so for 19.0 work through
-"v19.0 Breaking Changes" below and the migration guide. v19.0+ also ships its own runtime check,
+`migrate-v19.mjs` finds code patterns only. Many 19.0 changes show at run time (undo and redo, editors,
+wrapper re-renders), so after it runs, also work through "v19.0 Breaking Changes" below and the migration
+guide. A project older than 18.x runs `migrate-v18.mjs` first. v19.0+ also ships its own runtime check,
 `validateSettings()` from `handsontable/settingsSchema`, which returns `{ valid, problems }` for a settings
 object without applying it (guide: https://handsontable.com/docs/react-data-grid/validate-settings/).
 

@@ -1,0 +1,13 @@
+{
+  "name": "fixture-project19",
+  "private": true,
+  "dependencies": {
+    "handsontable": "^18.1.0",
+    "@handsontable/react-wrapper": "^18.1.0"
+  },
+  "browserslist": [
+    "chrome >= 110",
+    "firefox >= 132",
+    "last 2 versions"
+  ]
+}

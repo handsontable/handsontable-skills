@@ -161,7 +161,7 @@ We ship the skills in several forms because different agents and surfaces accept
 
 ### Helper scripts in the handsontable skill
 
-`skills/handsontable/scripts/` holds three zero-dependency Node.js scripts. They ship inside the skill, and
+`skills/handsontable/scripts/` holds four zero-dependency Node.js scripts. They ship inside the skill, and
 `SKILL.md` tells the agent to run them rather than reason through the same checks in prose. Each one reads
 what it checks against (option names, hooks, cell types, license states) from the `handsontable` package
 installed in the user's project, so the answers match that exact version.
@@ -171,6 +171,7 @@ installed in the user's project, so the answers match that exact version.
 | `validate-settings.mjs` | Checks a settings object (JSON or an ES module) for unknown options with did-you-mean suggestions, removed options and hooks, misplaced hooks, unknown cell types, and 18.x format changes. |
 | `license-doctor.mjs` | Classifies a license key with the installed version's own classifier (18.1+) and says whether it blocks the grid. |
 | `migrate-v18.mjs` | Lists every change needed to move to 18.x with file:line and guide links; `--write` applies the mechanical ones. |
+| `migrate-v19.mjs` | The same for the move from 18.1 to 19.0, with a separate "Review" group for behavior changes that may need no code change. |
 
 Because the scripts read package internals (`dataMap/metaManager/metaSchema.js`, `core/hooks/constants.js`,
 `helpers/mixed.js`), `skill-scripts.yml` runs `tests/skill-scripts/run.sh` weekly against `handsontable@latest`

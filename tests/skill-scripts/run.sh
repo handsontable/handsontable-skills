@@ -100,4 +100,36 @@ grep -q "correctFormat" "$WORK/project/src/other-datepicker.ts" && echo "ok    m
 check "migrate: second --write is a no-op" 1 node "$SCRIPTS/migrate-v18.mjs" --project "$WORK/project" --ht-dir "$HT_DIR" --write
 expect "migrate: nothing left to auto-fix" '0 automatic fix'
 
+# migrate-v19 (an 18.x project, on a copy)
+cp -R "$FIXTURES/project19" "$WORK/project19"
+check "migrate19: dry run reports" 1 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19"
+expect "migrate19: removed license key" "grid\.ts:10  licenseKey: 'non-commercial-and-evaluation'"
+expect "migrate19: removed resize method" 'grid\.ts:30  .*saveManualColumnWidths'
+expect "migrate19: removed type" "grid\.ts:3  import type \{ Settings \}"
+expect "migrate19: Loading without Dialog" 'grid\.ts:6  registerPlugin\(Loading\)'
+expect "migrate19: icon pseudo-element" 'grid\.css:1  \.changeType::before'
+expect "migrate19: deprecated spliceCol" 'grid\.ts:36  hot\.spliceCol'
+expect "migrate19: version bump" 'Bump it to \^19 together with @handsontable/react-wrapper'
+expect "migrate19: browser targets" 'below the 19\.0 minimum: chrome >= 110\.'
+expect "migrate19: review height auto" "grid\.ts:12  height: 'auto'"
+expect "migrate19: review beforeInit in settings" 'grid\.ts:24  beforeInit\(\)'
+expect "migrate19: review dropdown strict false" "grid\.ts:19  type: 'dropdown'"
+expect "migrate19: counts" '1 automatic fix\(es\) available · 11 manual item\(s\) · 6 to review'
+if grep -qE "unrelated\.ts|my-card|addHook\('beforeInit'" <<<"$LAST"; then echo "FAIL  migrate19: reported a line it should skip"; FAIL=1; else echo "ok    migrate19: unrelated lines skipped"; fi
+grep -q "columnHeaders: true, filename" "$WORK/project19/src/grid.ts" || { echo "FAIL  migrate19: dry run changed a file"; FAIL=1; }
+check "migrate19: unknown flag is a usage error" 2 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19" --base
+check "migrate19: --write on 18.x" 1 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19" --write
+grep -q "{ colHeaders: true, filename" "$WORK/project19/src/grid.ts" && echo "ok    migrate19: export option renamed" || { echo "FAIL  migrate19: export option not renamed"; FAIL=1; }
+grep -q "^  columnHeaders: true," "$WORK/project19/src/grid.ts" && echo "ok    migrate19: columnHeaders outside an export call kept" || { echo "FAIL  migrate19: columnHeaders outside an export call rewritten"; FAIL=1; }
+grep -q "language: 'sr-SP'" "$WORK/project19/src/grid.ts" && echo "ok    migrate19: sr-SP kept on 18.x" || { echo "FAIL  migrate19: sr-SP rewritten on 18.x"; FAIL=1; }
+grep -q "non-commercial" "$WORK/project19/build/out.js" && echo "ok    migrate19: build dir untouched" || { echo "FAIL  migrate19: build dir rewritten"; FAIL=1; }
+if [ "$HT_MAJOR" -ge 19 ]; then
+  check "migrate19: --write on 19.x" 1 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19" --ht-dir "$HT_DIR" --write
+  grep -q "language: 'sr-Latn-RS'" "$WORK/project19/src/grid.ts" && grep -q "languages/sr-Latn-RS.js" "$WORK/project19/src/grid.ts" \
+    && echo "ok    migrate19: sr-SP rewritten on 19.x" || { echo "FAIL  migrate19: sr-SP not rewritten on 19.x"; FAIL=1; }
+  [ -f "$HT_DIR/languages/sr-Latn-RS.js" ] && echo "ok    migrate19: sr-Latn-RS ships in the package" || { echo "FAIL  migrate19: no languages/sr-Latn-RS.js in the package"; FAIL=1; }
+  check "migrate19: second --write is a no-op" 1 node "$SCRIPTS/migrate-v19.mjs" --project "$WORK/project19" --ht-dir "$HT_DIR" --write
+  expect "migrate19: nothing left to auto-fix" '0 automatic fix'
+fi
+
 if [ "$FAIL" = 0 ]; then echo; echo "All skill script checks passed."; else echo; echo "Some checks failed."; exit 1; fi
