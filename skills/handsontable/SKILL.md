@@ -721,7 +721,7 @@ something from scratch: https://handsontable.com/docs/react-data-grid/recipes/
 
 ## Helper Scripts (run these instead of reasoning)
 
-Three zero-dependency Node.js scripts ship in this skill's folder, under `scripts/`. Call them by their
+Four zero-dependency Node.js scripts ship in this skill's folder, under `scripts/`. Call them by their
 full path (`node <this skill's folder>/scripts/<name>.mjs`) with the user's project root as the working
 directory, or pass `--project <dir>`. They read option names, hook names, cell types and license states
 from the **installed** `handsontable` package, so their answers match the user's exact version. Prefer
