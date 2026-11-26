@@ -237,12 +237,14 @@ Docs: https://handsontable.com/docs/react-data-grid/column-summary/ · recipe: h
 
 ## Persist column layout (widths + order)
 
-Requires `manualColumnResize: true` and `manualColumnMove`. Save on user changes, restore at init (from the recipe):
+Requires `manualColumnResize: true` and `manualColumnMove`. Save on user changes, restore at init (from the 19.0 recipe). In v19.0+ an array `colWidths` is addressed by **physical** column index, so save widths in physical order; each width then stays with its column after a move. In 18.x an array `colWidths` was visual: there, save `hot.getColWidth(visualIndex)` for each visual index instead.
 
 ```javascript
 // Save — widths after resize, order after move
 afterColumnResize() {
-  const widths = hot.getColHeader().map((_, visualIndex) => hot.getColWidth(visualIndex));
+  const widths = hot.getColHeader().map((_, physicalIndex) =>
+    hot.getColWidth(hot.toVisualColumn(physicalIndex))
+  );
   saveLayout(widths, getCurrentOrder());
 },
 afterColumnMove(_movedColumns, _finalIndex, _dropIndex, _movePossible, movePerformed) {
@@ -257,6 +259,15 @@ function getCurrentOrder() {
     order.push(hot.toPhysicalColumn(visualIndex));
   }
   return order;
+}
+
+// Widths in physical order, the order colWidths reads them in (v19.0+)
+function getCurrentWidths() {
+  const widths = [];
+  for (let physicalIndex = 0; physicalIndex < hot.countCols(); physicalIndex++) {
+    widths.push(hot.getColWidth(hot.toVisualColumn(physicalIndex)));
+  }
+  return widths;
 }
 ```
 
@@ -274,7 +285,7 @@ DEFAULT_COL_WIDTHS.forEach((width, visualIndex) => {
 hot.render();
 ```
 
-Don't use `updateSettings({ colWidths, manualColumnMove })` for the reset: `manualColumnMove` reapplies as `moveColumns(array, 0)` on the already-reordered state, and `colWidths` doesn't clear the ManualColumnResize plugin's internal width map. Validate anything read back from `localStorage` before use, and version your storage key (`ht-column-layout-v1`) so schema changes fall back to defaults.
+Don't use `updateSettings({ colWidths, manualColumnMove })` for the reset: `manualColumnMove` reapplies as `moveColumns(array, 0)` on the already-reordered state, and `colWidths` doesn't clear the ManualColumnResize plugin's internal width map. Validate anything read back from `localStorage` before use, and version your storage key so schema changes fall back to defaults. The 19.0 recipe uses `-v2` because it saves widths in physical order where `-v1` saved them in visual order; bump the suffix the same way when you move a saved layout from 18.x to 19.0.
 
 Recipe: https://handsontable.com/docs/react-data-grid/recipes/performance/persist-column-layout/
 
@@ -323,7 +334,7 @@ Docs: https://handsontable.com/docs/react-data-grid/empty-data-state/
 
 ### Loading (v16.1+)
 
-Loading overlay built on the Dialog plugin — it requires the Dialog plugin to be enabled to function properly. Enable with `loading: true` or a config object (`icon` — SVG string, `title`, `description`). Control it via the plugin:
+Loading overlay built on the Dialog plugin, so register `Dialog` next to `Loading` when you register modules one by one (the full `handsontable` package and `registerAllModules()` register both). In v19.0+ `new Handsontable()` throws "The Loading plugin requires the following modules: Dialog (plugin)" when `Dialog` is missing; in 18.x `show()` silently did nothing. Enable with `loading: true` or a config object (`icon` — SVG string, `title`, `description`). Control it via the plugin:
 
 ```js
 const loadingPlugin = hotInstance.getPlugin('loading');

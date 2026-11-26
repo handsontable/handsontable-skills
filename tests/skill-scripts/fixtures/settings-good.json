@@ -1,5 +1,5 @@
 {
-  "licenseKey": "non-commercial-and-evaluation",
+  "licenseKey": "your-license-key",
   "data": [[1, 2]],
   "colHeaders": true,
   "columns": [{ "type": "numeric", "numericFormat": { "style": "currency", "currency": "EUR" }, "locale": "de-DE" }]
