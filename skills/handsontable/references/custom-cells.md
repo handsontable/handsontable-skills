@@ -47,7 +47,7 @@ const RendererComponent = (props: RendererProps) => {
   data={hotData}
   autoRowSize={false}
   autoColumnSize={false}
-  licenseKey="non-commercial-and-evaluation"
+  // licenseKey="your-license-key" // get a key at https://handsontable.com/pricing/
 >
   <HotColumn width={250} renderer={RendererComponent} />
 </HotTable>
