@@ -29,10 +29,10 @@ brings spreadsheet-like UX to web apps: cell editing, copy/paste, sorting, filte
 keyboard navigation, context menus, merged cells, frozen rows/columns, conditional formatting, data
 validation, pagination, and 400+ built-in formulas via HyperFormula.
 
-- **Latest version:** 18.1.3 (November 2026)
+- **Latest version:** 19.0.0 (November 2026)
 - **Frameworks:** Vanilla JS/TS, React (`@handsontable/react-wrapper`), Angular (`@handsontable/angular-wrapper`), Vue 3 (`@handsontable/vue3`)
 - **React wrapper requires:** React 18+
-- **License:** a free trial for evaluation, paid for commercial use, and a free license that qualifying non-commercial projects (such as teaching or academic research) apply for through Handsontable sales. **v19.0+: the `non-commercial-and-evaluation` key (and its second form) is removed and counts as an invalid key**; v18.x and earlier still accept it. Per-developer annual license, offline validation (no server connection). **v18.1+: a missing or invalid `licenseKey` blocks the grid** with a modal that cannot be closed (v18.0 showed only a notice below the grid). An expired commercial key (perpetual past its maintenance date, or a lapsed subscription) never blocks — a notice appears below the grid and in the console while every feature keeps working. A **trial** key is different: after its expiration date a message appears, and once the grace period stored in the key also passes, a blocking screen replaces the grid. **v19.0+:** a trial key, and a key whose license terms ask for it, also show a "Powered by Handsontable DataGrid" bar below the grid; no option turns it off. Entitlement license keys are also supported (v18.1+); validation stays offline for every key kind. Plans on the [pricing page](https://handsontable.com/pricing): Trial (free, 45 days) and Enterprise (commercial). The price depends on the number of end users, so ask Sales for a quote.
+- **License:** a free trial for evaluation, paid for commercial use, and a free license that qualifying non-commercial projects (such as teaching or academic research) apply for through Handsontable sales. **v19.0+: the `non-commercial-and-evaluation` key (and its second form) is removed and counts as an invalid key**; v18.x and earlier still accept it. Per-developer annual license, offline validation (no server connection). **v18.1+: a missing or invalid `licenseKey` blocks the grid** with a modal that cannot be closed (v18.0 showed only a notice below the grid). An expired commercial key (perpetual past its maintenance date, or a lapsed subscription) never blocks — a notice appears below the grid and in the console while every feature keeps working. A **trial** key is different: after its expiration date a message appears, and once the grace period stored in the key also passes, a blocking screen replaces the grid. **v19.0+:** a key whose license terms ask for it shows a "Powered by Handsontable DataGrid" bar below the grid, and no option turns it off; a trial key follows the same rule. Entitlement license keys are also supported (v18.1+); validation stays offline for every key kind. **v19.0+:** an entitlement key can name a tier. There is one tier, Professional, and it includes every feature; a key that names no tier, as every key issued before 19.0, also turns on every feature. Plans on the [pricing page](https://handsontable.com/pricing): Trial (free, 45 days) and Enterprise (commercial). The price depends on the number of end users, so ask Sales for a quote.
 - **License key in snippets:** the snippets in this skill carry the key as a commented-out line (`// licenseKey: 'your-license-key'`), as the official docs do. Uncomment it and use your own key; without a key the grid shows a blocking screen.
 
 Always check `references/docs-map.md` (in this skill folder) for the full organized link directory
@@ -54,7 +54,8 @@ relevant one before writing code in its area:
 - `references/interaction-plugins.md` — custom context-menu items, programmatic Filters and
   Search APIs, keyboard shortcuts, ColumnSummary, persisting column layout, and the
   EmptyDataState / Loading / Dialog plugins.
-- `references/type-definitions.md` — the public TypeScript type surface (v17 and v18).
+- `references/type-definitions.md` — the public TypeScript type surface (v17 and v18, with the v19.0
+  changes to the change hooks tagged inline).
 
 ### What this skill does NOT cover
 
@@ -128,8 +129,8 @@ npm install handsontable
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/styles/ht-theme-main.min.css" />
 ```
 
-To pin a specific version, add `@18.1.3` after `handsontable` in the URL (e.g.,
-`handsontable@18.1.3/dist/handsontable.full.min.js`).
+To pin a specific version, add `@19.0.0` after `handsontable` in the URL (e.g.,
+`handsontable@19.0.0/dist/handsontable.full.min.js`).
 
 ### Minimal working example
 
@@ -737,18 +738,23 @@ them over judging from memory, and quote their output.
 | Script and arguments | Use it when | Exit code |
 | --- | --- | --- |
 | `validate-settings.mjs <settings file>` (`.json`, or an `.mjs` that exports the object) | Checking a settings object: typos with did-you-mean (`notifications` → `notification`), removed options and hooks, hooks set per column, unknown cell types, Numbro `numericFormat`, string `dateFormat`/`timeFormat` on 18.x, missing `licenseKey` | 1 on errors |
-| `license-doctor.mjs --key-file <file>` (or the `HANDSONTABLE_LICENSE_KEY` env var, or `--stdin`) | "Will this key block the grid?" — prints the state the installed version assigns (`missing`, `invalid`, `trial_hard_stop`, `release_expired`, …) and whether it blocks; flags pasted whitespace, quotes, typographic dashes, HyperFormula keys. Needs 18.1+ installed; to preview an upgrade, `npm i --prefix /tmp/ht-next handsontable@latest` and pass `--ht-dir /tmp/ht-next/node_modules/handsontable` | 1 if it blocks |
+| `license-doctor.mjs --key-file <file>` (or the `HANDSONTABLE_LICENSE_KEY` env var, or `--stdin`) | "Will this key block the grid?" — prints the state the installed version assigns (`missing`, `invalid`, `trial_hard_stop`, `release_expired`, …) and whether it blocks; flags pasted whitespace, quotes, typographic dashes, HyperFormula keys, and the `non-commercial-and-evaluation` key that v19.0 removed. Needs 18.1+ installed; to preview an upgrade, `npm i --prefix /tmp/ht-next handsontable@latest` and pass `--ht-dir /tmp/ht-next/node_modules/handsontable` | 1 if it blocks |
 | `migrate-v18.mjs [path] --project <dir>` | Upgrading to 18.x: lists every file:line to change with the migration-guide link. `--write` applies the mechanical fixes (`handsontable/common` imports, `--ht-wrapper-border-radius`, `wrapperBorderRadius`; `correctFormat` lines only once 18.x is installed). Top-level `build/`, `dist/`, `out/`, `coverage/`, `vendor/` are skipped and listed; unknown flags are rejected | 1 if manual items remain |
 
 All three accept `--json`. Pass a real license key through `--key-file` or the env var (e.g. from the
-user's `.env`), not `--key`, so it stays out of the command line and the transcript; `--key` is fine for
-`non-commercial-and-evaluation`. The license doctor never prints the full key.
+user's `.env`), not `--key`, so it stays out of the command line and the transcript. The license doctor
+never prints the full key.
+
+There is no codemod for 19.0: `migrate-v18.mjs` covers the 18.x upgrade only, so for 19.0 work through
+"v19.0 Breaking Changes" below and the migration guide. v19.0+ also ships its own runtime check,
+`validateSettings()` from `handsontable/settingsSchema`, which returns `{ valid, problems }` for a settings
+object without applying it (guide: https://handsontable.com/docs/react-data-grid/validate-settings/).
 
 ## Common Pitfalls
 
-- **Missing or invalid `licenseKey` blocks the grid in v18.1+**: the grid is covered by a modal that cannot be closed (v18.0 showed only a notice below the grid). This typically bites environments where the notice used to be ignored — local dev, CI, end-to-end test suites, Storybook and demo builds. Pass a valid key to every instance in every environment: a trial key for evaluation, a commercial key, or the free license for non-commercial projects. In v19.0+ the `non-commercial-and-evaluation` key no longer counts as valid (v18.x accepts it). `licenseKey` is read once at initialization — passing a new one through `updateSettings()` does not re-evaluate it; recreate the instance instead. An expired commercial key or lapsed subscription never blocks (notice + console error, features keep working; only an expired **trial** blocks, once the key's grace period passes). v18.1 also detects expired keys again — in v18.0 that detection silently never ran — so expired-key notices reappear after upgrading.
+- **Missing or invalid `licenseKey` blocks the grid in v18.1+**: the grid is covered by a modal that cannot be closed (v18.0 showed only a notice below the grid). This typically bites environments where the notice used to be ignored — local dev, CI, end-to-end test suites, Storybook and demo builds. Pass a valid key to every instance in every environment: a trial key for evaluation, a commercial key, or the free license for non-commercial projects. In v19.0+ the `non-commercial-and-evaluation` key no longer counts as valid (v18.x accepts it). `licenseKey` is read once at initialization — passing a new one through `updateSettings()` does not re-evaluate it; recreate the instance instead (v19.0+: only the tiers a key names are read again from a key passed through `updateSettings()`; the license status and its notices still need a new instance). An expired commercial key or lapsed subscription never blocks (notice + console error, features keep working; only an expired **trial** blocks, once the key's grace period passes). v18.1 also detects expired keys again — in v18.0 that detection silently never ran — so expired-key notices reappear after upgrading.
 - **`NON_COMMERCIAL_LICENSE` (Angular) holds the removed key**: from v19.0 the `@handsontable/angular-wrapper` constant `NON_COMMERCIAL_LICENSE` is deprecated, because it holds the `non-commercial-and-evaluation` key, and it will be removed in v20.0. Pass your own key through `licenseKey` in `GridSettings`, or through the `license` field of `HOT_GLOBAL_CONFIG`.
-- **Not setting `height`**: always set it explicitly — `"auto"`, a pixel value, or a CSS string. Unsized grids historically collapsed or misbehaved; v18.1 fixed one such case (a grid with `width` but no `height` collapsing vertically), but an explicit height keeps sizing predictable across versions.
+- **Not setting `height`**: always set it explicitly — `"auto"`, a pixel value, or a CSS string. Unsized grids historically collapsed or misbehaved; v18.1 fixed one such case (a grid with `width` but no `height` collapsing vertically), but an explicit height keeps sizing predictable across versions. In v19.0+ `height: 'auto'` no longer clips the grid: it grows to fit its rows and the page or the nearest scrolling ancestor scrolls it, so set a numeric `height` when the grid should scroll inside its own box.
 - **Not filtering `loadData` in `afterChange`**: The `afterChange` hook fires on initial data load with `source === 'loadData'`. Always check the source to avoid infinite loops when syncing changes back to state.
 - **Using the old wrapper packages**: v17 removed `@handsontable/react` and `@handsontable/angular`. Use `@handsontable/react-wrapper` and `@handsontable/angular-wrapper`.
 - **Using legacy CSS imports**: `handsontable.full.min.css` was removed in v17. Use `handsontable/styles/handsontable.min.css` plus a theme file.
@@ -758,7 +764,7 @@ user's `.env`), not `--key`, so it stays out of the command line and the transcr
 - **Legacy `numericFormat.pattern` / `numericFormat.culture` removed in v18**: numbro is no longer bundled. Use `Intl.NumberFormat` options on `numericFormat` (`style`, `currency`, `minimumFractionDigits`, …) together with a `locale` on the column config.
 - **`handsontable/common` subpath is gone in v18**: import types from `handsontable` directly (e.g., `import type { GridSettings, CellChange } from 'handsontable';`).
 - **`hot.undo()` / `hot.redo()` core methods removed in v17.0**: use the UndoRedo plugin instead — `hot.getPlugin('undoRedo').undo()` / `.redo()`. (The v18.0 changelog re-lists this removal, but it shipped in v17.0.)
-- **PersistentState plugin removed in v17.0**: no drop-in replacement — persist column widths / row heights / your own state to `localStorage` manually if needed. Beware: in v18.0 the related `saveManualColumnWidths()` / `loadManualColumnWidths()` / `saveManualRowHeights()` / `loadManualRowHeights()` plugin methods exist again, but only as deprecated no-op stubs that log a warning.
+- **PersistentState plugin removed in v17.0**: no drop-in replacement — persist column widths / row heights / your own state to `localStorage` manually if needed. Beware: in v18.0 the related `saveManualColumnWidths()` / `loadManualColumnWidths()` / `saveManualRowHeights()` / `loadManualRowHeights()` plugin methods exist again, but only as deprecated no-op stubs that log a warning. v19.0 removed the stubs, so calling them throws a `TypeError`.
 - **Custom CSS targeting the wrapper**: v18 introduced new wrapper elements (`.ht-grid-content`, `.ht-slot-top`, `.ht-slot-bottom`, `.ht-overlay`). Selectors like `.ht-root-wrapper > .ht-grid > .handsontable` will break — target `.ht-grid-content > .handsontable` instead. Also, the `--ht-wrapper-border-radius` CSS var was renamed to `--ht-border-radius`, and `--ht-wrapper-border-width` / `--ht-wrapper-border-color` were removed. Their defaults were `0px` and the base border color, so v18 renders **no wrapper border by default**. To restore a visible outline, put a `box-shadow` on `.ht-root-wrapper`, scoped to your theme class — `.ht-theme-main .ht-root-wrapper { box-shadow: 0 0 0 1px #a0aec0; }`. Do **not** reach for a plain `border` on `.ht-grid-content`: it ignores `--ht-border-radius` and sits inside the new wrapper DOM rather than around it.
 
 ---
@@ -773,6 +779,52 @@ common. Point them to the relevant migration guide if they're upgrading.
 
 For the full organized directory of documentation links, read `references/docs-map.md` in this
 skill's folder.
+
+### v19.0 Breaking Changes (November 2026)
+
+A major release with a long migration guide. The first group stops a grid from working, so check it
+before you upgrade.
+
+**Blocks or breaks on upgrade:**
+
+- **The `non-commercial-and-evaluation` key is removed.** It, and its second form `ht68e-1f2b7-47158-70b05-0842f`, read as invalid, so a lock screen covers the grid (v18.1 and older still accept both). Get a trial key, the free license for non-commercial projects, or a commercial key before upgrading. The Angular `NON_COMMERCIAL_LICENSE` constant still compiles but holds the removed key; it is deprecated and 20.0 removes it. See Common Pitfalls.
+- **Higher minimum browser versions:** Chrome and Edge 130, Firefox 132, Safari 18.2 on macOS and iOS (18.1 ran on Chrome 110, Firefox 110, Safari 14.1). Apps that must support older browsers stay on 18.1.
+- **Entitlement license keys are checked more strictly.** Pass the whole key exactly as issued: the text and the bracketed block, with nothing after the block. Spaces and line breaks inside it are ignored.
+- **Removed deprecated APIs:** `saveManualColumnWidths()`, `loadManualColumnWidths()`, `saveManualRowHeights()`, `loadManualRowHeights()` and `Handsontable.helper.sanitize()` now throw `TypeError: ... is not a function`; the `columnHeaders` export option is ignored with a console warning (use `colHeaders`); the `Settings` type of `handsontable/plugins/exportFile` is now `ExportFileSettings`, and `DataProviderOptions` of `handsontable/plugins/dataProvider` is now `DataProviderFetchOptions`.
+- **`Loading` needs `Dialog`.** With modules registered one by one, `new Handsontable()` throws unless `registerPlugin(Dialog)` sits next to `registerPlugin(Loading)`. The full `handsontable` package and `registerAllModules()` register both.
+- **A `beforeInit` callback in the settings object now runs** (in 18.1 it never ran). The data is not loaded yet, so `countRows()` and `getData()` throw there. Move code that reads the grid to `afterInit`.
+
+**Behaves differently in every grid:**
+
+- **`height: 'auto'` no longer clips the grid.** The grid grows to fit its rows, the page or the nearest scrolling ancestor scrolls it, and off-screen rows stay virtualized. To keep an inner vertical scrollbar, set a numeric `height`, or place the grid in a parent with a fixed height and `overflow: auto`.
+- **`rowHeights` sets an exact row height** (it was a minimum). A row can be shorter than the default, and content that doesn't fit is clipped. To keep rows that grow with their content, rename the option to `minRowHeights` (no longer an alias of `rowHeights`) or enable `autoRowSize`.
+- **Array and function `colWidths`, `rowHeights` and `minRowHeights` use the physical index** (they used the visual one), so a size follows its column or row through a move, sort or filter. List sizes in data order and remove code that re-synced them.
+- **Undo and redo restore a recorded state** instead of running a reverse action. With `undo: false` nothing is recorded, so the plugin's `undo()` and `redo()` do nothing. Call `hot.getPlugin('undoRedo').clear()` after setup calls that should not be undoable.
+- **Confirming an editor without typing writes nothing**, and neither `beforeChange` nor `afterChange` fires. To detect an opened editor, use `afterBeginEditing`.
+- **The React and Angular wrappers pass only the settings that changed** to `updateSettings()`, so a re-render no longer resets a sort, a filter or the page. Reset state through the plugin, e.g. `hot.getPlugin('columnSorting').clearSort()`.
+- **A hook set to `null` is removed.** `updateSettings()` with a hook set to `null`, or a wrapper hook prop set to `null` / `undefined` or no longer passed (`afterChange={isTracking ? logChange : null}`), stops the callback. In 18.1 it kept running.
+- **`editor: false` is honored by typed and checkbox columns.** A column `type` no longer re-enables editing, and a `checkbox` cell renders disabled. To keep such a column editable, set `editor: true` on it, at the same configuration level as its `type`.
+- **List cell types:** `autocomplete`, `dropdown` and `handsontable` cells default `textEllipsis` to `true` (one line, set `false` to wrap), auto-sized columns of these types grow by the width of the arrow, and the editor lists of these types and of `multiselect` are positioned against the viewport, no longer clipped by the grid.
+- **An auto-sized column is no longer capped at the width of the grid.** Cap it in the `modifyColWidth` hook or set a column `width`.
+
+**Changed APIs:**
+
+- **`colToProp()` and `propToCol()` return `null`** for a column that does not exist (they returned the argument). Check the result before using it as an index; for `propToCol()` use `Number.isInteger()`.
+- **`afterChange` and `beforeChangeRender` pass `AppliedCellChange[]`.** The row of a change is `null` when the change waited for its validator and a filter or `trimRows` took the record out of the visual space meanwhile. Inside the hook, `hot.getPhysicalRowOfChange(change)` returns the physical row it was written to. In TypeScript, typed settings with a `CellChange[]` annotation on these hooks no longer compile; annotate with `AppliedCellChange`.
+- **`loadData()` drops a change that still waits for its validator** (the built-in `numeric` and `date` validators included). Call `loadData()` from `afterChange`, or use `updateData()`, which keeps the change.
+- **A custom editor's `setValue()` receives the cell value** (a number, an object, `null`), not a string. This reaches editors that extend `BaseEditor`, `editorFactory` editors, React `useHotEditor` / `EditorComponent` and Angular `HotCellEditorComponent`. Convert to a string yourself.
+- **A `dropdown` column with `strict: false` validates strictly on every path.** To accept values outside the list, use an `autocomplete` column with `strict: false`.
+- **`getCopyableData()` returns a string.** Read the stored value with `getDataAtCell()`.
+- **Icons are `<i class="ht-icon ht-icon-<name>">` elements**, not `::before` / `::after` pseudo-elements. Target `.ht-icon-<name>` in CSS and tests, or override the `--ht-icon-<name>` variable.
+- **`dataProvider`:** `updateSettings()` no longer empties or refetches a server-backed grid. Reload with `hot.getPlugin('dataProvider').fetchData()`.
+- **TypeScript:** more options and the `filters` object are type-checked, the Vue 3 wrapper type-checks its props, and React `HotColumn` no longer types hook props (pass hooks to `HotTable`).
+- **Wrappers** peer-require `handsontable@^19.0.0`; React 18+ and Angular 16–22 are unchanged.
+
+**Deprecated, removed in 20.0:** `spliceCol()` and `spliceRow()` (use `populateFromArray()` or `alter()`), writing past the last column of an object data source, and the `sr-SP` language code (use `sr-Latn-RS`).
+
+**New in 19.0** (no migration needed): a built-in XLSX engine and the `ImportFile` plugin (see `references/data-workflows.md`), the `FormulaBuilder`, `SheetsBar`, `ViewState` and `AsyncValues` plugins, row selection checkboxes (`rowSelection`), row ids (`rowId`), `fixedColumnsEnd`, `autoLink`, `maxLength`, `emptyValue`, `renderMode`, and `validateSettings()` from `handsontable/settingsSchema`. Guides are listed in `references/docs-map.md`.
+
+This list is a selection. For anything not on it, read the migration guide: https://handsontable.com/docs/react-data-grid/migration-from-18.1-to-19.0/
 
 ### v18.1.x changes (latest patch: 18.1.3, November 2026)
 
@@ -1321,7 +1373,7 @@ https://handsontable.com/docs/javascript-data-grid/recipes/cell-types/radio/
 
 # Data Workflows (Save, Sync, Validate, Import/Export)
 
-> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source). The v19.0+ Excel import and export parts: November 2026, against the 19.0 docs (19.0.0-rc10).
+> Last verified: July 2026 · against Handsontable DataGrid 18.0 docs (handsontable/handsontable@develop docs source). The v19.0+ Excel import and export parts: November 2026, against the 19.0.0 docs.
 
 End-to-end data patterns: persisting edits, syncing grids, dependent dropdowns, bulk validation,
 import/export, and undo/redo. Framework is labeled per snippet (React uses
@@ -1697,11 +1749,9 @@ cells export unlocked. Hashing the password needs `crypto.subtle`, so on a plain
 export with a password rejects; use https or localhost. It guards against accidental edits and is not
 encryption.
 
-**License (v19.0+):** Handsontable has one tier, Professional, and it includes all of Excel export. Every key
-issued before 19.0 and every key that names no tier turns all of it on. A key that names only a tier your
-version does not know unlocks none of it: the export methods throw, `supportsExportFormat('xlsx')` returns
-`false`, and the **To Excel** menu item is hidden. A key that names only the removed tier `standard` unlocks
-nothing in any version; reissue it with `tier:professional`.
+**License (v19.0+):** the tier rules are the same as for the import (see the License note under "Import: Excel
+with `ImportFile`"). When the key unlocks none of the Excel export, the export methods throw,
+`supportsExportFormat('xlsx')` returns `false`, and the **To Excel** menu item is hidden.
 
 Docs: https://handsontable.com/docs/react-data-grid/export-to-excel/ and
 https://handsontable.com/docs/react-data-grid/xlsx-engine/
@@ -1757,7 +1807,12 @@ Docs: https://handsontable.com/docs/react-data-grid/recipes/data-management/undo
 - **`afterChange` misses structural changes.** Row moves don't fire it; listen to `afterRowMove`
   and read the result with `getData()`.
 - **`prop` isn't always a column index.** With object data it's a property name; with function
-  data sources it's the accessor function — normalize with `hot.propToCol(prop)`.
+  data sources it's the accessor function — normalize with `hot.propToCol(prop)`. In v19.0+
+  `propToCol()` returns `null` for a prop that names no column (earlier versions returned the
+  argument), so check the result with `Number.isInteger()` before using it as an index.
+- **v19.0+: the row of an `afterChange` change can be `null`.** It happens when the change waited for
+  its validator and a filter or `trimRows` took the record out of the visual space meanwhile. Inside
+  the hook, `hot.getPhysicalRowOfChange(change)` returns the physical row it was written to.
 - **Changing column shape at import time:** call `updateSettings({ colHeaders, columns })`
   *before* `loadData(rows)`, or the grid won't know which keys to read from the new row objects.
 - **`setCellMeta` changes aren't visible until `hot.render()`** — dropdown `source` swaps and
@@ -1771,7 +1826,7 @@ Docs index: https://handsontable.com/docs/react-data-grid/recipes/
 
 # Handsontable DataGrid Documentation Map
 
-> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0. The three Excel import and export links are 19.0 pages that go live with the release.
+> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0. The links marked (v19.0+) were added in November 2026 from the 19.0.0 docs source.
 
 Organized link directory for all Handsontable DataGrid and HyperFormula (in-grid) documentation. Use these
 to point users to the right page. Links default to the React docs; replace `react-data-grid` with
@@ -1788,6 +1843,9 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Instance methods: https://handsontable.com/docs/react-data-grid/instance-methods/
 - Events and hooks: https://handsontable.com/docs/react-data-grid/events-and-hooks/
 - License key: https://handsontable.com/docs/react-data-grid/license-key/
+- Validate settings (v19.0+): https://handsontable.com/docs/react-data-grid/validate-settings/
+- Option levels (v19.0+): https://handsontable.com/docs/react-data-grid/configuration-option-levels/
+- Save and restore the view state (v19.0+): https://handsontable.com/docs/react-data-grid/view-state/
 - Redux integration: https://handsontable.com/docs/react-data-grid/redux/
 
 ## Styling & Themes
@@ -1823,6 +1881,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Rows pagination: https://handsontable.com/docs/react-data-grid/rows-pagination/
 - Row trimming: https://handsontable.com/docs/react-data-grid/row-trimming/
 - Row pre-populating: https://handsontable.com/docs/react-data-grid/row-prepopulating/
+- Row identity (v19.0+): https://handsontable.com/docs/react-data-grid/row-identity/
+- Row selection (v19.0+): https://handsontable.com/docs/react-data-grid/row-selection/
 
 ## Cell Features
 - Clipboard (copy/paste): https://handsontable.com/docs/react-data-grid/basic-clipboard/
@@ -1858,6 +1918,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 
 ## Formulas (HyperFormula in Handsontable DataGrid)
 - Formula calculation guide: https://handsontable.com/docs/react-data-grid/formula-calculation/
+- Formula builder (v19.0+): https://handsontable.com/docs/react-data-grid/formula-builder/
 - Formulas plugin API: https://handsontable.com/docs/react-data-grid/api/formulas/
 - HyperFormula built-in functions list: https://hyperformula.handsontable.com/docs/guide/built-in-functions.html
 - HyperFormula configuration options: https://hyperformula.handsontable.com/docs/guide/configuration-options.html
@@ -1882,6 +1943,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Export to Excel/XLSX (v17.1+): https://handsontable.com/docs/react-data-grid/export-to-excel/
 - Import from Excel (v19.0+): https://handsontable.com/docs/react-data-grid/import-from-excel/
 - XLSX engines (v19.0+): https://handsontable.com/docs/react-data-grid/xlsx-engine/
+- Import and export overview (v19.0+): https://handsontable.com/docs/react-data-grid/import-and-export/
+- Sheets bar (v19.0+): https://handsontable.com/docs/react-data-grid/sheets-bar/
 - Notification (v17.1+): https://handsontable.com/docs/react-data-grid/notification/
 - Empty data state: https://handsontable.com/docs/react-data-grid/empty-data-state/
 
@@ -1978,6 +2041,7 @@ definitions directly (version-pinned):
 - Versioning policy: https://handsontable.com/docs/react-data-grid/versioning-policy/
 - Deprecation policy: https://handsontable.com/docs/react-data-grid/deprecation-policy/
 - Long Term Support (LTS): https://handsontable.com/docs/react-data-grid/long-term-support/
+- 18.1 → 19.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-18.1-to-19.0/
 - 18.0 → 18.1 migration: https://handsontable.com/docs/react-data-grid/migration-from-18.0-to-18.1/
 - 17.1 → 18.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-17.1-to-18.0/
 - 16.2 → 17.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-16.2-to-17.0/
@@ -2439,7 +2503,9 @@ Docs: https://handsontable.com/docs/react-data-grid/modules/
 
 Curated subset of the public type surface — enough to write correctly-typed Handsontable DataGrid code
 without reading the shipped `.d.ts` files. Type names and import idioms are the **same in v17 and
-v18**; version-specific differences are tagged inline.
+v18**; version-specific differences are tagged inline. The v19.0 notes on `AppliedCellChange` were
+added in November 2026 from the `handsontable@19.0.0` source; the rest of this file has not been
+re-verified against 19.0.
 
 Types are **bundled with the package** in both versions. Never install `@types/handsontable` — it
 is a deprecated stub on npm.
@@ -2566,6 +2632,10 @@ export interface ColumnDataGetterSetterFunction {
 // A cell change: [row, column, prevValue, nextValue] — the payload of afterChange etc.
 export type CellChange = [number, string | number | ColumnDataGetterSetterFunction, CellValue, CellValue];
 
+// v19.0+: what afterChange and beforeChangeRender report. The row is `null` when the change waited for
+// its validator and a filter or another trimming feature took the record out of the visual space.
+export type AppliedCellChange = [number | null, string | number | ColumnDataGetterSetterFunction, CellValue, CellValue];
+
 // Why a change happened — always check this in afterChange to skip 'loadData'.
 export type ChangeSource = 'auto' | 'edit' | 'loadData' | 'updateData' | 'populateFromArray' |
     'spliceCol' | 'spliceRow' | 'timeValidate' | 'dateValidate' | 'validateCells' |
@@ -2671,7 +2741,7 @@ used, verbatim from v18:
 
 ```ts
 afterInit?: () => void;
-afterChange?: (changes: CellChange[] | null, source: ChangeSource) => void;
+afterChange?: (changes: CellChange[] | null, source: ChangeSource) => void;  // v19.0+: AppliedCellChange[] | null
 beforeChange?: (changes: (CellChange | null)[], source: ChangeSource) => void | boolean;  // return false to cancel
 afterSetDataAtCell?: (changes: CellChange[], source?: ChangeSource) => void;
 afterSelection?: (row: number, column: number, row2: number, column2: number,
@@ -2799,6 +2869,8 @@ import type { CellChange, ChangeSource } from 'handsontable';
 const MyGrid = () => {
   const hotRef = useRef<HotTableRef>(null);
 
+  // v19.0+: import and use `AppliedCellChange` here instead; with `CellChange[]` this prop no longer
+  // compiles, and `row` can be `null`.
   const onAfterChange = (changes: CellChange[] | null, source: ChangeSource) => {
     if (source === 'loadData' || !changes) return;
     changes.forEach(([row, prop, oldVal, newVal]) => console.log(row, prop, oldVal, newVal));

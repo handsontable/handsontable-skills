@@ -5,7 +5,9 @@
 
 Curated subset of the public type surface — enough to write correctly-typed Handsontable DataGrid code
 without reading the shipped `.d.ts` files. Type names and import idioms are the **same in v17 and
-v18**; version-specific differences are tagged inline.
+v18**; version-specific differences are tagged inline. The v19.0 notes on `AppliedCellChange` were
+added in November 2026 from the `handsontable@19.0.0` source; the rest of this file has not been
+re-verified against 19.0.
 
 Types are **bundled with the package** in both versions. Never install `@types/handsontable` — it
 is a deprecated stub on npm.
@@ -132,6 +134,10 @@ export interface ColumnDataGetterSetterFunction {
 // A cell change: [row, column, prevValue, nextValue] — the payload of afterChange etc.
 export type CellChange = [number, string | number | ColumnDataGetterSetterFunction, CellValue, CellValue];
 
+// v19.0+: what afterChange and beforeChangeRender report. The row is `null` when the change waited for
+// its validator and a filter or another trimming feature took the record out of the visual space.
+export type AppliedCellChange = [number | null, string | number | ColumnDataGetterSetterFunction, CellValue, CellValue];
+
 // Why a change happened — always check this in afterChange to skip 'loadData'.
 export type ChangeSource = 'auto' | 'edit' | 'loadData' | 'updateData' | 'populateFromArray' |
     'spliceCol' | 'spliceRow' | 'timeValidate' | 'dateValidate' | 'validateCells' |
@@ -237,7 +243,7 @@ used, verbatim from v18:
 
 ```ts
 afterInit?: () => void;
-afterChange?: (changes: CellChange[] | null, source: ChangeSource) => void;
+afterChange?: (changes: CellChange[] | null, source: ChangeSource) => void;  // v19.0+: AppliedCellChange[] | null
 beforeChange?: (changes: (CellChange | null)[], source: ChangeSource) => void | boolean;  // return false to cancel
 afterSetDataAtCell?: (changes: CellChange[], source?: ChangeSource) => void;
 afterSelection?: (row: number, column: number, row2: number, column2: number,
@@ -365,6 +371,8 @@ import type { CellChange, ChangeSource } from 'handsontable';
 const MyGrid = () => {
   const hotRef = useRef<HotTableRef>(null);
 
+  // v19.0+: import and use `AppliedCellChange` here instead; with `CellChange[]` this prop no longer
+  // compiles, and `row` can be `null`.
   const onAfterChange = (changes: CellChange[] | null, source: ChangeSource) => {
     if (source === 'loadData' || !changes) return;
     changes.forEach(([row, prop, oldVal, newVal]) => console.log(row, prop, oldVal, newVal));

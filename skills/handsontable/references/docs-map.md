@@ -1,6 +1,6 @@
 # Handsontable DataGrid Documentation Map
 
-> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0. The three Excel import and export links are 19.0 pages that go live with the release.
+> Last verified: June 2026 · Aligned with Handsontable DataGrid 18.0.0. The links marked (v19.0+) were added in November 2026 from the 19.0.0 docs source.
 
 Organized link directory for all Handsontable DataGrid and HyperFormula (in-grid) documentation. Use these
 to point users to the right page. Links default to the React docs; replace `react-data-grid` with
@@ -17,6 +17,9 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Instance methods: https://handsontable.com/docs/react-data-grid/instance-methods/
 - Events and hooks: https://handsontable.com/docs/react-data-grid/events-and-hooks/
 - License key: https://handsontable.com/docs/react-data-grid/license-key/
+- Validate settings (v19.0+): https://handsontable.com/docs/react-data-grid/validate-settings/
+- Option levels (v19.0+): https://handsontable.com/docs/react-data-grid/configuration-option-levels/
+- Save and restore the view state (v19.0+): https://handsontable.com/docs/react-data-grid/view-state/
 - Redux integration: https://handsontable.com/docs/react-data-grid/redux/
 
 ## Styling & Themes
@@ -52,6 +55,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Rows pagination: https://handsontable.com/docs/react-data-grid/rows-pagination/
 - Row trimming: https://handsontable.com/docs/react-data-grid/row-trimming/
 - Row pre-populating: https://handsontable.com/docs/react-data-grid/row-prepopulating/
+- Row identity (v19.0+): https://handsontable.com/docs/react-data-grid/row-identity/
+- Row selection (v19.0+): https://handsontable.com/docs/react-data-grid/row-selection/
 
 ## Cell Features
 - Clipboard (copy/paste): https://handsontable.com/docs/react-data-grid/basic-clipboard/
@@ -87,6 +92,7 @@ to point users to the right page. Links default to the React docs; replace `reac
 
 ## Formulas (HyperFormula in Handsontable DataGrid)
 - Formula calculation guide: https://handsontable.com/docs/react-data-grid/formula-calculation/
+- Formula builder (v19.0+): https://handsontable.com/docs/react-data-grid/formula-builder/
 - Formulas plugin API: https://handsontable.com/docs/react-data-grid/api/formulas/
 - HyperFormula built-in functions list: https://hyperformula.handsontable.com/docs/guide/built-in-functions.html
 - HyperFormula configuration options: https://hyperformula.handsontable.com/docs/guide/configuration-options.html
@@ -111,6 +117,8 @@ to point users to the right page. Links default to the React docs; replace `reac
 - Export to Excel/XLSX (v17.1+): https://handsontable.com/docs/react-data-grid/export-to-excel/
 - Import from Excel (v19.0+): https://handsontable.com/docs/react-data-grid/import-from-excel/
 - XLSX engines (v19.0+): https://handsontable.com/docs/react-data-grid/xlsx-engine/
+- Import and export overview (v19.0+): https://handsontable.com/docs/react-data-grid/import-and-export/
+- Sheets bar (v19.0+): https://handsontable.com/docs/react-data-grid/sheets-bar/
 - Notification (v17.1+): https://handsontable.com/docs/react-data-grid/notification/
 - Empty data state: https://handsontable.com/docs/react-data-grid/empty-data-state/
 
@@ -207,6 +215,7 @@ definitions directly (version-pinned):
 - Versioning policy: https://handsontable.com/docs/react-data-grid/versioning-policy/
 - Deprecation policy: https://handsontable.com/docs/react-data-grid/deprecation-policy/
 - Long Term Support (LTS): https://handsontable.com/docs/react-data-grid/long-term-support/
+- 18.1 → 19.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-18.1-to-19.0/
 - 18.0 → 18.1 migration: https://handsontable.com/docs/react-data-grid/migration-from-18.0-to-18.1/
 - 17.1 → 18.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-17.1-to-18.0/
 - 16.2 → 17.0 migration: https://handsontable.com/docs/react-data-grid/migration-from-16.2-to-17.0/
